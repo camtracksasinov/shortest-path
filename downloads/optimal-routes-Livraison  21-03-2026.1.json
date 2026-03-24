@@ -1,0 +1,1408 @@
+{
+  "VOROMAILALA": {
+    "0301TBB": {
+      "totalDistance": 0,
+      "totalDistanceKm": "0.00",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT ANTSIRANANA",
+          "coordinates": [
+            {
+              "latitude": -12.2906134046,
+              "longitude": 49.2816716903,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2897013427,
+              "longitude": 49.2825274909,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2909488134,
+              "longitude": 49.2844318593,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2918923197,
+              "longitude": 49.2835814232,
+              "radius": 50
+            }
+          ]
+        }
+      ]
+    },
+    "0304TBB": {
+      "totalDistance": 0,
+      "totalDistanceKm": "0.00",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT ANTSIRANANA",
+          "coordinates": [
+            {
+              "latitude": -12.2906134046,
+              "longitude": 49.2816716903,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2897013427,
+              "longitude": 49.2825274909,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2909488134,
+              "longitude": 49.2844318593,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2918923197,
+              "longitude": 49.2835814232,
+              "radius": 50
+            }
+          ]
+        }
+      ]
+    },
+    "2690TAR": {
+      "totalDistance": 0,
+      "totalDistanceKm": "0.00",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT ANTSIRANANA",
+          "coordinates": [
+            {
+              "latitude": -12.2906134046,
+              "longitude": 49.2816716903,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2897013427,
+              "longitude": 49.2825274909,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2909488134,
+              "longitude": 49.2844318593,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2918923197,
+              "longitude": 49.2835814232,
+              "radius": 50
+            }
+          ]
+        }
+      ]
+    },
+    "5694TBS": {
+      "totalDistance": 2916,
+      "totalDistanceKm": "2.92",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT MAHAJANGA",
+          "coordinates": [
+            {
+              "latitude": -15.70965609,
+              "longitude": 46.3062497016,
+              "radius": 100
+            },
+            {
+              "latitude": -15.7100330643,
+              "longitude": 46.3052250977,
+              "radius": 100
+            },
+            {
+              "latitude": -15.7106888946,
+              "longitude": 46.3054611321,
+              "radius": 100
+            },
+            {
+              "latitude": -15.7105236462,
+              "longitude": 46.306512558,
+              "radius": 100
+            }
+          ]
+        },
+        {
+          "step": 2,
+          "name": "STATION ATAFANA PBF",
+          "coordinates": [
+            {
+              "latitude": -15.7218415432,
+              "longitude": 46.3130781895,
+              "radius": 30
+            },
+            {
+              "latitude": -15.7219448177,
+              "longitude": 46.3123352176,
+              "radius": 30
+            },
+            {
+              "latitude": -15.7214052077,
+              "longitude": 46.3129762656,
+              "radius": 30
+            }
+          ]
+        }
+      ]
+    },
+    "6025DJ": {
+      "totalDistance": 236761,
+      "totalDistanceKm": "236.76",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT VOHEMAR",
+          "coordinates": [
+            {
+              "latitude": -13.355145553,
+              "longitude": 50.0060126288,
+              "radius": 50
+            },
+            {
+              "latitude": -13.3548115145,
+              "longitude": 50.0055995686,
+              "radius": 50
+            },
+            {
+              "latitude": -13.3551220659,
+              "longitude": 50.005258928,
+              "radius": 50
+            },
+            {
+              "latitude": -13.3555904301,
+              "longitude": 50.0057956337,
+              "radius": 50
+            },
+            {
+              "latitude": -13.3552563922,
+              "longitude": 50.0061228632,
+              "radius": 50
+            }
+          ]
+        },
+        {
+          "step": 2,
+          "name": "SS BEANANA 3 PBF",
+          "coordinates": [
+            {
+              "latitude": -14.6660595763,
+              "longitude": 49.6525931576
+            },
+            {
+              "latitude": -14.6664306349,
+              "longitude": 49.652585111
+            },
+            {
+              "latitude": -14.6664306349,
+              "longitude": 49.6532905319
+            },
+            {
+              "latitude": -14.6660725504,
+              "longitude": 49.6532878497
+            }
+          ]
+        }
+      ]
+    },
+    "8186TCA": {
+      "totalDistance": 3494,
+      "totalDistanceKm": "3.49",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT MAHAJANGA",
+          "coordinates": [
+            {
+              "latitude": -15.70965609,
+              "longitude": 46.3062497016,
+              "radius": 100
+            },
+            {
+              "latitude": -15.7100330643,
+              "longitude": 46.3052250977,
+              "radius": 100
+            },
+            {
+              "latitude": -15.7106888946,
+              "longitude": 46.3054611321,
+              "radius": 100
+            },
+            {
+              "latitude": -15.7105236462,
+              "longitude": 46.306512558,
+              "radius": 100
+            }
+          ]
+        },
+        {
+          "step": 2,
+          "name": "SS DOMOINA NG PBF",
+          "coordinates": [
+            {
+              "latitude": -15.7193732666,
+              "longitude": 46.3275674826,
+              "radius": 30
+            },
+            {
+              "latitude": -15.7190221286,
+              "longitude": 46.3275326139,
+              "radius": 30
+            },
+            {
+              "latitude": -15.7190453657,
+              "longitude": 46.3270605451,
+              "radius": 30
+            },
+            {
+              "latitude": -15.7193861761,
+              "longitude": 46.3269934899,
+              "radius": 30
+            }
+          ]
+        }
+      ]
+    },
+    "8311TBA": {
+      "totalDistance": 0,
+      "totalDistanceKm": "0.00",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT ANTSIRANANA",
+          "coordinates": [
+            {
+              "latitude": -12.2906134046,
+              "longitude": 49.2816716903,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2897013427,
+              "longitude": 49.2825274909,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2909488134,
+              "longitude": 49.2844318593,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2918923197,
+              "longitude": 49.2835814232,
+              "radius": 50
+            }
+          ]
+        }
+      ]
+    },
+    "8866TAV": {
+      "totalDistance": 0,
+      "totalDistanceKm": "0.00",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT ANTSIRANANA",
+          "coordinates": [
+            {
+              "latitude": -12.2906134046,
+              "longitude": 49.2816716903,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2897013427,
+              "longitude": 49.2825274909,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2909488134,
+              "longitude": 49.2844318593,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2918923197,
+              "longitude": 49.2835814232,
+              "radius": 50
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "STTA": {
+    "0844 TBL": {
+      "totalDistance": 161661,
+      "totalDistanceKm": "161.66",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT MAHAJANGA",
+          "coordinates": [
+            {
+              "latitude": -15.70965609,
+              "longitude": 46.3062497016,
+              "radius": 100
+            },
+            {
+              "latitude": -15.7100330643,
+              "longitude": 46.3052250977,
+              "radius": 100
+            },
+            {
+              "latitude": -15.7106888946,
+              "longitude": 46.3054611321,
+              "radius": 100
+            },
+            {
+              "latitude": -15.7105236462,
+              "longitude": 46.306512558,
+              "radius": 100
+            }
+          ]
+        },
+        {
+          "step": 2,
+          "name": "STATION KAMORO PBF",
+          "coordinates": [
+            {
+              "latitude": -16.4378966376,
+              "longitude": 47.1582058143,
+              "radius": 30
+            },
+            {
+              "latitude": -16.4377448553,
+              "longitude": 47.1584311199,
+              "radius": 30
+            },
+            {
+              "latitude": -16.4378760569,
+              "longitude": 47.1585974168,
+              "radius": 30
+            },
+            {
+              "latitude": -16.4379686698,
+              "longitude": 47.1585518193,
+              "radius": 30
+            },
+            {
+              "latitude": -16.4380355568,
+              "longitude": 47.1586215567,
+              "radius": 30
+            },
+            {
+              "latitude": -16.4382079194,
+              "longitude": 47.1584954929,
+              "radius": 30
+            }
+          ]
+        }
+      ]
+    },
+    "2291TBD": {
+      "totalDistance": 45080,
+      "totalDistanceKm": "45.08",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT MORARANO",
+          "coordinates": [
+            {
+              "latitude": -17.7628096588,
+              "longitude": 48.1783356077,
+              "radius": 100
+            },
+            {
+              "latitude": -17.7627687654,
+              "longitude": 48.1787474147,
+              "radius": 100
+            },
+            {
+              "latitude": -17.7641532136,
+              "longitude": 48.1789673558,
+              "radius": 100
+            },
+            {
+              "latitude": -17.7642502778,
+              "longitude": 48.1784899226,
+              "radius": 100
+            }
+          ]
+        },
+        {
+          "step": 2,
+          "name": "SS KIANJA NG2 PBF",
+          "coordinates": [
+            {
+              "latitude": -17.8229836858,
+              "longitude": 48.4276741571,
+              "radius": 30
+            },
+            {
+              "latitude": -17.8227717467,
+              "longitude": 48.4279638357,
+              "radius": 30
+            },
+            {
+              "latitude": -17.8229658114,
+              "longitude": 48.4281971879,
+              "radius": 30
+            },
+            {
+              "latitude": -17.8232237128,
+              "longitude": 48.4278458185,
+              "radius": 30
+            }
+          ]
+        }
+      ]
+    },
+    "3907TAN": {
+      "totalDistance": 2703,
+      "totalDistanceKm": "2.70",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT MORAMANGA",
+          "coordinates": [
+            {
+              "latitude": -18.9448052175,
+              "longitude": 48.2323772274,
+              "radius": 50
+            },
+            {
+              "latitude": -18.9446200223,
+              "longitude": 48.2325193845,
+              "radius": 50
+            },
+            {
+              "latitude": -18.9444847079,
+              "longitude": 48.232145998,
+              "radius": 50
+            },
+            {
+              "latitude": -18.9446140909,
+              "longitude": 48.2319233747,
+              "radius": 50
+            },
+            {
+              "latitude": -18.9447128944,
+              "longitude": 48.231608474,
+              "radius": 50
+            },
+            {
+              "latitude": -18.9448407343,
+              "longitude": 48.2321143709,
+              "radius": 50
+            }
+          ]
+        },
+        {
+          "step": 2,
+          "name": "DEPOT MORAMANGA",
+          "coordinates": [
+            {
+              "latitude": -18.9448052175,
+              "longitude": 48.2323772274,
+              "radius": 50
+            },
+            {
+              "latitude": -18.9446200223,
+              "longitude": 48.2325193845,
+              "radius": 50
+            },
+            {
+              "latitude": -18.9444847079,
+              "longitude": 48.232145998,
+              "radius": 50
+            },
+            {
+              "latitude": -18.9446140909,
+              "longitude": 48.2319233747,
+              "radius": 50
+            },
+            {
+              "latitude": -18.9447128944,
+              "longitude": 48.231608474,
+              "radius": 50
+            },
+            {
+              "latitude": -18.9448407343,
+              "longitude": 48.2321143709,
+              "radius": 50
+            }
+          ]
+        },
+        {
+          "step": 3,
+          "name": "DEPOT MORAMANGA",
+          "coordinates": [
+            {
+              "latitude": -18.9448052175,
+              "longitude": 48.2323772274,
+              "radius": 50
+            },
+            {
+              "latitude": -18.9446200223,
+              "longitude": 48.2325193845,
+              "radius": 50
+            },
+            {
+              "latitude": -18.9444847079,
+              "longitude": 48.232145998,
+              "radius": 50
+            },
+            {
+              "latitude": -18.9446140909,
+              "longitude": 48.2319233747,
+              "radius": 50
+            },
+            {
+              "latitude": -18.9447128944,
+              "longitude": 48.231608474,
+              "radius": 50
+            },
+            {
+              "latitude": -18.9448407343,
+              "longitude": 48.2321143709,
+              "radius": 50
+            }
+          ]
+        },
+        {
+          "step": 4,
+          "name": "SS MANGORO NG PBF",
+          "coordinates": [
+            {
+              "latitude": -18.9398906189,
+              "longitude": 48.2095864244,
+              "radius": 40
+            },
+            {
+              "latitude": -18.9396876593,
+              "longitude": 48.2097044416,
+              "radius": 40
+            },
+            {
+              "latitude": -18.9399286738,
+              "longitude": 48.2102730699,
+              "radius": 40
+            },
+            {
+              "latitude": -18.9402102797,
+              "longitude": 48.210069222,
+              "radius": 40
+            }
+          ]
+        }
+      ]
+    },
+    "4877 TAV": {
+      "totalDistance": 97092,
+      "totalDistanceKm": "97.09",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT ANTSIRABE",
+          "coordinates": [
+            {
+              "latitude": -19.8493907421,
+              "longitude": 47.0448081187,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8495357733,
+              "longitude": 47.0455571911,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8496985178,
+              "longitude": 47.0454498148,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8509321866,
+              "longitude": 47.0450394368,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8506420731,
+              "longitude": 47.0443789652,
+              "radius": 50
+            }
+          ]
+        },
+        {
+          "step": 2,
+          "name": "SS TSIKY - MHY ANDRIAMAMPIONONA PBF",
+          "coordinates": [
+            {
+              "latitude": -20.5487630659,
+              "longitude": 47.2411668401,
+              "radius": 30
+            },
+            {
+              "latitude": -20.5485320031,
+              "longitude": 47.2410434585,
+              "radius": 30
+            },
+            {
+              "latitude": -20.5486399999,
+              "longitude": 47.2412768107,
+              "radius": 30
+            },
+            {
+              "latitude": -20.5487580428,
+              "longitude": 47.2413599592,
+              "radius": 30
+            },
+            {
+              "latitude": -20.5488986895,
+              "longitude": 47.2413948279,
+              "radius": 30
+            },
+            {
+              "latitude": -20.5489790591,
+              "longitude": 47.2412633996,
+              "radius": 30
+            }
+          ]
+        }
+      ]
+    },
+    "5855TBL": {
+      "totalDistance": 10431,
+      "totalDistanceKm": "10.43",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT MAHAJANGA",
+          "coordinates": [
+            {
+              "latitude": -15.70965609,
+              "longitude": 46.3062497016,
+              "radius": 100
+            },
+            {
+              "latitude": -15.7100330643,
+              "longitude": 46.3052250977,
+              "radius": 100
+            },
+            {
+              "latitude": -15.7106888946,
+              "longitude": 46.3054611321,
+              "radius": 100
+            },
+            {
+              "latitude": -15.7105236462,
+              "longitude": 46.306512558,
+              "radius": 100
+            }
+          ]
+        },
+        {
+          "step": 2,
+          "name": "SS TSARARANO PBF",
+          "coordinates": [
+            {
+              "latitude": -15.707852528,
+              "longitude": 46.3204261053,
+              "radius": 35
+            },
+            {
+              "latitude": -15.7077440822,
+              "longitude": 46.3202249396,
+              "radius": 35
+            },
+            {
+              "latitude": -15.7073903421,
+              "longitude": 46.3204341519,
+              "radius": 35
+            },
+            {
+              "latitude": -15.7075943237,
+              "longitude": 46.3208123433,
+              "radius": 35
+            },
+            {
+              "latitude": -15.7079325712,
+              "longitude": 46.3206004488,
+              "radius": 35
+            }
+          ]
+        },
+        {
+          "step": 3,
+          "name": "SS IMALANDY PBF",
+          "coordinates": [
+            {
+              "latitude": -15.7086603533,
+              "longitude": 46.3767642566,
+              "radius": 30
+            },
+            {
+              "latitude": -15.7083298531,
+              "longitude": 46.3770619818,
+              "radius": 30
+            },
+            {
+              "latitude": -15.7088875719,
+              "longitude": 46.3777432629,
+              "radius": 30
+            },
+            {
+              "latitude": -15.7092103251,
+              "longitude": 46.3774535843,
+              "radius": 30
+            }
+          ]
+        }
+      ]
+    },
+    "7885 TBD": {
+      "totalDistance": 45080,
+      "totalDistanceKm": "45.08",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT MORARANO",
+          "coordinates": [
+            {
+              "latitude": -17.7628096588,
+              "longitude": 48.1783356077,
+              "radius": 100
+            },
+            {
+              "latitude": -17.7627687654,
+              "longitude": 48.1787474147,
+              "radius": 100
+            },
+            {
+              "latitude": -17.7641532136,
+              "longitude": 48.1789673558,
+              "radius": 100
+            },
+            {
+              "latitude": -17.7642502778,
+              "longitude": 48.1784899226,
+              "radius": 100
+            }
+          ]
+        },
+        {
+          "step": 2,
+          "name": "SS KIANJA NG2 PBF",
+          "coordinates": [
+            {
+              "latitude": -17.8229836858,
+              "longitude": 48.4276741571,
+              "radius": 30
+            },
+            {
+              "latitude": -17.8227717467,
+              "longitude": 48.4279638357,
+              "radius": 30
+            },
+            {
+              "latitude": -17.8229658114,
+              "longitude": 48.4281971879,
+              "radius": 30
+            },
+            {
+              "latitude": -17.8232237128,
+              "longitude": 48.4278458185,
+              "radius": 30
+            }
+          ]
+        }
+      ]
+    },
+    "8215TAU": {
+      "totalDistance": 6908,
+      "totalDistanceKm": "6.91",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT ANTSIRABE",
+          "coordinates": [
+            {
+              "latitude": -19.8493907421,
+              "longitude": 47.0448081187,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8495357733,
+              "longitude": 47.0455571911,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8496985178,
+              "longitude": 47.0454498148,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8509321866,
+              "longitude": 47.0450394368,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8506420731,
+              "longitude": 47.0443789652,
+              "radius": 50
+            }
+          ]
+        },
+        {
+          "step": 2,
+          "name": "DEPOT ANTSIRABE",
+          "coordinates": [
+            {
+              "latitude": -19.8493907421,
+              "longitude": 47.0448081187,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8495357733,
+              "longitude": 47.0455571911,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8496985178,
+              "longitude": 47.0454498148,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8509321866,
+              "longitude": 47.0450394368,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8506420731,
+              "longitude": 47.0443789652,
+              "radius": 50
+            }
+          ]
+        },
+        {
+          "step": 3,
+          "name": "DEPOT ANTSIRABE",
+          "coordinates": [
+            {
+              "latitude": -19.8493907421,
+              "longitude": 47.0448081187,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8495357733,
+              "longitude": 47.0455571911,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8496985178,
+              "longitude": 47.0454498148,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8509321866,
+              "longitude": 47.0450394368,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8506420731,
+              "longitude": 47.0443789652,
+              "radius": 50
+            }
+          ]
+        },
+        {
+          "step": 4,
+          "name": "STATION AMPIHAVIANA NG2 PBF",
+          "coordinates": [
+            {
+              "latitude": -19.8555130003,
+              "longitude": 47.0330394154,
+              "radius": 30
+            },
+            {
+              "latitude": -19.8555054321,
+              "longitude": 47.0331520682,
+              "radius": 30
+            },
+            {
+              "latitude": -19.8556088651,
+              "longitude": 47.0332352167,
+              "radius": 30
+            },
+            {
+              "latitude": -19.8556895933,
+              "longitude": 47.0332915431,
+              "radius": 30
+            },
+            {
+              "latitude": -19.8557905034,
+              "longitude": 47.0333585983,
+              "radius": 30
+            },
+            {
+              "latitude": -19.8558384357,
+              "longitude": 47.0332888609,
+              "radius": 30
+            },
+            {
+              "latitude": -19.8559443913,
+              "longitude": 47.0330769663,
+              "radius": 30
+            },
+            {
+              "latitude": -19.8557047298,
+              "longitude": 47.0330528265,
+              "radius": 30
+            }
+          ]
+        },
+        {
+          "step": 5,
+          "name": "SS SOAMITOMBO - MHY ANDRIAMAMPIONONA PBF",
+          "coordinates": [
+            {
+              "latitude": -19.8941944641,
+              "longitude": 47.0418605415,
+              "radius": 30
+            },
+            {
+              "latitude": -19.8941339327,
+              "longitude": 47.0423460213,
+              "radius": 30
+            },
+            {
+              "latitude": -19.8946181833,
+              "longitude": 47.0424398986,
+              "radius": 30
+            },
+            {
+              "latitude": -19.8947392458,
+              "longitude": 47.0419436899,
+              "radius": 30
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "BOTOTO ROZA": {
+    "4007FC": {
+      "totalDistance": 9847,
+      "totalDistanceKm": "9.85",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT AMBALAKELY FIAN",
+          "coordinates": [
+            {
+              "latitude": -21.4171936682,
+              "longitude": 47.1666649951,
+              "radius": 50
+            },
+            {
+              "latitude": -21.4173409907,
+              "longitude": 47.1673355474,
+              "radius": 50
+            },
+            {
+              "latitude": -21.4176256473,
+              "longitude": 47.1672523989,
+              "radius": 50
+            },
+            {
+              "latitude": -21.4174858161,
+              "longitude": 47.1666059865,
+              "radius": 50
+            }
+          ]
+        },
+        {
+          "step": 2,
+          "name": "AMBALAVOLA NG PBF",
+          "coordinates": [
+            {
+              "latitude": -21.444935695,
+              "longitude": 47.0897832865,
+              "radius": 50
+            },
+            {
+              "latitude": -21.4451029616,
+              "longitude": 47.0901990289,
+              "radius": 50
+            },
+            {
+              "latitude": -21.4455448441,
+              "longitude": 47.0899790878,
+              "radius": 50
+            },
+            {
+              "latitude": -21.4454150257,
+              "longitude": 47.0895499343,
+              "radius": 50
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "MASY GERTINE": {
+    "4964TBE": {
+      "totalDistance": 97092,
+      "totalDistanceKm": "97.09",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT ANTSIRABE",
+          "coordinates": [
+            {
+              "latitude": -19.8493907421,
+              "longitude": 47.0448081187,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8495357733,
+              "longitude": 47.0455571911,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8496985178,
+              "longitude": 47.0454498148,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8509321866,
+              "longitude": 47.0450394368,
+              "radius": 50
+            },
+            {
+              "latitude": -19.8506420731,
+              "longitude": 47.0443789652,
+              "radius": 50
+            }
+          ]
+        },
+        {
+          "step": 2,
+          "name": "SS TSIKY - MHY ANDRIAMAMPIONONA PBF",
+          "coordinates": [
+            {
+              "latitude": -20.5487630659,
+              "longitude": 47.2411668401,
+              "radius": 30
+            },
+            {
+              "latitude": -20.5485320031,
+              "longitude": 47.2410434585,
+              "radius": 30
+            },
+            {
+              "latitude": -20.5486399999,
+              "longitude": 47.2412768107,
+              "radius": 30
+            },
+            {
+              "latitude": -20.5487580428,
+              "longitude": 47.2413599592,
+              "radius": 30
+            },
+            {
+              "latitude": -20.5488986895,
+              "longitude": 47.2413948279,
+              "radius": 30
+            },
+            {
+              "latitude": -20.5489790591,
+              "longitude": 47.2412633996,
+              "radius": 30
+            }
+          ]
+        }
+      ]
+    },
+    "6908AJ": {
+      "totalDistance": 0,
+      "totalDistanceKm": "0.00",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT ANTSIRANANA",
+          "coordinates": [
+            {
+              "latitude": -12.2906134046,
+              "longitude": 49.2816716903,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2897013427,
+              "longitude": 49.2825274909,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2909488134,
+              "longitude": 49.2844318593,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2918923197,
+              "longitude": 49.2835814232,
+              "radius": 50
+            }
+          ]
+        }
+      ]
+    },
+    "8271AJ": {
+      "totalDistance": 0,
+      "totalDistanceKm": "0.00",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT ANTSIRANANA",
+          "coordinates": [
+            {
+              "latitude": -12.2906134046,
+              "longitude": 49.2816716903,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2897013427,
+              "longitude": 49.2825274909,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2909488134,
+              "longitude": 49.2844318593,
+              "radius": 50
+            },
+            {
+              "latitude": -12.2918923197,
+              "longitude": 49.2835814232,
+              "radius": 50
+            }
+          ]
+        }
+      ]
+    },
+    "9331AJ": {
+      "totalDistance": 124736,
+      "totalDistanceKm": "124.74",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT ANTSOHIHY",
+          "coordinates": [
+            {
+              "latitude": -14.8810072737,
+              "longitude": 47.9846639367,
+              "radius": 50
+            },
+            {
+              "latitude": -14.8812282741,
+              "longitude": 47.9849173175,
+              "radius": 50
+            },
+            {
+              "latitude": -14.8816686302,
+              "longitude": 47.9846284414,
+              "radius": 50
+            },
+            {
+              "latitude": -14.8812302072,
+              "longitude": 47.984296474,
+              "radius": 50
+            }
+          ]
+        },
+        {
+          "step": 2,
+          "name": "SS SOFIA NG PBF",
+          "coordinates": [
+            {
+              "latitude": -15.5767249155,
+              "longitude": 47.6256461791,
+              "radius": 30
+            },
+            {
+              "latitude": -15.57692386,
+              "longitude": 47.6258768491,
+              "radius": 30
+            },
+            {
+              "latitude": -15.5771718944,
+              "longitude": 47.625863438,
+              "radius": 30
+            },
+            {
+              "latitude": -15.5772209845,
+              "longitude": 47.6257078699,
+              "radius": 30
+            },
+            {
+              "latitude": -15.5772778257,
+              "longitude": 47.6255952171,
+              "radius": 30
+            }
+          ]
+        },
+        {
+          "step": 3,
+          "name": "SS SOFIA NG PBF",
+          "coordinates": [
+            {
+              "latitude": -15.5767249155,
+              "longitude": 47.6256461791,
+              "radius": 30
+            },
+            {
+              "latitude": -15.57692386,
+              "longitude": 47.6258768491,
+              "radius": 30
+            },
+            {
+              "latitude": -15.5771718944,
+              "longitude": 47.625863438,
+              "radius": 30
+            },
+            {
+              "latitude": -15.5772209845,
+              "longitude": 47.6257078699,
+              "radius": 30
+            },
+            {
+              "latitude": -15.5772778257,
+              "longitude": 47.6255952171,
+              "radius": 30
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "SOCIETE FIANTAKO SARLU": {
+    "9822 FE": {
+      "totalDistance": 8822,
+      "totalDistanceKm": "8.82",
+      "route": [
+        {
+          "step": 1,
+          "name": "DEPOT AMBALAKELY FIAN",
+          "coordinates": [
+            {
+              "latitude": -21.4171936682,
+              "longitude": 47.1666649951,
+              "radius": 50
+            },
+            {
+              "latitude": -21.4173409907,
+              "longitude": 47.1673355474,
+              "radius": 50
+            },
+            {
+              "latitude": -21.4176256473,
+              "longitude": 47.1672523989,
+              "radius": 50
+            },
+            {
+              "latitude": -21.4174858161,
+              "longitude": 47.1666059865,
+              "radius": 50
+            }
+          ]
+        },
+        {
+          "step": 2,
+          "name": "DEPOT AMBALAKELY FIAN",
+          "coordinates": [
+            {
+              "latitude": -21.4171936682,
+              "longitude": 47.1666649951,
+              "radius": 50
+            },
+            {
+              "latitude": -21.4173409907,
+              "longitude": 47.1673355474,
+              "radius": 50
+            },
+            {
+              "latitude": -21.4176256473,
+              "longitude": 47.1672523989,
+              "radius": 50
+            },
+            {
+              "latitude": -21.4174858161,
+              "longitude": 47.1666059865,
+              "radius": 50
+            }
+          ]
+        },
+        {
+          "step": 3,
+          "name": "DEPOT AMBALAKELY FIAN",
+          "coordinates": [
+            {
+              "latitude": -21.4171936682,
+              "longitude": 47.1666649951,
+              "radius": 50
+            },
+            {
+              "latitude": -21.4173409907,
+              "longitude": 47.1673355474,
+              "radius": 50
+            },
+            {
+              "latitude": -21.4176256473,
+              "longitude": 47.1672523989,
+              "radius": 50
+            },
+            {
+              "latitude": -21.4174858161,
+              "longitude": 47.1666059865,
+              "radius": 50
+            }
+          ]
+        },
+        {
+          "step": 4,
+          "name": "SS MATSIATRA - MHY ANDRIAMAMPIONONA PBF",
+          "coordinates": [
+            {
+              "latitude": -21.4409015684,
+              "longitude": 47.0979609916,
+              "radius": 30
+            },
+            {
+              "latitude": -21.4409190445,
+              "longitude": 47.097786648,
+              "radius": 30
+            },
+            {
+              "latitude": -21.4409290308,
+              "longitude": 47.0975613424,
+              "radius": 30
+            },
+            {
+              "latitude": -21.4412386072,
+              "longitude": 47.0976900885,
+              "radius": 30
+            },
+            {
+              "latitude": -21.4412411038,
+              "longitude": 47.0978671143,
+              "radius": 30
+            },
+            {
+              "latitude": -21.4410563567,
+              "longitude": 47.0979690382,
+              "radius": 30
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,309 @@
+{
+  "VOROMAILALA": {
+    "0301TBB": [
+      {
+        "coord": "DEPOT ANTSIRANANA",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "CIE F/SE DU THON OCE SOUTE PBF",
+        "priorite": "",
+        "hasProduct": "19.00"
+      }
+    ],
+    "0304TBB": [
+      {
+        "coord": "DEPOT ANTSIRANANA",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "CIE F/SE DU THON OCE SOUTE PBF",
+        "priorite": "",
+        "hasProduct": "14.00"
+      }
+    ],
+    "2690TAR": [
+      {
+        "coord": "DEPOT ANTSIRANANA",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "CIE F/SE DU THON OCE SOUTE PBF",
+        "priorite": "",
+        "hasProduct": "17.00"
+      }
+    ],
+    "5694TBS": [
+      {
+        "coord": "DEPOT MAHAJANGA",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "STATION ATAFANA PBF",
+        "priorite": "",
+        "hasProduct": "3.00"
+      }
+    ],
+    "6025DJ": [
+      {
+        "coord": "DEPOT VOHEMAR",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "SS BEANANA 3 PBF",
+        "priorite": "",
+        "hasProduct": "4.00"
+      }
+    ],
+    "8186TCA": [
+      {
+        "coord": "DEPOT MAHAJANGA",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "SS DOMOINA NG PBF",
+        "priorite": "",
+        "hasProduct": "4.00"
+      }
+    ],
+    "8311TBA": [
+      {
+        "coord": "DEPOT ANTSIRANANA",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "CIE F/SE DU THON OCE SOUTE PBF",
+        "priorite": "",
+        "hasProduct": "19.00"
+      }
+    ],
+    "8866TAV": [
+      {
+        "coord": "DEPOT ANTSIRANANA",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "CIE F/SE DU THON OCE SOUTE PBF",
+        "priorite": "",
+        "hasProduct": "13.00"
+      }
+    ]
+  },
+  "STTA": {
+    "0844 TBL": [
+      {
+        "coord": "DEPOT MAHAJANGA",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "STATION KAMORO PBF",
+        "priorite": "",
+        "hasProduct": "14.00"
+      }
+    ],
+    "2291TBD": [
+      {
+        "coord": "DEPOT MORARANO",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "SS KIANJA NG2 PBF",
+        "priorite": "",
+        "hasProduct": "4.00"
+      }
+    ],
+    "3907TAN": [
+      {
+        "coord": "DEPOT MORAMANGA",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "SS MANGORO NG PBF",
+        "priorite": "",
+        "hasProduct": "10.00"
+      },
+      {
+        "coord": "DEPOT MORAMANGA",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "SS MANGORO NG PBF",
+        "priorite": "",
+        "hasProduct": "11.00"
+      }
+    ],
+    "4877 TAV": [
+      {
+        "coord": "DEPOT ANTSIRABE",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "SS TSIKY - MHY ANDRIAMAMPIONONA PBF",
+        "priorite": "",
+        "hasProduct": "9.00"
+      }
+    ],
+    "5855TBL": [
+      {
+        "coord": "DEPOT MAHAJANGA",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "SS TSARARANO PBF",
+        "priorite": "",
+        "hasProduct": "5.00"
+      },
+      {
+        "coord": "SS IMALANDY PBF",
+        "priorite": "",
+        "hasProduct": "4.00"
+      }
+    ],
+    "7885 TBD": [
+      {
+        "coord": "DEPOT MORARANO",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "SS KIANJA NG2 PBF",
+        "priorite": "",
+        "hasProduct": "4.00"
+      }
+    ],
+    "8215TAU": [
+      {
+        "coord": "DEPOT ANTSIRABE",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "SS SOAMITOMBO - MHY ANDRIAMAMPIONONA PBF",
+        "priorite": "",
+        "hasProduct": "12.00"
+      },
+      {
+        "coord": "DEPOT ANTSIRABE",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "STATION AMPIHAVIANA NG2 PBF",
+        "priorite": "",
+        "hasProduct": "2.00"
+      },
+      {
+        "coord": "STATION TATAMARINA NG2 PBF",
+        "priorite": "",
+        "hasProduct": "8.00"
+      }
+    ]
+  },
+  "BOTOTO ROZA": {
+    "4007FC": [
+      {
+        "coord": "DEPOT AMBALAKELY FIAN",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "AMBALAVOLA NG PBF",
+        "priorite": "",
+        "hasProduct": "11.00"
+      }
+    ]
+  },
+  "MASY GERTINE": {
+    "4964TBE": [
+      {
+        "coord": "DEPOT ANTSIRABE",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "SS TSIKY - MHY ANDRIAMAMPIONONA PBF",
+        "priorite": "",
+        "hasProduct": "9.00"
+      }
+    ],
+    "6908AJ": [
+      {
+        "coord": "DEPOT ANTSIRANANA",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "CIE F/SE DU THON OCE SOUTE PBF",
+        "priorite": "",
+        "hasProduct": "21.00"
+      }
+    ],
+    "8271AJ": [
+      {
+        "coord": "DEPOT ANTSIRANANA",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "CIE F/SE DU THON OCE SOUTE PBF",
+        "priorite": "",
+        "hasProduct": "18.00"
+      }
+    ],
+    "9331AJ": [
+      {
+        "coord": "DEPOT ANTSOHIHY",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "SS SOFIA NG PBF",
+        "priorite": "",
+        "hasProduct": "3.00"
+      },
+      {
+        "coord": "SS SOFIA NG PBF",
+        "priorite": "",
+        "hasProduct": "9.00"
+      }
+    ]
+  },
+  "SOCIETE FIANTAKO SARLU": {
+    "9822 FE": [
+      {
+        "coord": "DEPOT AMBALAKELY FIAN",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "SS MATSIATRA - MHY ANDRIAMAMPIONONA PBF",
+        "priorite": "",
+        "hasProduct": "7.00"
+      },
+      {
+        "coord": "DEPOT AMBALAKELY FIAN",
+        "priorite": "",
+        "hasProduct": ""
+      },
+      {
+        "coord": "AMBALAVOLA NG PBF",
+        "priorite": "",
+        "hasProduct": "13.00"
+      }
+    ]
+  }
+}

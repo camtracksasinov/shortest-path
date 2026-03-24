@@ -2,10 +2,10 @@ const cron = require('node-cron');
 const { execSync } = require('child_process');
 const { sendCheckupEmail, sendStartEmail, sendConfirmationEmail } = require('./notify');
 
-console.log('⏰ Report scheduler started — checkup at 22:40, report at 23:00...');
+console.log('⏰ Report scheduler started — checkup at 22:45, report at 23:00...');
 
-// 22:40 — checkup email
-cron.schedule('40 22 * * *', async () => {
+// 22:45 — checkup email
+cron.schedule('45 22 * * *', async () => {
   console.log(`\n🔍 [${new Date().toLocaleString()}] Sending checkup email...`);
   try {
     await sendCheckupEmail();

@@ -1,9 +1,9 @@
 const cron = require('node-cron');
 const { execSync } = require('child_process');
 
-console.log('⏰ Report scheduler started — will run daily at 21:25...');
+console.log('⏰ Report scheduler started — will run daily at 21:35...');
 
-cron.schedule('25 21 * * *', () => {
+cron.schedule('35 21 * * *', () => {
   console.log(`\n🚀 [${new Date().toLocaleString()}] Running scheduled Wialon report...`);
   try {
     execSync('node wialon-report.js', { stdio: 'inherit', cwd: __dirname });

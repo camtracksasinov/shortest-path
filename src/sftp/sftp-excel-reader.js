@@ -15,7 +15,7 @@ const sftpConfig = {
 };
 
 const remotePath = process.env.SFTP_REMOTE_PATH || '/IN';
-const localDownloadPath = './downloads';
+const localDownloadPath = path.join(__dirname, '../../downloads');
 
 // Ensure download directory exists
 if (!fs.existsSync(localDownloadPath)) {

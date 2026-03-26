@@ -1,5 +1,6 @@
 const cron = require('node-cron');
 const { execSync } = require('child_process');
+const path = require('path');
 const { sendCheckupEmail, sendStartEmail, sendConfirmationEmail } = require('./notify');
 
 console.log('⏰ Report scheduler started — checkup at 22:45, report at 23:00...');
@@ -25,13 +26,11 @@ cron.schedule('00 23 * * *', async () => {
   }
 
   try {
-    execSync('node wialon-report.js', { stdio: 'inherit', cwd: __dirname });
+    execSync('node src/report/wialon-report.js', { stdio: 'inherit', cwd: path.join(__dirname, '../..') });
 
-    // Collect uploaded file names from downloads folder (rapport-effectue files modified in last 5 min)
     const fs = require('fs');
-    const path = require('path');
     const fiveMinAgo = Date.now() - 5 * 60 * 1000;
-    const uploaded = fs.readdirSync(path.join(__dirname, 'downloads'))
+    const uploaded = fs.readdirSync(path.join(__dirname, '../../downloads'))
       .filter(f => f.includes('rapport-effectue') && fs.statSync(path.join(__dirname, 'downloads', f)).mtimeMs > fiveMinAgo);
 
     await sendConfirmationEmail(uploaded.length ? uploaded : ['(see /OUT folder on SFTP)']);

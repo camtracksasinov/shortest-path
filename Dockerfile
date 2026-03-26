@@ -5,5 +5,5 @@ RUN apk add --no-cache tzdata
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY . .
-RUN mkdir -p downloads
-CMD ["node", "schedule-report.js"]
+RUN mkdir -p downloads logs
+CMD ["node", "src/report/schedule-report.js"]

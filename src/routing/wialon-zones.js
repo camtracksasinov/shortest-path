@@ -82,7 +82,7 @@ async function matchCoordinates(transporteurData) {
       }
     }
 
-    const outputPath = path.join('./downloads', 'zones-with-coordinates.json');
+    const outputPath = path.join(path.join(__dirname, '../../downloads'), 'zones-with-coordinates.json');
     fs.writeFileSync(outputPath, JSON.stringify(result, null, 2));
     console.log(`\n💾 Data saved to: ${outputPath}\n`);
 
@@ -99,7 +99,7 @@ async function matchCoordinates(transporteurData) {
 module.exports = { matchCoordinates };
 
 if (require.main === module) {
-  const dataPath = './downloads/transporteurs-vehicles-coordinates.json';
+  const dataPath = path.join(__dirname, '../../downloads/transporteurs-vehicles-coordinates.json');
   if (fs.existsSync(dataPath)) {
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
     matchCoordinates(data).catch(console.error);

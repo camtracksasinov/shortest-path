@@ -143,7 +143,7 @@ async function downloadUpdatedFileFromSFTP() {
     
     const latestFile = updatedFiles[0];
     const remoteFilePath = `${remotePath}/${latestFile.name}`;
-    const localPath = `./downloads/${latestFile.name}`;
+    const localPath = path.join(__dirname, '../../downloads', latestFile.name);
     
     console.log(`📥 Downloading: ${latestFile.name}...`);
     await sftp.get(remoteFilePath, localPath);

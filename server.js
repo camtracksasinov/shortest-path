@@ -1,8 +1,26 @@
 const express = require('express');
 const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 
-const app = express();
+const app = require('express')();
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+const WIALON_LOG = path.join(__dirname, 'logs', 'wialon-notifications.txt');
+
+function appendLog(text) {
+  const line = `[${new Date().toLocaleString()}] ${text}\n`;
+  fs.appendFileSync(WIALON_LOG, line, 'utf8');
+  console.log('📩 Wialon notification logged:', text);
+}
+
+// Wialon notification receiver
+app.post('/wialon-notify', (req, res) => {
+  const message = req.body?.message || req.body?.text || JSON.stringify(req.body);
+  appendLog(message);
+  res.status(200).send('OK');
+});
 
 // Calculate centroid of a geofence (polygon)
 function calculateCentroid(coordinates) {
@@ -36,7 +54,7 @@ function getZoneLocation(zone) {
 // Get road distance between two points using OSRM
 async function getRoadDistance(from, to) {
   try {
-    const osrmUrl = process.env.OSRM_URL || 'http://localhost:5000';
+    const osrmUrl = process.env.OSRM_URL;
     const url = `${osrmUrl}/route/v1/driving/${from.longitude},${from.latitude};${to.longitude},${to.latitude}?overview=false`;
     const response = await axios.get(url);
     return response.data.routes[0].distance; // meters

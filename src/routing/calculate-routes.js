@@ -163,7 +163,7 @@ async function calculateOptimalRoute(vehicleData) {
     }
   }
   
-  const outputPath = path.join('./downloads', 'optimal-routes.json');
+  const outputPath = path.join(path.join(__dirname, '../../downloads'), 'optimal-routes.json');
   fs.writeFileSync(outputPath, JSON.stringify(results, null, 2));
   console.log(`\n💾 Optimal routes saved to: ${outputPath}\n`);
   

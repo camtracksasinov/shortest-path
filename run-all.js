@@ -3,10 +3,10 @@ const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
 
-const { matchCoordinates } = require('./wialon-zones');
-const { calculateOptimalRoute } = require('./calculate-routes');
-const { updateExcelWithRouteOrder } = require('./update-excel-order');
-const { processExcelAndSendEmails } = require('./send-route-emails');
+const { matchCoordinates } = require('./src/routing/wialon-zones');
+const { calculateOptimalRoute } = require('./src/routing/calculate-routes');
+const { updateExcelWithRouteOrder } = require('./src/routing/update-excel-order');
+const { processExcelAndSendEmails } = require('./src/emails/send-route-emails');
 
 const sftpConfig = {
   host: process.env.SFTP_HOST,
@@ -21,9 +21,7 @@ async function downloadAllFiles() {
   const list = await sftp.list('/IN');
 
   const today = new Date();
-  const yesterday = new Date(today);
   const tomorrow = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
   tomorrow.setDate(today.getDate() + 1);
   const fmt = d => d.toISOString().split('T')[0];
 
@@ -36,12 +34,15 @@ async function downloadAllFiles() {
   const targets = list.filter(f => {
     if (!f.name.startsWith('Livraison') || !f.name.match(/\.\d+\.xlsx$/)) return false;
     const d = parseDateFromName(f.name);
-    return d === fmt(yesterday) || d === fmt(today) || d === fmt(tomorrow);
+    return d === fmt(tomorrow);
   });
 
-  if (targets.length === 0) throw new Error('No Livraison*.N.xlsx files from yesterday, today or tomorrow found in /IN');
-  console.log(`\n📊 Found ${targets.length} file(s) to process (yesterday: ${fmt(yesterday)}, today: ${fmt(today)}, tomorrow: ${fmt(tomorrow)}):`);
-  const downloaded = [];
+  if (targets.length === 0) {
+    console.log(`\nℹ️  No Livraison*.N.xlsx file for tomorrow (${fmt(tomorrow)}) found in /IN — nothing to do.`);
+    await sftp.end();
+    return [];
+  }
+  console.log(`\n📊 Found ${targets.length} file(s) for tomorrow (${fmt(tomorrow)}):`);  const downloaded = [];
   for (const file of targets) {
     const localPath = path.join(__dirname, 'downloads', file.name);
     await sftp.get(`/IN/${file.name}`, localPath);
@@ -101,9 +102,8 @@ async function parseExcelForCoordinates(filePath) {
 }
 
 async function generateReportForFile(updatedFilePath) {
-  // Inline require to avoid circular issues — wialon-report manages its own session
   const { execSync } = require('child_process');
-  execSync(`node wialon-report.js --file "${updatedFilePath}"`, { stdio: 'inherit' });
+  execSync(`node src/report/wialon-report.js --file "${updatedFilePath}"`, { stdio: 'inherit' });
 }
 
 async function processFile(filePath) {
@@ -131,9 +131,8 @@ async function processFile(filePath) {
   console.log('\n📧 Step 5b: Sending route emails to transporters...');
   await processExcelAndSendEmails(updatedPath);
 
-  console.log('\n📊 Step 6: Generating Wialon report...');
   const { execSync } = require('child_process');
-  execSync(`node wialon-report.js --file "${updatedPath}"`, { stdio: 'inherit' });
+  execSync(`node src/report/wialon-report.js --file "${updatedPath}"`, { stdio: 'inherit' });
 }
 
 async function main() {
@@ -141,6 +140,7 @@ async function main() {
   try {
     console.log('📥 Step 1: Downloading all files from SFTP...');
     const files = await downloadAllFiles();
+    if (files.length === 0) return;
 
     for (const file of files) {
       await processFile(file);

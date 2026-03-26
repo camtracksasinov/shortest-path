@@ -171,7 +171,7 @@ async function updateExcelWithRouteOrder(excelPath, optimalRoutesPath) {
 }
 
 if (require.main === module) {
-  const downloadDir = './downloads';
+  const downloadDir = path.join(__dirname, '../../downloads');
   // Only process files that match the SFTP download pattern (Livraison*.N.xlsx)
   const files = fs.readdirSync(downloadDir)
     .filter(f => f.startsWith('Livraison') && f.match(/\.\d+\.xlsx$/))

@@ -9,12 +9,12 @@
     "test": "node test-client.js",
     "test:cameroon": "node test-cameroon.js",
     "proof": "node proof-road-distance.js",
-    "sftp": "node sftp-excel-reader.js",
-    "wialon": "node wialon-zones.js",
-    "routes": "node calculate-routes.js",
+    "sftp": "node src/sftp/sftp-excel-reader.js",
+    "wialon": "node src/routing/wialon-zones.js",
+    "routes": "node src/routing/calculate-routes.js",
     "run-all": "node run-all.js",
-    "send-emails": "node send-route-emails.js",
-    "report:schedule": "node schedule-report.js"
+    "send-emails": "node src/emails/send-route-emails.js",
+    "report:schedule": "node src/report/schedule-report.js"
   },
   "author": "",
   "license": "ISC",

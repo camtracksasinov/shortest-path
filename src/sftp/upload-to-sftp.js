@@ -17,7 +17,7 @@ async function uploadUpdatedFile() {
   
   try {
     // Find the updated file
-    const downloadDir = './downloads';
+    const downloadDir = path.join(__dirname, '../../downloads');
     const files = fs.readdirSync(downloadDir)
       .filter(f => f.startsWith('Livraison') && f.match(/\.\d+_updated-with-order\.xlsx$/))
       .map(f => ({

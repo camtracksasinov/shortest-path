@@ -5,6 +5,8 @@ const path = require('path');
 const SftpClient = require('ssh2-sftp-client');
 require('dotenv').config();
 
+const DOWNLOADS = path.join(__dirname, '../../downloads');
+
 const WIALON_TOKEN = '88d76474ecf8104104e6971816190ebd7830375A8DE58679CE325865AA5FFC9763964B72';
 const BASE_URL = 'https://hst-api.wialon.com/wialon/ajax.html';
 const TIMEZONE_OFFSET = parseInt(process.env.TIMEZONE_OFFSET || '2'); // GMT offset in hours
@@ -86,7 +88,7 @@ async function downloadFromSFTP() {
   for (const file of targetFiles) {
     console.log(`  - ${file.name}`);
     const remoteFile = `/IN/${file.name}`;
-    const localFile = path.join(__dirname, 'downloads', file.name);
+    const localFile = path.join(DOWNLOADS, file.name);
     await sftp.get(remoteFile, localFile);
     downloadedFiles.push(localFile);
   }
@@ -288,86 +290,282 @@ function calculateDuration(firstIn, lastOut) {
 
 async function processReportData(rows, orderedZones, tripDetailRows) {
   const results = [];
-  
+  const detailTrips = (tripDetailRows && tripDetailRows.length > 0 && tripDetailRows[0].r) ? tripDetailRows[0].r : [];
+
+  const tsToLocale = ts => {
+    const d = new Date(ts * 1000);
+    d.setHours(d.getHours() + TIMEZONE_OFFSET);
+    return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  };
+
+  const getTripDepartureTs  = t => t.c[1]?.v ?? t.t1;
+  const getTripDepartureStr = t => (typeof t.c[1] === 'object' ? t.c[1]?.t : t.c[1]) || tsToLocale(getTripDepartureTs(t));
+  const getTripArrivalTs    = t => t.c[3]?.v ?? t.t2;
+  const getTripArrivalStr   = t => t.c[3]?.t || tsToLocale(getTripArrivalTs(t));
+  const getTripStartZone    = t => (typeof t.c[2] === 'object' ? (t.c[2]?.t || '') : (t.c[2] || ''));
+  const getTripEndZone      = t => t.c[4]?.t || '';
+
+  // No global cutoff — filtering is handled per-zone via tripsLeavingDepot and filiale candidate logic
+  const missionTrips = detailTrips;
+
   for (let zoneIdx = 0; zoneIdx < orderedZones.length; zoneIdx++) {
     const zone = orderedZones[zoneIdx];
     const zoneName = zone.clientDepot;
+    const isParking = zoneName.toLowerCase().startsWith('parking');
+    const isDepot = zoneName.toLowerCase().includes('depot') && !isParking;
+
+    // Collect all zone visits from geofence report rows
     const zoneVisits = [];
-    
     for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      if (row.c[0] === zoneName) {
-        zoneVisits.push({
-          index: i,
-          entryTime: row.c[1].v,
-          exitTime: row.c[2].v,
-          zoneName: row.c[0]
-        });
+      if (rows[i].c[0] === zoneName) {
+        zoneVisits.push({ index: i, entryTime: rows[i].c[1].v, exitTime: rows[i].c[2].v });
       }
     }
-    
+
     if (zoneVisits.length === 0) {
-      results.push({
-        zone: zoneName,
-        order: zone.order,
-        firstEntry: 'N/A',
-        lastExit: 'N/A',
-        duration: 'N/A',
-        kilometrage: 'N/A',
-        vitesseMoyenne: 'N/A',
-        vitesseMax: 'N/A',
-        trajectory: '',
-        status: 'Not visited'
-      });
+      results.push({ zone: zoneName, order: zone.order, firstEntry: 'N/A', lastExit: 'N/A', duration: 'N/A', kilometrage: 'N/A', vitesseMoyenne: 'N/A', vitesseMax: 'N/A', trajectory: '', status: 'Not visited' });
       continue;
     }
-    
-    const firstVisit = zoneVisits[0];
-    let lastVisit = zoneVisits[zoneVisits.length - 1];
-    
-    const lastVisitIndex = lastVisit.index;
-    if (lastVisitIndex + 1 < rows.length) {
-      const nextRow = rows[lastVisitIndex + 1];
-      if (nextRow.c[0] !== zoneName) {
-        lastVisit = zoneVisits[zoneVisits.length - 1];
-      } else {
-        for (let i = zoneVisits.length - 1; i >= 0; i--) {
-          const visitIdx = zoneVisits[i].index;
-          if (visitIdx + 1 < rows.length && rows[visitIdx + 1].c[0] !== zoneName) {
-            lastVisit = zoneVisits[i];
+
+    let firstEntryTs, lastExitTs, firstEntry, lastExit;
+
+    if (isParking || isDepot) {
+      // For parking/depot, derive times from trips detail rows
+      // A trip ending at this zone: c[4].t contains zone name → arrival time is c[3].t / c[3].v
+      // A trip starting from this zone: c[2].t contains zone name → departure time is c[1].t / c[1].v
+      // Use startsWith to avoid parking zone (e.g. "Parking DEPOT TOLIARA") matching depot ("DEPOT TOLIARA")
+      const tripsEndingHere   = missionTrips.filter(t => getTripEndZone(t).toUpperCase().startsWith(zoneName.toUpperCase()));
+      const tripsStartingHere = missionTrips.filter(t => getTripStartZone(t).toUpperCase().startsWith(zoneName.toUpperCase()));
+
+      // For depot: if no trips end here, vehicle never actually visited — ignore geofence rows
+      if (isDepot && tripsEndingHere.length === 0) {
+        results.push({ zone: zoneName, order: zone.order, firstEntry: '--', lastExit: '--', duration: '--', kilometrage: '--', vitesseMoyenne: '--', vitesseMax: '--', trajectory: '', status: 'Not visited' });
+        continue;
+      }
+
+      // Delivery zone names used for filtering in both parking and depot blocks
+      const deliveryZoneNames = orderedZones
+        .filter(z => !z.clientDepot.toLowerCase().startsWith('parking') && !z.clientDepot.toLowerCase().includes('depot'))
+        .map(z => z.clientDepot.toUpperCase());
+
+      if (isParking) {
+        const firstArrival = tripsEndingHere.length > 0
+          ? tripsEndingHere.reduce((min, t) => (getTripArrivalTs(t) < getTripArrivalTs(min) ? t : min))
+          : null;
+        const lastArrivalParking = tripsEndingHere.length > 0
+          ? tripsEndingHere.reduce((max, t) => (getTripArrivalTs(t) > getTripArrivalTs(max) ? t : max))
+          : null;
+
+        // First entry: earliest of first arrival OR first departure from parking
+        // (vehicle may start the day already at parking with no prior arrival trip)
+        const firstDeparture = tripsStartingHere.length > 0
+          ? tripsStartingHere.reduce((min, t) => (getTripDepartureTs(t) < getTripDepartureTs(min) ? t : min))
+          : null;
+        const firstEntryCandidate = (() => {
+          const arrTs = firstArrival ? getTripArrivalTs(firstArrival) : Infinity;
+          const depTs = firstDeparture ? getTripDepartureTs(firstDeparture) : Infinity;
+          if (depTs < arrTs) return { ts: depTs, str: getTripDepartureStr(firstDeparture) };
+          if (firstArrival) return { ts: arrTs, str: getTripArrivalStr(firstArrival) };
+          return null;
+        })();
+
+        // Last departure: last trip starting directly from parking going to a delivery zone
+        const tripsLeavingParking = tripsStartingHere.filter(t => {
+          const endZone = getTripEndZone(t).toLowerCase();
+          return !endZone.startsWith('parking') &&
+            !endZone.includes('depot') &&
+            !endZone.includes('garage') &&
+            !endZone.startsWith('périphérie') &&
+            !endZone.startsWith('peripherie');
+        });
+
+        // Find cutoff: last departure from the next depot zone going to a delivery zone
+        // This ensures we only count parking departures that are part of the mission
+        let parkingCutoffTs = Infinity;
+        for (let k = zoneIdx + 1; k < orderedZones.length; k++) {
+          const nextZoneName = orderedZones[k].clientDepot;
+          const isNextDepot = nextZoneName.toLowerCase().includes('depot') && !nextZoneName.toLowerCase().startsWith('parking');
+          if (isNextDepot) {
+            // Find last departure from this depot going to a delivery zone
+            const depotDepartures = missionTrips.filter(t => {
+              const startZone = getTripStartZone(t).toUpperCase();
+              const endZone   = getTripEndZone(t).toUpperCase();
+              return startZone.startsWith(nextZoneName.toUpperCase()) &&
+                deliveryZoneNames.some(dz => endZone.startsWith(dz));
+            });
+            if (depotDepartures.length > 0) {
+              const firstDepotDep = depotDepartures.reduce((min, t) => (getTripDepartureTs(t) < getTripDepartureTs(min) ? t : min));
+              parkingCutoffTs = getTripDepartureTs(firstDepotDep);
+            }
             break;
           }
         }
+        // Fallback: last arrival at last delivery zone
+        if (parkingCutoffTs === Infinity) {
+          for (let k = orderedZones.length - 1; k >= 0; k--) {
+            const zn = orderedZones[k].clientDepot;
+            const isP2 = zn.toLowerCase().startsWith('parking');
+            const isD2 = zn.toLowerCase().includes('depot') && !isP2;
+            if (!isP2 && !isD2) {
+              const lastDeliveryArrivals = missionTrips.filter(t => getTripEndZone(t).toUpperCase().startsWith(zn.toUpperCase()));
+              if (lastDeliveryArrivals.length > 0) {
+                const lastArr = lastDeliveryArrivals.reduce((max, t) => (getTripArrivalTs(t) > getTripArrivalTs(max) ? t : max));
+                parkingCutoffTs = getTripArrivalTs(lastArr);
+              }
+              break;
+            }
+          }
+        }
+
+        // Last exit = last departure from parking going directly to a known delivery zone
+        const tripsToDelivery = tripsStartingHere.filter(t => {
+          const endZone = getTripEndZone(t).toUpperCase();
+          return deliveryZoneNames.some(dz => endZone.startsWith(dz));
+        });
+        let lastDeparture = tripsToDelivery.length > 0
+          ? tripsToDelivery.reduce((max, t) => (getTripDepartureTs(t) > getTripDepartureTs(max) ? t : max))
+          : null;
+
+        // If no direct-to-delivery departure, fall back to last departure within cutoff
+        if (!lastDeparture) {
+          const tripsBeforeCutoff = tripsStartingHere.filter(t => getTripDepartureTs(t) <= parkingCutoffTs);
+          lastDeparture = tripsBeforeCutoff.length > 0
+            ? tripsBeforeCutoff.reduce((max, t) => (getTripDepartureTs(t) > getTripDepartureTs(max) ? t : max))
+            : null;
+        }
+
+        // Filiale fallback: find last trip departing from a filiale zone of this parking
+        // e.g. "Parking DEPOT MORAMANGA: Parking Depot Moramanga" → keywords: ["MORAMANGA"]
+        // Look for the last trip starting from a zone matching those keywords
+        const fullParkingName = lastArrivalParking ? getTripEndZone(lastArrivalParking) : (firstArrival ? getTripEndZone(firstArrival) : '');
+        const afterColonParking = fullParkingName.includes(':') ? fullParkingName.split(':')[1] : '';
+        const parkingKeywords = afterColonParking
+          .toUpperCase()
+          .split(/[\s()]+/)
+          .filter(w => w.length > 3 && !/^(PARKING|DEPOT|DE|DU|LA|LE|LES)$/.test(w));
+
+        if (parkingKeywords.length > 0) {
+          const filialeCandidates = missionTrips.filter(t => {
+            const startZone = getTripStartZone(t).toUpperCase();
+            const endZone   = getTripEndZone(t).toUpperCase();
+            return !startZone.startsWith(zoneName.toUpperCase()) &&
+              !startZone.includes('DEPOT') &&
+              parkingKeywords.some(kw => startZone.includes(kw)) &&
+              !endZone.startsWith('PARKING') && !endZone.includes('DEPOT') && !endZone.includes('GARAGE') &&
+              getTripDepartureTs(t) <= parkingCutoffTs;
+          });
+          if (filialeCandidates.length > 0) {
+            const lastFiliale = filialeCandidates.reduce((max, t) => (getTripDepartureTs(t) > getTripDepartureTs(max) ? t : max));
+            if (!lastDeparture || getTripDepartureTs(lastFiliale) > getTripDepartureTs(lastDeparture)) {
+              lastDeparture = lastFiliale;
+            }
+          }
+        }
+
+        // Last exit = max of lastDeparture and lastArrivalParking (within cutoff)
+        const lastArrivalWithinCutoff = tripsEndingHere
+          .filter(t => getTripArrivalTs(t) <= parkingCutoffTs)
+          .reduce((max, t) => (!max || getTripArrivalTs(t) > getTripArrivalTs(max) ? t : max), null);
+        const lastDepTs  = lastDeparture ? getTripDepartureTs(lastDeparture) : -Infinity;
+        const lastArrTs  = lastArrivalWithinCutoff ? getTripArrivalTs(lastArrivalWithinCutoff) : -Infinity;
+        const useArrival = lastArrTs > lastDepTs;
+
+        firstEntryTs = firstEntryCandidate ? firstEntryCandidate.ts : zoneVisits[0].entryTime;
+        lastExitTs   = useArrival ? lastArrTs : (lastDeparture ? lastDepTs : zoneVisits[zoneVisits.length - 1].exitTime);
+        firstEntry   = firstEntryCandidate ? firstEntryCandidate.str : tsToLocale(firstEntryTs);
+        lastExit     = useArrival ? getTripArrivalStr(lastArrivalWithinCutoff) : (lastDeparture ? getTripDepartureStr(lastDeparture) : tsToLocale(lastExitTs));
+      } else {
+        const firstArrival = tripsEndingHere.length > 0
+          ? tripsEndingHere.reduce((min, t) => (getTripArrivalTs(t) < getTripArrivalTs(min) ? t : min))
+          : null;
+        const lastArrival = tripsEndingHere.length > 0
+          ? tripsEndingHere.reduce((max, t) => (getTripArrivalTs(t) > getTripArrivalTs(max) ? t : max))
+          : null;
+
+        // Last departure: last trip starting from depot going to a delivery zone
+        // Exclude trips to: parking, depot, garage, or filiale/périphérie zones
+        const tripsLeavingDepot = tripsStartingHere.filter(t => {
+          const endZone = getTripEndZone(t).toLowerCase();
+          return !endZone.startsWith('parking') &&
+            !endZone.includes('depot') &&
+            !endZone.includes('garage') &&
+            !endZone.startsWith('périphérie') &&
+            !endZone.startsWith('peripherie');
+        });
+        let lastDeparture = tripsLeavingDepot.length > 0
+          ? tripsLeavingDepot.reduce((max, t) => (getTripDepartureTs(t) > getTripDepartureTs(max) ? t : max))
+          : null;
+
+        // Fallback: extract filiale keywords from the depot's full name in trip data
+        // e.g. "DEPOT TOLIARA: Depot Tulear (DTUL)" → after-colon words: ["TULEAR", "DTUL"]
+        // then find the first trip after lastArrival departing from a zone matching those keywords
+        if (!lastDeparture) {
+          const fullDepotName = lastArrival ? getTripEndZone(lastArrival) : '';
+          const afterColon = fullDepotName.includes(':') ? fullDepotName.split(':')[1] : '';
+          const filialerKeywords = afterColon
+            .toUpperCase()
+            .split(/[\s()]+/)
+            .filter(w => w.length > 2 && !/^(DEPOT|DE|DU|LA|LE|LES)$/.test(w));
+
+          if (filialerKeywords.length > 0) {
+            const lastArrivalTs = lastArrival ? getTripArrivalTs(lastArrival) : 0;
+            const candidate = missionTrips
+              .filter(t => {
+                const startZone = getTripStartZone(t).toUpperCase();
+                return getTripDepartureTs(t) >= lastArrivalTs &&
+                  filialerKeywords.some(kw => startZone.includes(kw));
+              })
+              .sort((a, b) => getTripDepartureTs(a) - getTripDepartureTs(b))[0];
+            if (candidate) lastDeparture = candidate;
+          }
+        }
+
+        firstEntryTs = firstArrival ? getTripArrivalTs(firstArrival) : zoneVisits[0].entryTime;
+        firstEntry   = firstArrival ? getTripArrivalStr(firstArrival) : tsToLocale(firstEntryTs);
+        if (lastDeparture) {
+          lastExitTs = getTripDepartureTs(lastDeparture);
+          lastExit   = getTripDepartureStr(lastDeparture);
+        } else if (lastArrival) {
+          // No outward departure found: last known time at depot is the last arrival
+          lastExitTs = getTripArrivalTs(lastArrival);
+          lastExit   = getTripArrivalStr(lastArrival);
+        } else {
+          lastExitTs = firstEntryTs;
+          lastExit   = '--';
+        }
       }
+
+      const duration = calculateDuration(firstEntryTs, lastExitTs);
+      results.push({ zone: zoneName, order: zone.order, firstEntry, lastExit, firstEntryTs, lastExitTs, duration, kilometrage: '--', vitesseMoyenne: '--', vitesseMax: '--', trajectory: '', status: 'Completed' });
+      continue;
     }
-    
-    const duration = calculateDuration(firstVisit.entryTime, lastVisit.exitTime);
-    
-    const firstEntryDate = new Date(firstVisit.entryTime * 1000);
-    firstEntryDate.setHours(firstEntryDate.getHours() + TIMEZONE_OFFSET);
-    
-    const lastExitDate = new Date(lastVisit.exitTime * 1000);
-    lastExitDate.setHours(lastExitDate.getHours() + TIMEZONE_OFFSET);
-    
-    // Get metrics and trajectory from previous zone's exit trip
+
+    // Regular delivery zone — use trips data for accurate first entry / last exit
+    const tripsEndingAtZone   = missionTrips.filter(t => getTripEndZone(t).includes(zoneName));
+    const tripsStartingAtZone = missionTrips.filter(t => getTripStartZone(t).includes(zoneName));
+
+    const firstArrivalTrip  = tripsEndingAtZone.length > 0
+      ? tripsEndingAtZone.reduce((min, t) => (getTripArrivalTs(t) < getTripArrivalTs(min) ? t : min))
+      : null;
+    const lastDepartureTrip = tripsStartingAtZone.length > 0
+      ? tripsStartingAtZone.reduce((max, t) => (getTripDepartureTs(t) > getTripDepartureTs(max) ? t : max))
+      : null;
+
+    firstEntryTs = firstArrivalTrip  ? getTripArrivalTs(firstArrivalTrip)   : zoneVisits[0].entryTime;
+    lastExitTs   = lastDepartureTrip ? getTripDepartureTs(lastDepartureTrip) : zoneVisits[zoneVisits.length - 1].exitTime;
+    firstEntry   = firstArrivalTrip  ? getTripArrivalStr(firstArrivalTrip)   : tsToLocale(firstEntryTs);
+    lastExit     = lastDepartureTrip ? getTripDepartureStr(lastDepartureTrip) : tsToLocale(lastExitTs);
+
+    const duration = calculateDuration(firstEntryTs, lastExitTs);
+
     let kilometrage = 'N/A', vitesseMoyenne = 'N/A', vitesseMax = 'N/A', trajectory = '';
-    
-    if (tripDetailRows && tripDetailRows.length > 0 && tripDetailRows[0].r) {
-      const detailTrips = tripDetailRows[0].r;
-      
-      // Check if current zone is Parking or Depot
-      const isParking = zoneName.toLowerCase().startsWith('parking');
-      const isDepot = zoneName.toLowerCase().includes('depot') && !isParking;
-      
+
+    if (missionTrips.length > 0) {
       if (zoneIdx === 0) {
-        // First zone: find first trip ending at this zone (not starting from it)
-        for (let i = 0; i < detailTrips.length; i++) {
-          const trip = detailTrips[i];
-          const startZone = trip.c[2]?.t || '';
-          const endZone = trip.c[4]?.t || '';
-          
-          if (endZone.includes(zoneName) && !startZone.includes(zoneName)) {
-            kilometrage = trip.c[8] || '0 km';
+        for (let i = 0; i < missionTrips.length; i++) {
+          const trip = missionTrips[i];
+          if (getTripEndZone(trip).includes(zoneName) && !getTripStartZone(trip).includes(zoneName)) {
+            kilometrage    = trip.c[8] || '0 km';
             vitesseMoyenne = trip.c[10] || '0 km/h';
             const maxSpeedObj = trip.c[11];
             vitesseMax = (typeof maxSpeedObj === 'object' && maxSpeedObj.t) ? maxSpeedObj.t : maxSpeedObj || '0 km/h';
@@ -376,53 +574,31 @@ async function processReportData(rows, orderedZones, tripDetailRows) {
           }
         }
       } else {
-        // For other zones, find last trip from previous zone to current zone
         const prevZoneName = orderedZones[zoneIdx - 1].clientDepot;
-        
-        // Calculate trajectory number: count depots (not parking) up to this point
         let trajectCount = 0;
         for (let j = 0; j <= zoneIdx; j++) {
           const zName = orderedZones[j].clientDepot.toLowerCase();
           const isPark = zName.startsWith('parking');
-          const isDep = zName.includes('depot') && !isPark;
-          if (isDep || (!isPark && !isDep && j > 0)) {
-            trajectCount++;
-          }
+          const isDep  = zName.includes('depot') && !isPark;
+          if (isDep || (!isPark && !isDep && j > 0)) trajectCount++;
         }
-        
-        for (let i = detailTrips.length - 1; i >= 0; i--) {
-          const trip = detailTrips[i];
-          const startZone = trip.c[2]?.t || '';
-          const endZone = trip.c[4]?.t || '';
-          
-          if (startZone.includes(prevZoneName) && endZone.includes(zoneName)) {
-            kilometrage = trip.c[8] || 'N/A';
+        for (let i = missionTrips.length - 1; i >= 0; i--) {
+          const trip = missionTrips[i];
+          if (getTripStartZone(trip).includes(prevZoneName) && getTripEndZone(trip).includes(zoneName)) {
+            kilometrage    = trip.c[8] || 'N/A';
             vitesseMoyenne = trip.c[10] || 'N/A';
             const maxSpeedObj = trip.c[11];
             vitesseMax = (typeof maxSpeedObj === 'object' && maxSpeedObj.t) ? maxSpeedObj.t : maxSpeedObj || 'N/A';
-            trajectory = isParking ? '' : `${trajectCount}`;
+            trajectory = `${trajectCount}`;
             break;
           }
         }
       }
     }
-    
-    results.push({
-      zone: zoneName,
-      order: zone.order,
-      firstEntry: firstEntryDate.toLocaleString(),
-      lastExit: lastExitDate.toLocaleString(),
-      firstEntryTs: firstVisit.entryTime,
-      lastExitTs: lastVisit.exitTime,
-      duration: duration,
-      kilometrage,
-      vitesseMoyenne,
-      vitesseMax,
-      trajectory,
-      status: 'Completed'
-    });
+
+    results.push({ zone: zoneName, order: zone.order, firstEntry, lastExit, firstEntryTs, lastExitTs, duration, kilometrage, vitesseMoyenne, vitesseMax, trajectory, status: 'Completed' });
   }
-  
+
   return results;
 }
 
@@ -887,7 +1063,7 @@ async function generateReport(targetFile = null) {
     addNightTable(nightSheet, 'Conduite de nuit', allNightRows, 1);
 
     const outputName = path.basename(downloadedFile).replace(/(\.\d+)_updated-with-order\.xlsx$/, '$1_rapport-effectue.xlsx');
-    const outputPath = path.join(__dirname, 'downloads', outputName);
+    const outputPath = path.join(DOWNLOADS, outputName);
     await workbookOut.xlsx.writeFile(outputPath);
     
     console.log('\n✅ Report generation completed!');

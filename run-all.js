@@ -20,15 +20,16 @@ async function downloadAllFiles() {
   await sftp.connect(sftpConfig);
 
   // ── TEST MODE: use specific file instead of tomorrow's date filter ──────────
-  const TEST_FILE = 'Livraison 26-03-2026.1.xlsx';
-  const localPath = path.join(__dirname, 'downloads', TEST_FILE);
-  await sftp.get(`/IN/${TEST_FILE}`, localPath);
-  console.log(`  ✅ Downloaded (test): ${TEST_FILE}`);
-  await sftp.end();
-  return [localPath];
+  // const TEST_FILE = 'Livraison 26-03-2026.1.xlsx';
+  // const localPath = path.join(__dirname, 'downloads', TEST_FILE);
+  // await sftp.get(`/IN/${TEST_FILE}`, localPath);
+  // console.log(`  ✅ Downloaded (test): ${TEST_FILE}`);
+  // await sftp.end();
+  // return [localPath];
   // ────────────────────────────────────────────────────────────────────────────
 
-  /*
+  const list = await sftp.list('/IN');
+
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
@@ -61,7 +62,6 @@ async function downloadAllFiles() {
   }
   await sftp.end();
   return downloaded;
-  */
 }
 
 async function uploadUpdatedFile(localPath) {
@@ -112,11 +112,6 @@ async function parseExcelForCoordinates(filePath) {
   return transporteurMap;
 }
 
-async function generateReportForFile(updatedFilePath) {
-  const { execSync } = require('child_process');
-  execSync(`node src/report/wialon-report.js --file "${updatedFilePath}"`, { stdio: 'inherit' });
-}
-
 async function processFile(filePath) {
   const fileName = path.basename(filePath);
   console.log(`\n${'='.repeat(80)}`);
@@ -142,8 +137,20 @@ async function processFile(filePath) {
   console.log('\n📧 Step 5b: Sending route emails to transporters...');
   await processExcelAndSendEmails(updatedPath);
 
-  const { execSync } = require('child_process');
-  execSync(`node src/report/wialon-report.js --file "${updatedPath}"`, { stdio: 'inherit' });
+  // Step 6: Run report only if the updated file's date matches today
+  const baseName = path.basename(updatedPath);
+  const isUpdatedFile = baseName.includes('_updated-with-order');
+  const dateMatch = baseName.match(/(\d{2})-(\d{2})-(\d{4})/);
+  const fileDate = dateMatch ? `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}` : null;
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  if (isUpdatedFile && fileDate === todayStr) {
+    console.log(`\n📊 Step 6: Running report for today's file (${baseName})...`);
+    const { execSync } = require('child_process');
+    execSync(`node src/report/wialon-report.js --file "${updatedPath}"`, { stdio: 'inherit' });
+  } else {
+    console.log(`\nℹ️  Step 6: Report skipped — file date (${fileDate}) ≠ today (${todayStr}). Will run on delivery day.`);
+  }
 }
 
 async function main() {

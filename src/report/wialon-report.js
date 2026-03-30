@@ -676,7 +676,8 @@ async function generateReport(targetFile = null) {
       const headers = data[0];
       headers.push("Heure d'arrivée", "Heure de départ", "Délai de livraison", "Kilométrage effectif, km", "Vitesse moyenne", "Vitesse max", "Survitesse en ville", "Survitesse Hors Aglomération", "Conduite de nuit", "Conduite Continue");
       
-      const dateStr = reportDate ? reportDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+      // Report date: always use today's date (actual execution date) regardless of Excel date
+      const dateStr = new Date().toISOString().split('T')[0];
       const from = Math.floor(new Date(`${dateStr}T00:00:00Z`).getTime() / 1000);
       const to = Math.floor(new Date(`${dateStr}T23:59:59Z`).getTime() / 1000);
 

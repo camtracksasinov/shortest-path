@@ -8,9 +8,26 @@ const WIALON_BASE_URL = process.env.WIALON_BASE_URL;
 
 let sessionId = null;
 
+async function withRetry(fn, retries = 3, delayMs = 2000) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      const retryable = err.code === 'ECONNRESET' || err.code === 'ECONNABORTED' ||
+        err.message.includes('socket hang up') || err.message.includes('ETIMEDOUT');
+      if (retryable && attempt < retries) {
+        console.log(`⚠️  Network error (${err.message}), retrying ${attempt}/${retries - 1}...`);
+        await new Promise(r => setTimeout(r, delayMs * attempt));
+      } else {
+        throw err;
+      }
+    }
+  }
+}
+
 async function getSession() {
   const url = `${WIALON_BASE_URL}/wialon/ajax.html?svc=token/login&params=${JSON.stringify({token: WIALON_TOKEN})}`;
-  const response = await axios.get(url);
+  const response = await withRetry(() => axios.get(url, { timeout: 30000 }));
   if (response.data.error) throw new Error('Failed to get session');
   sessionId = response.data.eid;
   return sessionId;
@@ -18,7 +35,7 @@ async function getSession() {
 
 async function getResourceId(sid) {
   const url = `${WIALON_BASE_URL}/wialon/ajax.html?svc=core/update_data_flags&params=${JSON.stringify({spec:[{type:"type",data:"avl_resource",flags:8193,mode:1}]})}&sid=${sid}`;
-  const response = await axios.get(url);
+  const response = await withRetry(() => axios.get(url, { timeout: 30000 }));
   if (response.data.error) throw new Error('Session expired');
   const galanaResource = response.data.find(r => r.d.nm === "Galana ressource");
   return galanaResource ? galanaResource.d.id : null;
@@ -26,7 +43,7 @@ async function getResourceId(sid) {
 
 async function getZoneData(resourceId, sid) {
   const url = `${WIALON_BASE_URL}/wialon/ajax.html?svc=resource/get_zone_data&params=${JSON.stringify({itemId: resourceId})}&sid=${sid}`;
-  const response = await axios.get(url);
+  const response = await withRetry(() => axios.get(url, { timeout: 60000 }));
   if (response.data.error) throw new Error('Session expired');
   return response.data;
 }

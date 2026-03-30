@@ -18,8 +18,17 @@ const sftpConfig = {
 async function downloadAllFiles() {
   const sftp = new SftpClient();
   await sftp.connect(sftpConfig);
-  const list = await sftp.list('/IN');
 
+  // ── TEST MODE: use specific file instead of tomorrow's date filter ──────────
+  const TEST_FILE = 'Livraison 26-03-2026.1.xlsx';
+  const localPath = path.join(__dirname, 'downloads', TEST_FILE);
+  await sftp.get(`/IN/${TEST_FILE}`, localPath);
+  console.log(`  ✅ Downloaded (test): ${TEST_FILE}`);
+  await sftp.end();
+  return [localPath];
+  // ────────────────────────────────────────────────────────────────────────────
+
+  /*
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
@@ -28,7 +37,7 @@ async function downloadAllFiles() {
   const parseDateFromName = name => {
     const match = name.match(/(\d{2})-(\d{2})-(\d{4})/);
     if (!match) return null;
-    return `${match[3]}-${match[2]}-${match[1]}`; // YYYY-MM-DD
+    return `${match[3]}-${match[2]}-${match[1]}`;
   };
 
   const targets = list.filter(f => {
@@ -42,7 +51,8 @@ async function downloadAllFiles() {
     await sftp.end();
     return [];
   }
-  console.log(`\n📊 Found ${targets.length} file(s) for tomorrow (${fmt(tomorrow)}):`);  const downloaded = [];
+  console.log(`\n📊 Found ${targets.length} file(s) for tomorrow (${fmt(tomorrow)}):`);
+  const downloaded = [];
   for (const file of targets) {
     const localPath = path.join(__dirname, 'downloads', file.name);
     await sftp.get(`/IN/${file.name}`, localPath);
@@ -51,6 +61,7 @@ async function downloadAllFiles() {
   }
   await sftp.end();
   return downloaded;
+  */
 }
 
 async function uploadUpdatedFile(localPath) {

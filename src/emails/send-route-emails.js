@@ -1,7 +1,6 @@
 const XLSX = require('xlsx');
 const nodemailer = require('nodemailer');
 const SftpClient = require('ssh2-sftp-client');
-const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
@@ -14,107 +13,66 @@ const sftpConfig = {
 
 const remotePath = process.env.SFTP_REMOTE_PATH || '/IN';
 
-// Email transporter configuration
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST || 'smtp.gmail.com',
   port: process.env.EMAIL_PORT || 587,
   secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
-  }
+  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASSWORD }
 });
 
+// ─── INDIVIDUAL EMAIL (commented out — kept for reference) ───────────────────
+/*
 function generateEmailHTML(vehicleData) {
   const { transporteur, vehicule, camionCiterne, chauffeur, depotDepart, heureArrivee, routes } = vehicleData;
-  
   let routesHTML = '';
   routes.forEach((route, index) => {
-    const step = index + 1;
-    const go = route.GO ? parseFloat(route.GO).toFixed(3) : '0.000';
-    const sc = route.SC ? parseFloat(route.SC).toFixed(3) : '0.000';
-    const pl = route.PL ? parseFloat(route.PL).toFixed(3) : '0.000';
+    const go    = route.GO ? parseFloat(route.GO).toFixed(3) : '0.000';
+    const sc    = route.SC ? parseFloat(route.SC).toFixed(3) : '0.000';
+    const pl    = route.PL ? parseFloat(route.PL).toFixed(3) : '0.000';
     const total = (parseFloat(go) + parseFloat(sc) + parseFloat(pl)).toFixed(3);
-    
     routesHTML += `
     <tr>
-      <td style="border: 1px solid #000; padding: 8px; text-align: center;">${step}</td>
-      <td style="border: 1px solid #000; padding: 8px;">${route.pointLivraison}</td>
-      <td style="border: 1px solid #000; padding: 8px; text-align: right;">${go}</td>
-      <td style="border: 1px solid #000; padding: 8px; text-align: right;">${sc}</td>
-      <td style="border: 1px solid #000; padding: 8px; text-align: right;">${pl}</td>
-      <td style="border: 1px solid #000; padding: 8px; text-align: right;">${total}</td>
+      <td style="border:1px solid #000;padding:8px;text-align:center;">${index + 1}</td>
+      <td style="border:1px solid #000;padding:8px;">${route.pointLivraison}</td>
+      <td style="border:1px solid #000;padding:8px;text-align:right;">${go}</td>
+      <td style="border:1px solid #000;padding:8px;text-align:right;">${sc}</td>
+      <td style="border:1px solid #000;padding:8px;text-align:right;">${pl}</td>
+      <td style="border:1px solid #000;padding:8px;text-align:right;">${total}</td>
     </tr>`;
   });
-  
-  return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <style>
-    body { font-family: Arial, sans-serif; }
-    .header { background-color: #4472C4; color: white; padding: 10px; text-align: center; font-size: 14px; font-weight: bold; }
-    .info-section { margin: 20px 0; }
-    .info-row { margin: 5px 0; }
-    .label { font-weight: bold; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th { background-color: #4472C4; color: white; border: 1px solid #000; padding: 8px; text-align: center; }
-    td { border: 1px solid #000; padding: 8px; }
-  </style>
-</head>
-<body>
-  <div class="header">📍 PLAN DE TRAJET – LIVRAISON CARBURANT</div>
-  
-  <div class="info-section">
-    <div class="info-row"><span class="label">Transporteur :</span> ${transporteur}</div>
-    <div class="info-row"><span class="label">Véhicule:</span> ${vehicule}</div>
-    <div class="info-row"><span class="label">Camion-citerne :</span> ${camionCiterne}</div>
-    <div class="info-row"><span class="label">Chauffeur :</span> ${chauffeur}</div>
-  </div>
-  
-  <div class="info-section">
-    <div class="info-row"><span class="label">Dépôt de départ :</span> ${depotDepart}</div>
-    <div class="info-row"><span class="label">Heure D'arrivée Dépôt:</span> ${heureArrivee}</div>
-  </div>
-  
-  <div style="margin-top: 20px;">
-    <div style="color: red; font-weight: bold;">● Itinéraire optimisé (ordre consécutif)</div>
-  </div>
-  
-  <table>
-    <thead>
-      <tr>
-        <th>Ordre</th>
-        <th>Point de livraison</th>
-        <th>GO</th>
-        <th>SC</th>
-        <th>PL</th>
-        <th>Total (m³)</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${routesHTML}
-    </tbody>
-  </table>
-</body>
-</html>
-  `;
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>
+    <div style="background:#4472C4;color:white;padding:10px;text-align:center;font-weight:bold;">
+      📍 PLAN DE TRAJET – LIVRAISON CARBURANT
+    </div>
+    <p><b>Transporteur :</b> ${transporteur}</p>
+    <p><b>Véhicule :</b> ${vehicule}</p>
+    <p><b>Chauffeur :</b> ${chauffeur}</p>
+    <p><b>Dépôt de départ :</b> ${depotDepart}</p>
+    <p><b>Heure d'arrivée dépôt :</b> ${heureArrivee}</p>
+    <p style="color:red;font-weight:bold;">● Itinéraire optimisé (ordre consécutif)</p>
+    <table style="width:100%;border-collapse:collapse;">
+      <thead><tr>
+        <th style="background:#4472C4;color:white;border:1px solid #000;padding:8px;">Ordre</th>
+        <th style="background:#4472C4;color:white;border:1px solid #000;padding:8px;">Point de livraison</th>
+        <th style="background:#4472C4;color:white;border:1px solid #000;padding:8px;">GO</th>
+        <th style="background:#4472C4;color:white;border:1px solid #000;padding:8px;">SC</th>
+        <th style="background:#4472C4;color:white;border:1px solid #000;padding:8px;">PL</th>
+        <th style="background:#4472C4;color:white;border:1px solid #000;padding:8px;">Total (m³)</th>
+      </tr></thead>
+      <tbody>${routesHTML}</tbody>
+    </table>
+  </body></html>`;
 }
 
 async function sendRouteEmail(vehicleData, recipientEmail) {
   const subject = `Plan de Trajet - ${vehicleData.transporteur} - ${vehicleData.vehicule}`;
-  const html = generateEmailHTML(vehicleData);
-  
-  const mailOptions = {
-    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-    to: recipientEmail,
-    subject: subject,
-    html: html
-  };
-  
   try {
-    const info = await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      to: recipientEmail,
+      subject,
+      html: generateEmailHTML(vehicleData)
+    });
     console.log(`✅ Email sent to ${recipientEmail} for ${vehicleData.transporteur} - ${vehicleData.vehicule}`);
     return { success: true, messageId: info.messageId };
   } catch (error) {
@@ -122,36 +80,125 @@ async function sendRouteEmail(vehicleData, recipientEmail) {
     return { success: false, error: error.message };
   }
 }
+*/
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Generate one grouped HTML email for all vehicles of a transporter
+function generateGroupedEmailHTML(transporteurName, vehicles, deliveryDate) {
+  const dateLabel = deliveryDate ? `du ${deliveryDate}` : '';
+
+  const vehicleListHTML = vehicles
+    .map(v => `<li style="margin:4px 0;"><strong>${v.vehicule}</strong>${v.chauffeur ? ` — Chauffeur : ${v.chauffeur}` : ''}</li>`)
+    .join('');
+
+  const vehicleSectionsHTML = vehicles.map(v => {
+    let routesHTML = '';
+    v.routes.forEach((route, index) => {
+      const go    = route.GO ? parseFloat(route.GO).toFixed(3) : '0.000';
+      const sc    = route.SC ? parseFloat(route.SC).toFixed(3) : '0.000';
+      const pl    = route.PL ? parseFloat(route.PL).toFixed(3) : '0.000';
+      const total = (parseFloat(go) + parseFloat(sc) + parseFloat(pl)).toFixed(3);
+      routesHTML += `
+      <tr>
+        <td style="border:1px solid #000;padding:6px;text-align:center;">${index + 1}</td>
+        <td style="border:1px solid #000;padding:6px;">${route.pointLivraison}</td>
+        <td style="border:1px solid #000;padding:6px;text-align:right;">${go}</td>
+        <td style="border:1px solid #000;padding:6px;text-align:right;">${sc}</td>
+        <td style="border:1px solid #000;padding:6px;text-align:right;">${pl}</td>
+        <td style="border:1px solid #000;padding:6px;text-align:right;">${total}</td>
+      </tr>`;
+    });
+
+    return `
+    <div style="margin-top:30px;border-top:3px solid #4472C4;padding-top:16px;">
+      <div style="background:#4472C4;color:white;padding:8px 12px;font-weight:bold;font-size:14px;">
+        🚛 Véhicule : ${v.vehicule}
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:13px;">
+        <tr>
+          <td style="padding:4px 8px;width:50%;"><b>Chauffeur :</b> ${v.chauffeur || 'N/A'}</td>
+          <td style="padding:4px 8px;"><b>Heure de départ :</b> ${v.heureArrivee || 'N/A'}</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 8px;"><b>Dépôt de départ :</b> ${v.depotDepart || 'N/A'}</td>
+          <td style="padding:4px 8px;"><b>Trajet :</b> ${v.routes.length} point(s) de livraison</td>
+        </tr>
+      </table>
+      <p style="color:red;font-weight:bold;margin:10px 0 4px;">● Itinéraire optimisé (ordre consécutif)</p>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr>
+            <th style="background:#4472C4;color:white;border:1px solid #000;padding:6px;">Ordre</th>
+            <th style="background:#4472C4;color:white;border:1px solid #000;padding:6px;">Point de livraison</th>
+            <th style="background:#4472C4;color:white;border:1px solid #000;padding:6px;">GO</th>
+            <th style="background:#4472C4;color:white;border:1px solid #000;padding:6px;">SC</th>
+            <th style="background:#4472C4;color:white;border:1px solid #000;padding:6px;">PL</th>
+            <th style="background:#4472C4;color:white;border:1px solid #000;padding:6px;">Total (m³)</th>
+          </tr>
+        </thead>
+        <tbody>${routesHTML}</tbody>
+      </table>
+    </div>`;
+  }).join('');
+
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family:Arial,sans-serif;max-width:900px;margin:auto;">
+  <div style="background:#4472C4;color:white;padding:12px;text-align:center;font-size:16px;font-weight:bold;">
+    📍 PLAN DE TRAJET – LIVRAISON CARBURANT ${dateLabel}
+  </div>
+
+  <div style="margin:16px 0;">
+    <p style="margin:4px 0;"><b>Transporteur :</b> ${transporteurName}</p>
+    <p style="margin:4px 0;"><b>Véhicules concernés :</b></p>
+    <ul style="margin:4px 0 0 20px;">${vehicleListHTML}</ul>
+  </div>
+
+  ${vehicleSectionsHTML}
+</body>
+</html>`;
+}
+
+async function sendGroupedEmail(transporteurName, email, vehicles, deliveryDate) {
+  const dateLabel = deliveryDate ? ` – ${deliveryDate}` : '';
+  const subject = `Plan de Trajet de Livraison${dateLabel} – ${transporteurName}`;
+  try {
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      to: email,
+      subject,
+      html: generateGroupedEmailHTML(transporteurName, vehicles, deliveryDate)
+    });
+    console.log(`✅ Grouped email sent to ${email} (${transporteurName} — ${vehicles.length} vehicle(s))`);
+    return true;
+  } catch (error) {
+    console.error(`❌ Failed to send email to ${email} (${transporteurName}):`, error.message);
+    return false;
+  }
+}
 
 async function downloadUpdatedFileFromSFTP() {
   const sftp = new SftpClient();
-  
   try {
     console.log('📥 Connecting to SFTP to download updated file...\n');
     await sftp.connect(sftpConfig);
-    
     const fileList = await sftp.list(remotePath);
     const updatedFiles = fileList
       .filter(f => f.name.includes('_updated-with-order.xlsx'))
       .sort((a, b) => b.modifyTime - a.modifyTime);
-    
     if (updatedFiles.length === 0) {
       console.log('❌ No updated file found on SFTP server.');
       await sftp.end();
       return null;
     }
-    
     const latestFile = updatedFiles[0];
-    const remoteFilePath = `${remotePath}/${latestFile.name}`;
     const localPath = path.join(__dirname, '../../downloads', latestFile.name);
-    
     console.log(`📥 Downloading: ${latestFile.name}...`);
-    await sftp.get(remoteFilePath, localPath);
+    await sftp.get(`${remotePath}/${latestFile.name}`, localPath);
     console.log(`✅ Downloaded to: ${localPath}\n`);
-    
     await sftp.end();
     return localPath;
-    
   } catch (error) {
     console.error('❌ SFTP Error:', error.message);
     await sftp.end();
@@ -160,118 +207,104 @@ async function downloadUpdatedFileFromSFTP() {
 }
 
 async function processExcelAndSendEmails(excelPath) {
-  console.log('📧 Processing Excel file and sending route emails...\n');
-  
+  console.log('📧 Processing Excel file and sending grouped route emails...\n');
+
   const workbook = XLSX.readFile(excelPath);
-  const sheetName = workbook.SheetNames[0];
-  const worksheet = workbook.Sheets[sheetName];
+  const worksheet = workbook.Sheets[workbook.SheetNames[0]];
   const data = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
-  
+
   const headers = data[0];
   const transporteurIdx = headers.findIndex(h => h && h.toString().toLowerCase().includes('transporteur'));
-  const vehiculeIdx = headers.findIndex(h => h && (h.toString().toLowerCase().includes('camion') || h.toString().toLowerCase().includes('vehicule')));
-  const emailIdx = headers.findIndex(h => h && h.toString().toLowerCase().includes('email transp'));
+  const vehiculeIdx     = headers.findIndex(h => h && (h.toString().toLowerCase().includes('camion') || h.toString().toLowerCase().includes('vehicule')));
+  const emailIdx        = headers.findIndex(h => h && h.toString().toLowerCase().includes('email transp'));
+  const chauffeurIdx    = headers.findIndex(h => h && h.toString().toLowerCase().includes('chauffeur'));
+  const rvArriveIdx     = headers.findIndex(h => h && h.toString().toLowerCase().includes('rv arrivé parking'));
+  const coordIdx        = headers.findIndex(h => h && h.toString().toLowerCase().includes('coordonnees zone'));
+  const villeIdx        = headers.findIndex(h => h && h.toString().toLowerCase().includes('ville'));
+  const trajectIdx      = headers.findIndex(h => h && h.toString().toLowerCase().includes('trajet'));
+  const goIdx           = headers.findIndex(h => h === 'GO');
+  const scIdx           = headers.findIndex(h => h === 'SC');
+  const plIdx           = headers.findIndex(h => h === 'PL');
+
+  // Extract delivery date from first data row
   const dateIdx = headers.findIndex(h => h && h.toString().toLowerCase().includes('date'));
-  const chauffeurIdx = headers.findIndex(h => h && h.toString().toLowerCase().includes('chauffeur'));
-  const rvArriveIdx = headers.findIndex(h => h && h.toString().toLowerCase().includes('rv arrivé parking'));
-  const coordIdx = headers.findIndex(h => h && h.toString().toLowerCase().includes('coordonnees zone'));
-  const villeIdx = headers.findIndex(h => h && h.toString().toLowerCase().includes('ville'));
-  const trajectIdx = headers.findIndex(h => h && h.toString().toLowerCase().includes('trajet'));
-  const goIdx = headers.findIndex(h => h === 'GO');
-  const scIdx = headers.findIndex(h => h === 'SC');
-  const plIdx = headers.findIndex(h => h === 'PL');
-  
-  // Group by vehicle
-  const vehicleGroups = {};
+  let deliveryDate = '';
+  if (dateIdx !== -1 && data[1] && data[1][dateIdx]) {
+    const raw = data[1][dateIdx];
+    let d = null;
+    if (typeof raw === 'number') d = new Date((raw - 25569) * 86400 * 1000);
+    else if (typeof raw === 'string') d = new Date(raw);
+    if (d && !isNaN(d.getTime())) {
+      deliveryDate = d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+  }
+
+  // Group by transporteur → then by vehicle
+  const transporteurMap = {};
+
   for (let i = 1; i < data.length; i++) {
-    const row = data[i];
+    const row         = data[i];
     const transporteur = row[transporteurIdx];
-    const vehicule = row[vehiculeIdx];
-    const key = `${transporteur}|${vehicule}`;
-    
-    if (!vehicleGroups[key]) {
-      vehicleGroups[key] = {
-        transporteur,
+    const vehicule    = row[vehiculeIdx];
+    if (!transporteur || !vehicule) continue;
+
+    if (!transporteurMap[transporteur]) {
+      transporteurMap[transporteur] = { email: row[emailIdx], vehicles: {} };
+    }
+    // Always keep the latest email found for this transporter
+    if (row[emailIdx]) transporteurMap[transporteur].email = row[emailIdx];
+
+    if (!transporteurMap[transporteur].vehicles[vehicule]) {
+      transporteurMap[transporteur].vehicles[vehicule] = {
         vehicule,
-        email: row[emailIdx],
-        date: row[dateIdx],
-        chauffeur: row[chauffeurIdx],
+        chauffeur:   row[chauffeurIdx] || '',
+        heureArrivee: row[rvArriveIdx] || '',
         depotDepart: '',
-        heureArrivee: row[rvArriveIdx],
-        camionCiterne: '',
         routes: []
       };
     }
-    
-    // Set depot depart from first trajectory (trajet 1)
-    if (row[trajectIdx] === 1 && row[coordIdx]) {
-      vehicleGroups[key].depotDepart = row[coordIdx];
-    }
-    
-    // Only add rows with trajectory numbers (actual delivery points)
+
+    const veh = transporteurMap[transporteur].vehicles[vehicule];
+
+    if (row[trajectIdx] === 1 && row[coordIdx]) veh.depotDepart = row[coordIdx];
+
     if (row[trajectIdx] && row[coordIdx] && !row[coordIdx].toString().toLowerCase().includes('parking')) {
-      vehicleGroups[key].routes.push({
-        ordre: row[trajectIdx],
+      veh.routes.push({
+        ordre:          row[trajectIdx],
         pointLivraison: row[coordIdx],
-        ville: row[villeIdx] || '',
-        GO: row[goIdx] || 0,
-        SC: row[scIdx] || 0,
-        PL: row[plIdx] || 0
+        ville:          row[villeIdx] || '',
+        GO:             row[goIdx] || 0,
+        SC:             row[scIdx] || 0,
+        PL:             row[plIdx] || 0
       });
     }
   }
-  
-  // Send emails to all vehicles with their actual emails
-  const vehicles = Object.values(vehicleGroups);
-  
-  if (vehicles.length === 0) {
-    console.log('❌ No vehicles found in Excel file');
-    return;
-  }
-  
-  console.log(`\n📨 Sending emails to ${vehicles.length} transporters...\n`);
-  
-  let successCount = 0;
-  let failCount = 0;
-  
-  for (const vehicle of vehicles) {
-    if (vehicle.email && vehicle.routes.length > 0) {
-      console.log(`📧 Sending to ${vehicle.email} (${vehicle.transporteur} - ${vehicle.vehicule})...`);
-      const result = await sendRouteEmail(vehicle, vehicle.email);
-      
-      if (result.success) {
-        successCount++;
-      } else {
-        failCount++;
-      }
-      
-      // Add delay to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    } else {
-      console.log(`⚠️  Skipping ${vehicle.transporteur} - ${vehicle.vehicule}: ${!vehicle.email ? 'No email' : 'No routes'}`);
+
+  let successCount = 0, failCount = 0;
+  const entries = Object.entries(transporteurMap);
+  console.log(`📨 Sending grouped emails to ${entries.length} transporter(s)...\n`);
+
+  for (const [transporteurName, { email, vehicles }] of entries) {
+    const vehicleList = Object.values(vehicles).filter(v => v.routes.length > 0);
+    if (!email || vehicleList.length === 0) {
+      console.log(`⚠️  Skipping ${transporteurName}: ${!email ? 'no email' : 'no routes'}`);
+      continue;
     }
+    const ok = await sendGroupedEmail(transporteurName, email, vehicleList, deliveryDate);
+    ok ? successCount++ : failCount++;
+    await new Promise(resolve => setTimeout(resolve, 1000));
   }
-  
-  console.log(`\n📊 Summary: ${successCount} emails sent successfully, ${failCount} failed`);
+
+  console.log(`\n📊 Summary: ${successCount} emails sent, ${failCount} failed`);
 }
 
 if (require.main === module) {
   (async () => {
-    // Download updated file from SFTP
     const excelPath = await downloadUpdatedFileFromSFTP();
-    
-    if (!excelPath) {
-      console.log('❌ Could not retrieve updated file from SFTP.');
-      process.exit(1);
-    }
-    
-    // Process and send emails
+    if (!excelPath) { console.log('❌ Could not retrieve updated file from SFTP.'); process.exit(1); }
     await processExcelAndSendEmails(excelPath);
     console.log('\n✅ Email processing completed');
-  })().catch(error => {
-    console.error('\n❌ Error:', error.message);
-    process.exit(1);
-  });
+  })().catch(error => { console.error('\n❌ Error:', error.message); process.exit(1); });
 }
 
-module.exports = { sendRouteEmail, processExcelAndSendEmails };
+module.exports = { processExcelAndSendEmails };

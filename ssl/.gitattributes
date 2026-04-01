@@ -1,0 +1,5 @@
+# Force all SSL certificate files to be tracked with no restrictions
+* -export-ignore
+*.key -export-ignore
+*.crt -export-ignore
+*.ca-bundle -export-ignore

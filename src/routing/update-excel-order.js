@@ -183,7 +183,7 @@ if (require.main === module) {
     process.exit(1);
   }
   
-  const optimalRoutesPath = './downloads/optimal-routes.json';
+  const optimalRoutesPath = path.join(__dirname, '../../downloads/optimal-routes.json');
   if (!fs.existsSync(optimalRoutesPath)) {
     console.log('❌ Optimal routes not found.');
     process.exit(1);

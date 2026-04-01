@@ -7,16 +7,14 @@ require('dotenv').config();
 
 const DOWNLOADS = path.join(__dirname, '../../downloads');
 
-const WIALON_TOKEN = '88d76474ecf8104104e6971816190ebd7830375A8DE58679CE325865AA5FFC9763964B72';
-const BASE_URL = 'https://hst-api.wialon.com/wialon/ajax.html';
-const TIMEZONE_OFFSET = parseInt(process.env.TIMEZONE_OFFSET || '2'); // GMT offset in hours
+const { configA, configB } = require('../sftp/sftp-config');
 
-const sftpConfig = {
-  host: process.env.SFTP_HOST,
-  port: process.env.SFTP_PORT || 22,
-  username: process.env.SFTP_USERNAME,
-  password: process.env.SFTP_PASSWORD
-};
+const WIALON_TOKEN = process.env.WIALON_TOKEN;
+const BASE_URL = `${process.env.WIALON_BASE_URL}/wialon/ajax.html`;
+const TIMEZONE_OFFSET = parseInt(process.env.TIMEZONE_OFFSET || '2');
+
+const sftpConfig = configA;  // Galana — download updated files from /IN
+const sftpUploadConfig = configB; // Camtrack — upload rapport to /OUT
 
 let sessionId = null;
 let sftp = new SftpClient();
@@ -102,7 +100,7 @@ async function uploadToSFTP(localFile, originalName) {
   console.log('📤 Uploading report to SFTP /OUT folder...');
   
   const sftpUpload = new SftpClient();
-  await sftpUpload.connect(sftpConfig);
+  await sftpUpload.connect(sftpUploadConfig);
   
   const outputName = path.basename(originalName).replace(/(\.\d+)_updated-with-order\.xlsx$/, '$1_rapport-effectue.xlsx');
   const remoteFile = `/OUT/${outputName}`;

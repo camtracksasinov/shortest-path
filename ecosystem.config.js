@@ -1,9 +1,11 @@
+const path = require('path');
+
 module.exports = {
   apps: [
     {
       name: 'galana-scheduler',
-      script: 'src/report/schedule-report.js',
-      cwd: '/home/kamsu-perold/shortest-path-way-app',
+      script: path.join(__dirname, 'src/report/schedule-report.js'),
+      cwd: __dirname,
       watch: false,
       autorestart: true,
       restart_delay: 5000,
@@ -12,8 +14,8 @@ module.exports = {
         NODE_ENV: 'production',
         TZ: 'UTC'
       },
-      log_file: 'logs/scheduler.log',
-      error_file: 'logs/scheduler-error.log',
+      log_file: path.join(__dirname, 'logs/scheduler.log'),
+      error_file: path.join(__dirname, 'logs/scheduler-error.log'),
       time: true
     }
   ]

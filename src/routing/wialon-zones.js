@@ -99,7 +99,7 @@ async function matchCoordinates(transporteurData) {
       }
     }
 
-    const outputPath = path.join(path.join(__dirname, '../../downloads'), 'zones-with-coordinates.json');
+    const outputPath = path.join(__dirname, '../../downloads', 'zones-with-coordinates.json');
     fs.writeFileSync(outputPath, JSON.stringify(result, null, 2));
     console.log(`\n💾 Data saved to: ${outputPath}\n`);
 

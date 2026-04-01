@@ -4,14 +4,9 @@ const SftpClient = require('ssh2-sftp-client');
 const path = require('path');
 require('dotenv').config();
 
-const sftpConfig = {
-  host: process.env.SFTP_HOST,
-  port: process.env.SFTP_PORT || 22,
-  username: process.env.SFTP_USERNAME,
-  password: process.env.SFTP_PASSWORD,
-};
+const { configA } = require('../sftp/sftp-config');
 
-const remotePath = process.env.SFTP_REMOTE_PATH || '/IN';
+const remotePath = process.env.SOURCE_DIR || '/IN';
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST || 'smtp.gmail.com',
@@ -182,7 +177,7 @@ async function downloadUpdatedFileFromSFTP() {
   const sftp = new SftpClient();
   try {
     console.log('📥 Connecting to SFTP to download updated file...\n');
-    await sftp.connect(sftpConfig);
+    await sftp.connect(configA);
     const fileList = await sftp.list(remotePath);
     const updatedFiles = fileList
       .filter(f => f.name.includes('_updated-with-order.xlsx'))

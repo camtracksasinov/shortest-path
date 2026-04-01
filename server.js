@@ -1,11 +1,38 @@
+const https = require('https');
+// const http = require('http');
 const express = require('express');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
-const app = require('express')();
+const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ── SSL certificates ──────────────────────────────────────────────────────────
+const sslOptions = {
+  key:  fs.readFileSync('./ssl/camtrack_net.key'),
+  cert: fs.readFileSync('./ssl/camtrack_net.crt'),
+  ca:   fs.readFileSync('./ssl/camtrack_net.ca-bundle')
+};
+
+// ── HTTP (local/dev) — commented out for production ──────────────────────────
+// const PORT = process.env.PORT || 5458;
+// const server = http.createServer(app);
+// server.listen(PORT, () => console.log(`Server running on http port ${PORT}`));
+
+// ── HTTPS (production) ────────────────────────────────────────────────────────
+const PORT = process.env.PORT || 443;
+const server = https.createServer(sslOptions, app);
+
+async function startServer() {
+  server.listen(PORT, () =>
+    console.log(`🔒 Server running on HTTPS port ${PORT}`)
+  );
+}
+
+startServer();
 
 const WIALON_LOG = path.join(__dirname, 'logs', 'wialon-notifications.txt');
 
@@ -172,7 +199,4 @@ app.post('/shortest-path', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5458;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+

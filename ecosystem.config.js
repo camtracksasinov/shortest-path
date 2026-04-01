@@ -17,6 +17,22 @@ module.exports = {
       log_file: path.join(__dirname, 'logs/scheduler.log'),
       error_file: path.join(__dirname, 'logs/scheduler-error.log'),
       time: true
+    },
+    {
+      name: 'galana-server',
+      script: path.join(__dirname, 'server.js'),
+      cwd: __dirname,
+      watch: false,
+      autorestart: true,
+      restart_delay: 5000,
+      max_restarts: 10,
+      env: {
+        NODE_ENV: 'production',
+        TZ: 'UTC'
+      },
+      log_file: path.join(__dirname, 'logs/server.log'),
+      error_file: path.join(__dirname, 'logs/server-error.log'),
+      time: true
     }
   ]
 };

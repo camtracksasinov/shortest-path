@@ -3,14 +3,15 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
-const sftpConfig = {
-  host: process.env.SFTP_HOST || 'your-server-host.com',
-  port: process.env.SFTP_PORT || 22,
-  username: process.env.SFTP_USERNAME || 'your-username',
-  password: process.env.SFTP_PASSWORD || 'your-password',
-};
+const { configA: sftpConfig, remotePath } = require('./sftp-config');
 
-const remotePath = process.env.SFTP_REMOTE_PATH || '/IN';
+// ── Camtrack server config (COMMENTED OUT — now using Galana via sftp-config.js)
+// const sftpConfig = {
+//   host: process.env.SFTP_HOST || 'bi.camtrack.mg',
+//   port: process.env.SFTP_PORT || 22,
+//   username: process.env.SFTP_USERNAME || 'usertestgalana',
+//   password: process.env.SFTP_PASSWORD
+// };
 
 async function uploadUpdatedFile() {
   const sftp = new SftpClient();

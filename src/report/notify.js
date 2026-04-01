@@ -4,7 +4,7 @@ require('dotenv').config();
 const ADMIN_EMAIL = 'peroldulrich@icloud.com';
 
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+  host: process.env.EMAIL_HOST || 'smtp.office365.com',
   port: process.env.EMAIL_PORT || 587,
   secure: false,
   auth: {
@@ -12,6 +12,13 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASSWORD
   }
 });
+
+function nowCameroon() {
+  return new Date().toLocaleString('fr-FR', { timeZone: 'Africa/Douala', hour12: false });
+}
+function nowMadagascar() {
+  return new Date().toLocaleString('fr-FR', { timeZone: 'Indian/Antananarivo', hour12: false });
+}
 
 async function send(subject, html) {
   await transporter.sendMail({
@@ -22,44 +29,85 @@ async function send(subject, html) {
   });
 }
 
-async function sendCheckupEmail() {
-  const now = new Date().toLocaleString();
+// ── 1. Warning email — 30 min before execution ────────────────────────────────
+async function sendWarningEmail(type, scheduledTimeCameroon) {
+  const label = type === 'report' ? '📊 Report' : '🔄 Routing';
   await send(
-    '✅ Scheduler Checkup — System OK',
+    `⚠️ ${label} — Starts in 30 minutes`,
     `<p>Hello,</p>
-     <p>This is your scheduled <strong>22:30 checkup</strong>.</p>
-     <p>The report scheduler is running normally on the server.</p>
-     <p><strong>Time:</strong> ${now}</p>
-     <p>The Wialon report generation will start shortly.</p>`
+     <p>This is a <strong>30-minute warning</strong>.</p>
+     <p>The <strong>${label}</strong> process is scheduled to start at
+        <strong>${scheduledTimeCameroon} (Cameroon)</strong>.</p>
+     <table style="border-collapse:collapse;font-size:14px">
+       <tr><td style="padding:4px 12px 4px 0"><strong>Cameroon</strong></td><td>${nowCameroon()}</td></tr>
+       <tr><td style="padding:4px 12px 4px 0"><strong>Madagascar</strong></td><td>${nowMadagascar()}</td></tr>
+     </table>
+     <p>The server is running normally. ✅</p>`
   );
-  console.log('📧 Checkup email sent to', ADMIN_EMAIL);
+  console.log(`📧 Warning email sent (${type}) to ${ADMIN_EMAIL}`);
 }
 
-async function sendStartEmail() {
-  const now = new Date().toLocaleString();
+// ── 2. Start email ────────────────────────────────────────────────────────────
+async function sendProcessStartEmail(type) {
+  const label = type === 'report' ? '📊 Report' : '🔄 Routing';
   await send(
-    '🚀 Wialon Report — Generation Started',
+    `🚀 ${label} — Process Started`,
     `<p>Hello,</p>
-     <p>The Wialon report generation has <strong>started</strong>.</p>
-     <p><strong>Time:</strong> ${now}</p>
-     <p>You will receive a confirmation email once it is uploaded successfully.</p>`
+     <p>The <strong>${label}</strong> process has just <strong>started</strong>.</p>
+     <table style="border-collapse:collapse;font-size:14px">
+       <tr><td style="padding:4px 12px 4px 0"><strong>Cameroon</strong></td><td>${nowCameroon()}</td></tr>
+       <tr><td style="padding:4px 12px 4px 0"><strong>Madagascar</strong></td><td>${nowMadagascar()}</td></tr>
+     </table>
+     <p>You will receive a summary email once it completes.</p>`
   );
-  console.log('📧 Start email sent to', ADMIN_EMAIL);
+  console.log(`📧 Start email sent (${type}) to ${ADMIN_EMAIL}`);
 }
 
-async function sendConfirmationEmail(uploadedFiles) {
-  const now = new Date().toLocaleString();
-  const fileList = uploadedFiles.map(f => `<li>${f}</li>`).join('');
+// ── 3. End email — full resume ────────────────────────────────────────────────
+// summary = { steps: [{ name, status: 'ok'|'skipped'|'error', detail }], files: [] }
+async function sendProcessEndEmail(type, summary) {
+  const label = type === 'report' ? '📊 Report' : '🔄 Routing';
+  const allOk  = summary.steps.every(s => s.status !== 'error');
+  const icon   = allOk ? '✅' : '⚠️';
+
+  const stepRows = summary.steps.map(s => {
+    const color  = s.status === 'ok' ? '#2e7d32' : s.status === 'skipped' ? '#e65100' : '#c62828';
+    const badge  = s.status === 'ok' ? '✅ OK' : s.status === 'skipped' ? '⏭ Skipped' : '❌ Error';
+    return `<tr>
+      <td style="padding:6px 14px 6px 0;font-weight:bold">${s.name}</td>
+      <td style="padding:6px 14px 6px 0;color:${color};font-weight:bold">${badge}</td>
+      <td style="padding:6px 0;color:#555;font-size:13px">${s.detail || ''}</td>
+    </tr>`;
+  }).join('');
+
+  const fileList = (summary.files || []).length
+    ? `<p><strong>Files processed:</strong></p><ul>${summary.files.map(f => `<li>${f}</li>`).join('')}</ul>`
+    : '';
+
   await send(
-    '✅ Wialon Report — Generated & Uploaded Successfully',
+    `${icon} ${label} — Process Completed`,
     `<p>Hello,</p>
-     <p>The Wialon report has been <strong>generated and uploaded</strong> to the SFTP /OUT folder successfully.</p>
-     <p><strong>Completed at:</strong> ${now}</p>
-     <p><strong>Files uploaded:</strong></p>
-     <ul>${fileList}</ul>
-     <p>All done! ✅</p>`
+     <p>The <strong>${label}</strong> process has <strong>completed</strong>.</p>
+     <table style="border-collapse:collapse;font-size:14px">
+       <tr><td style="padding:4px 12px 4px 0"><strong>Cameroon</strong></td><td>${nowCameroon()}</td></tr>
+       <tr><td style="padding:4px 12px 4px 0"><strong>Madagascar</strong></td><td>${nowMadagascar()}</td></tr>
+     </table>
+     <br>
+     <p><strong>Step-by-step resume:</strong></p>
+     <table style="border-collapse:collapse;font-size:14px;width:100%">
+       <thead>
+         <tr style="background:#f5f5f5">
+           <th style="padding:6px 14px 6px 0;text-align:left">Step</th>
+           <th style="padding:6px 14px 6px 0;text-align:left">Status</th>
+           <th style="padding:6px 0;text-align:left">Detail</th>
+         </tr>
+       </thead>
+       <tbody>${stepRows}</tbody>
+     </table>
+     ${fileList}
+     <p style="margin-top:16px">${allOk ? 'All steps completed successfully. ✅' : '⚠️ Some steps encountered errors — check the server logs for details.'}</p>`
   );
-  console.log('📧 Confirmation email sent to', ADMIN_EMAIL);
+  console.log(`📧 End email sent (${type}) to ${ADMIN_EMAIL}`);
 }
 
-module.exports = { sendCheckupEmail, sendStartEmail, sendConfirmationEmail };
+module.exports = { sendWarningEmail, sendProcessStartEmail, sendProcessEndEmail };

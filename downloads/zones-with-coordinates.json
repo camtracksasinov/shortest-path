@@ -1,6 +1,195 @@
 {
-  "SOLOVIM": {
-    "1259TAP": [
+  "MASY GERTINE": {
+    "1498TBH": [
+      {
+        "name": "DEPOT RAFFINERIE TERMINAL",
+        "coordinates": [
+          {
+            "latitude": -18.166620446,
+            "longitude": 49.400207088,
+            "radius": 30
+          },
+          {
+            "latitude": -18.1659399816,
+            "longitude": 49.3991335778,
+            "radius": 30
+          },
+          {
+            "latitude": -18.1662559979,
+            "longitude": 49.3979212193,
+            "radius": 30
+          },
+          {
+            "latitude": -18.1671836555,
+            "longitude": 49.3950780778,
+            "radius": 30
+          },
+          {
+            "latitude": -18.1691816704,
+            "longitude": 49.3969341664,
+            "radius": 30
+          }
+        ],
+        "hasProduct": false
+      },
+      {
+        "name": "PENTA-OCEAN TMM PBF",
+        "coordinates": [
+          {
+            "latitude": -18.1587660984,
+            "longitude": 49.4288806971
+          },
+          {
+            "latitude": -18.1585010412,
+            "longitude": 49.4309620913
+          },
+          {
+            "latitude": -18.1611719847,
+            "longitude": 49.4313483294
+          },
+          {
+            "latitude": -18.1664321967,
+            "longitude": 49.4279365595
+          },
+          {
+            "latitude": -18.1647603636,
+            "longitude": 49.4267778452
+          }
+        ],
+        "hasProduct": true
+      }
+    ],
+    "9331AJ": [
+      {
+        "name": "DEPOT ANTSOHIHY",
+        "coordinates": [
+          {
+            "latitude": -14.8810072737,
+            "longitude": 47.9846639367,
+            "radius": 50
+          },
+          {
+            "latitude": -14.8812282741,
+            "longitude": 47.9849173175,
+            "radius": 50
+          },
+          {
+            "latitude": -14.8816686302,
+            "longitude": 47.9846284414,
+            "radius": 50
+          },
+          {
+            "latitude": -14.8812302072,
+            "longitude": 47.984296474,
+            "radius": 50
+          }
+        ],
+        "priorite": "Haute",
+        "hasProduct": false
+      },
+      {
+        "name": "SS SOFIA NG PBF",
+        "coordinates": [
+          {
+            "latitude": -15.5767249155,
+            "longitude": 47.6256461791,
+            "radius": 30
+          },
+          {
+            "latitude": -15.57692386,
+            "longitude": 47.6258768491,
+            "radius": 30
+          },
+          {
+            "latitude": -15.5771718944,
+            "longitude": 47.625863438,
+            "radius": 30
+          },
+          {
+            "latitude": -15.5772209845,
+            "longitude": 47.6257078699,
+            "radius": 30
+          },
+          {
+            "latitude": -15.5772778257,
+            "longitude": 47.6255952171,
+            "radius": 30
+          }
+        ],
+        "priorite": "Haute",
+        "hasProduct": true
+      },
+      {
+        "name": "DEPOT ANTSOHIHY",
+        "coordinates": [
+          {
+            "latitude": -14.8810072737,
+            "longitude": 47.9846639367,
+            "radius": 50
+          },
+          {
+            "latitude": -14.8812282741,
+            "longitude": 47.9849173175,
+            "radius": 50
+          },
+          {
+            "latitude": -14.8816686302,
+            "longitude": 47.9846284414,
+            "radius": 50
+          },
+          {
+            "latitude": -14.8812302072,
+            "longitude": 47.984296474,
+            "radius": 50
+          }
+        ],
+        "hasProduct": false
+      },
+      {
+        "name": "SS ANTSOHIHY NG PBF",
+        "coordinates": [
+          {
+            "latitude": -14.8895027108,
+            "longitude": 47.9886890296,
+            "radius": 30
+          },
+          {
+            "latitude": -14.8896478711,
+            "longitude": 47.9887373094,
+            "radius": 30
+          },
+          {
+            "latitude": -14.889733412,
+            "longitude": 47.9886675719,
+            "radius": 30
+          },
+          {
+            "latitude": -14.8897852549,
+            "longitude": 47.9887292628,
+            "radius": 30
+          },
+          {
+            "latitude": -14.8898500585,
+            "longitude": 47.9886675719,
+            "radius": 30
+          },
+          {
+            "latitude": -14.8899330071,
+            "longitude": 47.9886192922,
+            "radius": 30
+          },
+          {
+            "latitude": -14.8898033999,
+            "longitude": 47.9882330541,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      }
+    ]
+  },
+  "LSS": {
+    "2456TBJ": [
       {
         "name": "DEPOT ALAROBIA.",
         "coordinates": [
@@ -56,6 +245,1702 @@
           }
         ],
         "hasProduct": false
+      },
+      {
+        "name": "GD SABNAM PBL",
+        "coordinates": [
+          {
+            "latitude": -18.8391471728,
+            "longitude": 47.5556530972,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8389212444,
+            "longitude": 47.5555404444,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8388577813,
+            "longitude": 47.5553392787,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8394365638,
+            "longitude": 47.5552588124,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8394695645,
+            "longitude": 47.5554251094,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      },
+      {
+        "name": "STATION KINTANA PBF",
+        "coordinates": [
+          {
+            "latitude": -18.9104206378,
+            "longitude": 47.5040240241,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9107708042,
+            "longitude": 47.5040025665,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9108723016,
+            "longitude": 47.5046087457,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9104663117,
+            "longitude": 47.5047723604,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      }
+    ],
+    "5606TBA": [
+      {
+        "name": "DEPOT ALAROBIA.",
+        "coordinates": [
+          {
+            "latitude": -18.8820892559,
+            "longitude": 47.5214439476,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8819775896,
+            "longitude": 47.5220796311,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8830764845,
+            "longitude": 47.5223398054,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8832312936,
+            "longitude": 47.5223880851,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8834267081,
+            "longitude": 47.5223424876,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8839672693,
+            "longitude": 47.5224283183,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8839774207,
+            "longitude": 47.5222003305,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8840104126,
+            "longitude": 47.5217014396,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8833125049,
+            "longitude": 47.5215566003,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8825917534,
+            "longitude": 47.5214814985,
+            "radius": 40
+          }
+        ],
+        "hasProduct": false
+      },
+      {
+        "name": "SS TALATAMATY NG PBF",
+        "coordinates": [
+          {
+            "latitude": -18.8403506577,
+            "longitude": 47.461862777,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8402338866,
+            "longitude": 47.4617957218,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8401221924,
+            "longitude": 47.4618010862,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8401018843,
+            "longitude": 47.4619298322,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8401221924,
+            "longitude": 47.4620746715,
+            "radius": 30
+          },
+          {
+            "latitude": -18.840180578,
+            "longitude": 47.4622785194,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8402719641,
+            "longitude": 47.4622704728,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8404191972,
+            "longitude": 47.4623723967,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8404344282,
+            "longitude": 47.4624877317,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8405410452,
+            "longitude": 47.4624716385,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8406400466,
+            "longitude": 47.462401901,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8404902752,
+            "longitude": 47.4620907648,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      }
+    ]
+  },
+  "VOROMAILALA": {
+    "3076 TBC": [
+      {
+        "name": "DEPOT NOSY-BE",
+        "coordinates": [
+          {
+            "latitude": -13.4006490809,
+            "longitude": 48.214045254,
+            "radius": 50
+          },
+          {
+            "latitude": -13.4013561679,
+            "longitude": 48.2136885202,
+            "radius": 50
+          },
+          {
+            "latitude": -13.4015936026,
+            "longitude": 48.2147989547,
+            "radius": 50
+          },
+          {
+            "latitude": -13.4008343327,
+            "longitude": 48.2153005278,
+            "radius": 50
+          }
+        ],
+        "hasProduct": false
+      },
+      {
+        "name": "STATION KOEZY 3 PBF",
+        "coordinates": [
+          {
+            "latitude": -13.3954359033,
+            "longitude": 48.268811611,
+            "radius": 50
+          },
+          {
+            "latitude": -13.3954619957,
+            "longitude": 48.2690798319,
+            "radius": 50
+          },
+          {
+            "latitude": -13.3956289868,
+            "longitude": 48.2690261877,
+            "radius": 50
+          },
+          {
+            "latitude": -13.3955898483,
+            "longitude": 48.2687606491,
+            "radius": 50
+          }
+        ],
+        "hasProduct": true
+      }
+    ],
+    "4730DJ": [
+      {
+        "name": "DEPOT MAHAJANGA",
+        "coordinates": [
+          {
+            "latitude": -15.70965609,
+            "longitude": 46.3062497016,
+            "radius": 100
+          },
+          {
+            "latitude": -15.7100330643,
+            "longitude": 46.3052250977,
+            "radius": 100
+          },
+          {
+            "latitude": -15.7106888946,
+            "longitude": 46.3054611321,
+            "radius": 100
+          },
+          {
+            "latitude": -15.7105236462,
+            "longitude": 46.306512558,
+            "radius": 100
+          }
+        ],
+        "hasProduct": false
+      },
+      {
+        "name": "SMM  PBF",
+        "coordinates": [
+          {
+            "latitude": -18.9133603936,
+            "longitude": 47.4888737036,
+            "radius": 50
+          },
+          {
+            "latitude": -18.9127818663,
+            "longitude": 47.4896783663,
+            "radius": 50
+          },
+          {
+            "latitude": -18.9129391854,
+            "longitude": 47.4904508425,
+            "radius": 50
+          },
+          {
+            "latitude": -18.9136801052,
+            "longitude": 47.4902094437,
+            "radius": 50
+          }
+        ],
+        "hasProduct": true
+      },
+      {
+        "name": "SS DOMOINA NG PBF",
+        "coordinates": [
+          {
+            "latitude": -15.7193732666,
+            "longitude": 46.3275674826,
+            "radius": 30
+          },
+          {
+            "latitude": -15.7190221286,
+            "longitude": 46.3275326139,
+            "radius": 30
+          },
+          {
+            "latitude": -15.7190453657,
+            "longitude": 46.3270605451,
+            "radius": 30
+          },
+          {
+            "latitude": -15.7193861761,
+            "longitude": 46.3269934899,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      },
+      {
+        "name": "SS IMALANDY PBF",
+        "coordinates": [
+          {
+            "latitude": -15.7086603533,
+            "longitude": 46.3767642566,
+            "radius": 30
+          },
+          {
+            "latitude": -15.7083298531,
+            "longitude": 46.3770619818,
+            "radius": 30
+          },
+          {
+            "latitude": -15.7088875719,
+            "longitude": 46.3777432629,
+            "radius": 30
+          },
+          {
+            "latitude": -15.7092103251,
+            "longitude": 46.3774535843,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      },
+      {
+        "name": "STATION ATAFANA PBF",
+        "coordinates": [
+          {
+            "latitude": -15.7218415432,
+            "longitude": 46.3130781895,
+            "radius": 30
+          },
+          {
+            "latitude": -15.7219448177,
+            "longitude": 46.3123352176,
+            "radius": 30
+          },
+          {
+            "latitude": -15.7214052077,
+            "longitude": 46.3129762656,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      }
+    ],
+    "5694TBS": [
+      {
+        "name": "DEPOT MAHAJANGA",
+        "coordinates": [
+          {
+            "latitude": -15.70965609,
+            "longitude": 46.3062497016,
+            "radius": 100
+          },
+          {
+            "latitude": -15.7100330643,
+            "longitude": 46.3052250977,
+            "radius": 100
+          },
+          {
+            "latitude": -15.7106888946,
+            "longitude": 46.3054611321,
+            "radius": 100
+          },
+          {
+            "latitude": -15.7105236462,
+            "longitude": 46.306512558,
+            "radius": 100
+          }
+        ],
+        "hasProduct": false
+      },
+      {
+        "name": "SS DOMOINA NG PBF",
+        "coordinates": [
+          {
+            "latitude": -15.7193732666,
+            "longitude": 46.3275674826,
+            "radius": 30
+          },
+          {
+            "latitude": -15.7190221286,
+            "longitude": 46.3275326139,
+            "radius": 30
+          },
+          {
+            "latitude": -15.7190453657,
+            "longitude": 46.3270605451,
+            "radius": 30
+          },
+          {
+            "latitude": -15.7193861761,
+            "longitude": 46.3269934899,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      },
+      {
+        "name": "SS TSARARANO PBF",
+        "coordinates": [
+          {
+            "latitude": -15.707852528,
+            "longitude": 46.3204261053,
+            "radius": 35
+          },
+          {
+            "latitude": -15.7077440822,
+            "longitude": 46.3202249396,
+            "radius": 35
+          },
+          {
+            "latitude": -15.7073903421,
+            "longitude": 46.3204341519,
+            "radius": 35
+          },
+          {
+            "latitude": -15.7075943237,
+            "longitude": 46.3208123433,
+            "radius": 35
+          },
+          {
+            "latitude": -15.7079325712,
+            "longitude": 46.3206004488,
+            "radius": 35
+          }
+        ],
+        "hasProduct": true
+      },
+      {
+        "name": "STATION ATAFANA PBF",
+        "coordinates": [
+          {
+            "latitude": -15.7218415432,
+            "longitude": 46.3130781895,
+            "radius": 30
+          },
+          {
+            "latitude": -15.7219448177,
+            "longitude": 46.3123352176,
+            "radius": 30
+          },
+          {
+            "latitude": -15.7214052077,
+            "longitude": 46.3129762656,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      }
+    ]
+  },
+  "TGM": {
+    "3277TBM": [
+      {
+        "name": "DEPOT ALAROBIA.",
+        "coordinates": [
+          {
+            "latitude": -18.8820892559,
+            "longitude": 47.5214439476,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8819775896,
+            "longitude": 47.5220796311,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8830764845,
+            "longitude": 47.5223398054,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8832312936,
+            "longitude": 47.5223880851,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8834267081,
+            "longitude": 47.5223424876,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8839672693,
+            "longitude": 47.5224283183,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8839774207,
+            "longitude": 47.5222003305,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8840104126,
+            "longitude": 47.5217014396,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8833125049,
+            "longitude": 47.5215566003,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8825917534,
+            "longitude": 47.5214814985,
+            "radius": 40
+          }
+        ],
+        "priorite": "Haute",
+        "hasProduct": false
+      },
+      {
+        "name": "STATION SOAVA NG PBF",
+        "coordinates": [
+          {
+            "latitude": -18.9016212063,
+            "longitude": 47.6035734434,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9016592699,
+            "longitude": 47.6030584593,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9014156627,
+            "longitude": 47.6030584593,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9014308881,
+            "longitude": 47.6029109378,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9022023098,
+            "longitude": 47.6026024837,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9022987372,
+            "longitude": 47.6029618998,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9020500558,
+            "longitude": 47.6031013746,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9020906569,
+            "longitude": 47.6033642311,
+            "radius": 30
+          }
+        ],
+        "priorite": "Haute",
+        "hasProduct": true
+      },
+      {
+        "name": "STATION ANKORONDRANO PBF",
+        "coordinates": [
+          {
+            "latitude": -18.8900665886,
+            "longitude": 47.5224347068,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8901300323,
+            "longitude": 47.5230489327,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8899320878,
+            "longitude": 47.5230382038,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8898838705,
+            "longitude": 47.5230221106,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8898635685,
+            "longitude": 47.5229845597,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8896351706,
+            "longitude": 47.5230328394,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8895768022,
+            "longitude": 47.5228558136,
+            "radius": 30
+          },
+          {
+            "latitude": -18.88957934,
+            "longitude": 47.5227082921,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8896503972,
+            "longitude": 47.5226546479,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8896757747,
+            "longitude": 47.5225741817,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8896275574,
+            "longitude": 47.5225419952,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8896224819,
+            "longitude": 47.5225071264,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8899473143,
+            "longitude": 47.5224534823,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      },
+      {
+        "name": "DEPOT ALAROBIA.",
+        "coordinates": [
+          {
+            "latitude": -18.8820892559,
+            "longitude": 47.5214439476,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8819775896,
+            "longitude": 47.5220796311,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8830764845,
+            "longitude": 47.5223398054,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8832312936,
+            "longitude": 47.5223880851,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8834267081,
+            "longitude": 47.5223424876,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8839672693,
+            "longitude": 47.5224283183,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8839774207,
+            "longitude": 47.5222003305,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8840104126,
+            "longitude": 47.5217014396,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8833125049,
+            "longitude": 47.5215566003,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8825917534,
+            "longitude": 47.5214814985,
+            "radius": 40
+          }
+        ],
+        "hasProduct": false
+      },
+      {
+        "name": "STATION LOHARANO PBF",
+        "coordinates": [
+          {
+            "latitude": -18.9876307532,
+            "longitude": 47.5323466125,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9876053906,
+            "longitude": 47.5320032898,
+            "radius": 30
+          },
+          {
+            "latitude": -18.988041628,
+            "longitude": 47.5319711033,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9880543093,
+            "longitude": 47.5321642223,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9880365554,
+            "longitude": 47.532314426,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      },
+      {
+        "name": "STATION ANONY NG PBF",
+        "coordinates": [
+          {
+            "latitude": -18.9454241475,
+            "longitude": 47.5246507768,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9456347108,
+            "longitude": 47.5245032554,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9456676906,
+            "longitude": 47.5243128185,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9461167222,
+            "longitude": 47.5244254713,
+            "radius": 30
+          },
+          {
+            "latitude": -18.946073595,
+            "longitude": 47.5246775989,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9462055137,
+            "longitude": 47.5247178321,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9461699971,
+            "longitude": 47.5248787646,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      }
+    ]
+  },
+  "STTA": {
+    "3907TAN": [
+      {
+        "name": "DEPOT MORAMANGA",
+        "coordinates": [
+          {
+            "latitude": -18.9448052175,
+            "longitude": 48.2323772274,
+            "radius": 50
+          },
+          {
+            "latitude": -18.9446200223,
+            "longitude": 48.2325193845,
+            "radius": 50
+          },
+          {
+            "latitude": -18.9444847079,
+            "longitude": 48.232145998,
+            "radius": 50
+          },
+          {
+            "latitude": -18.9446140909,
+            "longitude": 48.2319233747,
+            "radius": 50
+          },
+          {
+            "latitude": -18.9447128944,
+            "longitude": 48.231608474,
+            "radius": 50
+          },
+          {
+            "latitude": -18.9448407343,
+            "longitude": 48.2321143709,
+            "radius": 50
+          }
+        ],
+        "hasProduct": false
+      },
+      {
+        "name": "SS MANGORO NG PBF",
+        "coordinates": [
+          {
+            "latitude": -18.9398906189,
+            "longitude": 48.2095864244,
+            "radius": 40
+          },
+          {
+            "latitude": -18.9396876593,
+            "longitude": 48.2097044416,
+            "radius": 40
+          },
+          {
+            "latitude": -18.9399286738,
+            "longitude": 48.2102730699,
+            "radius": 40
+          },
+          {
+            "latitude": -18.9402102797,
+            "longitude": 48.210069222,
+            "radius": 40
+          }
+        ],
+        "hasProduct": true
+      }
+    ],
+    "4072TBP": [
+      {
+        "name": "DEPOT ALAROBIA.",
+        "coordinates": [
+          {
+            "latitude": -18.8820892559,
+            "longitude": 47.5214439476,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8819775896,
+            "longitude": 47.5220796311,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8830764845,
+            "longitude": 47.5223398054,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8832312936,
+            "longitude": 47.5223880851,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8834267081,
+            "longitude": 47.5223424876,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8839672693,
+            "longitude": 47.5224283183,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8839774207,
+            "longitude": 47.5222003305,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8840104126,
+            "longitude": 47.5217014396,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8833125049,
+            "longitude": 47.5215566003,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8825917534,
+            "longitude": 47.5214814985,
+            "radius": 40
+          }
+        ],
+        "hasProduct": false
+      },
+      {
+        "name": "STATION SAKAY NG PBF",
+        "coordinates": [
+          {
+            "latitude": -18.9862687723,
+            "longitude": 46.4743492668,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9859720264,
+            "longitude": 46.474351949,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9860937684,
+            "longitude": 46.4747435515,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9865300098,
+            "longitude": 46.4745209281,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9866314611,
+            "longitude": 46.474351949,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      }
+    ],
+    "4338TBG": [
+      {
+        "name": "DEPOT ALAROBIA.",
+        "coordinates": [
+          {
+            "latitude": -18.8820892559,
+            "longitude": 47.5214439476,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8819775896,
+            "longitude": 47.5220796311,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8830764845,
+            "longitude": 47.5223398054,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8832312936,
+            "longitude": 47.5223880851,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8834267081,
+            "longitude": 47.5223424876,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8839672693,
+            "longitude": 47.5224283183,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8839774207,
+            "longitude": 47.5222003305,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8840104126,
+            "longitude": 47.5217014396,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8833125049,
+            "longitude": 47.5215566003,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8825917534,
+            "longitude": 47.5214814985,
+            "radius": 40
+          }
+        ],
+        "hasProduct": false
+      },
+      {
+        "name": "SS LA CITY NG1 PBL",
+        "coordinates": [
+          {
+            "latitude": -18.8714089775,
+            "longitude": 47.5186507407,
+            "radius": 50
+          },
+          {
+            "latitude": -18.8713937493,
+            "longitude": 47.5187553468,
+            "radius": 50
+          },
+          {
+            "latitude": -18.8716526284,
+            "longitude": 47.5188545886,
+            "radius": 50
+          },
+          {
+            "latitude": -18.8716805467,
+            "longitude": 47.5187473002,
+            "radius": 50
+          }
+        ],
+        "hasProduct": true
+      },
+      {
+        "name": "SS LA CITY NG1 PBL",
+        "coordinates": [
+          {
+            "latitude": -18.8714089775,
+            "longitude": 47.5186507407,
+            "radius": 50
+          },
+          {
+            "latitude": -18.8713937493,
+            "longitude": 47.5187553468,
+            "radius": 50
+          },
+          {
+            "latitude": -18.8716526284,
+            "longitude": 47.5188545886,
+            "radius": 50
+          },
+          {
+            "latitude": -18.8716805467,
+            "longitude": 47.5187473002,
+            "radius": 50
+          }
+        ],
+        "hasProduct": true
+      },
+      {
+        "name": "STATION ANOSISOA NG PBF",
+        "coordinates": [
+          {
+            "latitude": -18.869271625,
+            "longitude": 47.4917963986,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8693223863,
+            "longitude": 47.4918822293,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8694264468,
+            "longitude": 47.4918554072,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8694543655,
+            "longitude": 47.4917212968,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8696168014,
+            "longitude": 47.4916488771,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8695508118,
+            "longitude": 47.4915389066,
+            "radius": 30
+          },
+          {
+            "latitude": -18.8694264468,
+            "longitude": 47.4914477115,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      },
+      {
+        "name": "STATION IARIVO PBF",
+        "coordinates": [
+          {
+            "latitude": -18.9368541396,
+            "longitude": 47.5225259463,
+            "radius": 50
+          },
+          {
+            "latitude": -18.9369023433,
+            "longitude": 47.5228746335,
+            "radius": 50
+          },
+          {
+            "latitude": -18.9371763432,
+            "longitude": 47.5228397647,
+            "radius": 50
+          },
+          {
+            "latitude": -18.9371408247,
+            "longitude": 47.5224508444,
+            "radius": 50
+          }
+        ],
+        "hasProduct": true
+      }
+    ],
+    "4356TBP": [
+      {
+        "name": "DEPOT ALAROBIA.",
+        "coordinates": [
+          {
+            "latitude": -18.8820892559,
+            "longitude": 47.5214439476,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8819775896,
+            "longitude": 47.5220796311,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8830764845,
+            "longitude": 47.5223398054,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8832312936,
+            "longitude": 47.5223880851,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8834267081,
+            "longitude": 47.5223424876,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8839672693,
+            "longitude": 47.5224283183,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8839774207,
+            "longitude": 47.5222003305,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8840104126,
+            "longitude": 47.5217014396,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8833125049,
+            "longitude": 47.5215566003,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8825917534,
+            "longitude": 47.5214814985,
+            "radius": 40
+          }
+        ],
+        "hasProduct": false
+      },
+      {
+        "name": "STATION MIARINARIVO PBF",
+        "coordinates": [
+          {
+            "latitude": -18.9443031464,
+            "longitude": 46.9146285121,
+            "radius": 50
+          },
+          {
+            "latitude": -18.9444477511,
+            "longitude": 46.9142825071,
+            "radius": 50
+          },
+          {
+            "latitude": -18.9447344232,
+            "longitude": 46.9144729439,
+            "radius": 50
+          },
+          {
+            "latitude": -18.9446735372,
+            "longitude": 46.9146499697,
+            "radius": 50
+          },
+          {
+            "latitude": -18.9444096972,
+            "longitude": 46.9147009317,
+            "radius": 50
+          }
+        ],
+        "hasProduct": true
+      },
+      {
+        "name": "SS TSARA/TRA NG PBF",
+        "coordinates": [
+          {
+            "latitude": -18.935552098,
+            "longitude": 47.5286386563,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9354658379,
+            "longitude": 47.5288907839,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9354759862,
+            "longitude": 47.5291053606,
+            "radius": 30
+          },
+          {
+            "latitude": -18.935508968,
+            "longitude": 47.5292957975,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9355850797,
+            "longitude": 47.5294191791,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9356992473,
+            "longitude": 47.529405768,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9356890991,
+            "longitude": 47.5290999962,
+            "radius": 30
+          },
+          {
+            "latitude": -18.935638358,
+            "longitude": 47.528917606,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9357068585,
+            "longitude": 47.5287218047,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      }
+    ],
+    "4877 TAV": [
+      {
+        "name": "DEPOT ANTSIRABE",
+        "coordinates": [
+          {
+            "latitude": -19.8493907421,
+            "longitude": 47.0448081187,
+            "radius": 50
+          },
+          {
+            "latitude": -19.8495357733,
+            "longitude": 47.0455571911,
+            "radius": 50
+          },
+          {
+            "latitude": -19.8496985178,
+            "longitude": 47.0454498148,
+            "radius": 50
+          },
+          {
+            "latitude": -19.8509321866,
+            "longitude": 47.0450394368,
+            "radius": 50
+          },
+          {
+            "latitude": -19.8506420731,
+            "longitude": 47.0443789652,
+            "radius": 50
+          }
+        ],
+        "hasProduct": false
+      },
+      {
+        "name": "LECOFRUIT  SA PBF",
+        "coordinates": [
+          {
+            "latitude": -19.8806163591,
+            "longitude": 47.0413229436
+          },
+          {
+            "latitude": -19.8807601334,
+            "longitude": 47.0419774026
+          },
+          {
+            "latitude": -19.881617732,
+            "longitude": 47.0417467326
+          },
+          {
+            "latitude": -19.8814840479,
+            "longitude": 47.0411137313
+          }
+        ],
+        "hasProduct": true
+      },
+      {
+        "name": "SS SOAMITOMBO - MHY ANDRIAMAMPIONONA PBF",
+        "coordinates": [
+          {
+            "latitude": -19.8941944641,
+            "longitude": 47.0418605415,
+            "radius": 30
+          },
+          {
+            "latitude": -19.8941339327,
+            "longitude": 47.0423460213,
+            "radius": 30
+          },
+          {
+            "latitude": -19.8946181833,
+            "longitude": 47.0424398986,
+            "radius": 30
+          },
+          {
+            "latitude": -19.8947392458,
+            "longitude": 47.0419436899,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      }
+    ],
+    "7885 TBD": [
+      {
+        "name": "DEPOT MORARANO",
+        "coordinates": [
+          {
+            "latitude": -17.7628096588,
+            "longitude": 48.1783356077,
+            "radius": 100
+          },
+          {
+            "latitude": -17.7627687654,
+            "longitude": 48.1787474147,
+            "radius": 100
+          },
+          {
+            "latitude": -17.7641532136,
+            "longitude": 48.1789673558,
+            "radius": 100
+          },
+          {
+            "latitude": -17.7642502778,
+            "longitude": 48.1784899226,
+            "radius": 100
+          }
+        ],
+        "hasProduct": false
+      },
+      {
+        "name": "STATION TANAMBE NG PBF",
+        "coordinates": [
+          {
+            "latitude": -17.3926715975,
+            "longitude": 48.4450410795,
+            "radius": 30
+          },
+          {
+            "latitude": -17.3928507676,
+            "longitude": 48.4453253937,
+            "radius": 30
+          },
+          {
+            "latitude": -17.3928328506,
+            "longitude": 48.4455533814,
+            "radius": 30
+          },
+          {
+            "latitude": -17.3922083139,
+            "longitude": 48.4456231189,
+            "radius": 30
+          },
+          {
+            "latitude": -17.3921033711,
+            "longitude": 48.4451805544,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      }
+    ]
+  },
+  "TRANS LI ": {
+    "3939TBC": [
+      {
+        "name": "DEPOT ALAROBIA.",
+        "coordinates": [
+          {
+            "latitude": -18.8820892559,
+            "longitude": 47.5214439476,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8819775896,
+            "longitude": 47.5220796311,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8830764845,
+            "longitude": 47.5223398054,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8832312936,
+            "longitude": 47.5223880851,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8834267081,
+            "longitude": 47.5223424876,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8839672693,
+            "longitude": 47.5224283183,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8839774207,
+            "longitude": 47.5222003305,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8840104126,
+            "longitude": 47.5217014396,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8833125049,
+            "longitude": 47.5215566003,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8825917534,
+            "longitude": 47.5214814985,
+            "radius": 40
+          }
+        ],
+        "hasProduct": false
+      },
+      {
+        "name": "STATION TARATRA NG1 PBF",
+        "coordinates": [
+          {
+            "latitude": -18.9208955086,
+            "longitude": 47.5210579653,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9210477454,
+            "longitude": 47.5213771482,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9205250651,
+            "longitude": 47.5214495678,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9204413346,
+            "longitude": 47.5211974402,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      }
+    ],
+    "4716TAU": [
+      {
+        "name": "DEPOT ALAROBIA.",
+        "coordinates": [
+          {
+            "latitude": -18.8820892559,
+            "longitude": 47.5214439476,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8819775896,
+            "longitude": 47.5220796311,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8830764845,
+            "longitude": 47.5223398054,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8832312936,
+            "longitude": 47.5223880851,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8834267081,
+            "longitude": 47.5223424876,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8839672693,
+            "longitude": 47.5224283183,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8839774207,
+            "longitude": 47.5222003305,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8840104126,
+            "longitude": 47.5217014396,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8833125049,
+            "longitude": 47.5215566003,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8825917534,
+            "longitude": 47.5214814985,
+            "radius": 40
+          }
+        ],
+        "hasProduct": false
+      },
+      {
+        "name": "STATION SOAVA NG PBF",
+        "coordinates": [
+          {
+            "latitude": -18.9016212063,
+            "longitude": 47.6035734434,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9016592699,
+            "longitude": 47.6030584593,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9014156627,
+            "longitude": 47.6030584593,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9014308881,
+            "longitude": 47.6029109378,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9022023098,
+            "longitude": 47.6026024837,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9022987372,
+            "longitude": 47.6029618998,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9020500558,
+            "longitude": 47.6031013746,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9020906569,
+            "longitude": 47.6033642311,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      },
+      {
+        "name": "SS LA CITY NG1 PBL",
+        "coordinates": [
+          {
+            "latitude": -18.8714089775,
+            "longitude": 47.5186507407,
+            "radius": 50
+          },
+          {
+            "latitude": -18.8713937493,
+            "longitude": 47.5187553468,
+            "radius": 50
+          },
+          {
+            "latitude": -18.8716526284,
+            "longitude": 47.5188545886,
+            "radius": 50
+          },
+          {
+            "latitude": -18.8716805467,
+            "longitude": 47.5187473002,
+            "radius": 50
+          }
+        ],
+        "hasProduct": true
+      }
+    ]
+  },
+  "SOLOVIM": {
+    "5282TBA": [
+      {
+        "name": "DEPOT ALAROBIA.",
+        "coordinates": [
+          {
+            "latitude": -18.8820892559,
+            "longitude": 47.5214439476,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8819775896,
+            "longitude": 47.5220796311,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8830764845,
+            "longitude": 47.5223398054,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8832312936,
+            "longitude": 47.5223880851,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8834267081,
+            "longitude": 47.5223424876,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8839672693,
+            "longitude": 47.5224283183,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8839774207,
+            "longitude": 47.5222003305,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8840104126,
+            "longitude": 47.5217014396,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8833125049,
+            "longitude": 47.5215566003,
+            "radius": 40
+          },
+          {
+            "latitude": -18.8825917534,
+            "longitude": 47.5214814985,
+            "radius": 40
+          }
+        ],
+        "hasProduct": false
+      },
+      {
+        "name": "STATION ANJOMA PBF",
+        "coordinates": [
+          {
+            "latitude": -18.90753365,
+            "longitude": 47.5269440656,
+            "radius": 40
+          },
+          {
+            "latitude": -18.9074093132,
+            "longitude": 47.5271318202,
+            "radius": 40
+          },
+          {
+            "latitude": -18.9071758643,
+            "longitude": 47.5271023159,
+            "radius": 40
+          },
+          {
+            "latitude": -18.9070743647,
+            "longitude": 47.5270191674,
+            "radius": 40
+          },
+          {
+            "latitude": -18.9071530269,
+            "longitude": 47.5267536287,
+            "radius": 40
+          }
+        ],
+        "hasProduct": true
       },
       {
         "name": "STATION TONGASOA PBF",
@@ -165,204 +2050,6 @@
         "hasProduct": true
       }
     ],
-    "5282TBA": [
-      {
-        "name": "DEPOT ALAROBIA.",
-        "coordinates": [
-          {
-            "latitude": -18.8820892559,
-            "longitude": 47.5214439476,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8819775896,
-            "longitude": 47.5220796311,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8830764845,
-            "longitude": 47.5223398054,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8832312936,
-            "longitude": 47.5223880851,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8834267081,
-            "longitude": 47.5223424876,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8839672693,
-            "longitude": 47.5224283183,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8839774207,
-            "longitude": 47.5222003305,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8840104126,
-            "longitude": 47.5217014396,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8833125049,
-            "longitude": 47.5215566003,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8825917534,
-            "longitude": 47.5214814985,
-            "radius": 40
-          }
-        ],
-        "hasProduct": false
-      },
-      {
-        "name": "SMM DIGUE PBF",
-        "coordinates": [
-          {
-            "latitude": -18.8918201982,
-            "longitude": 47.4913439692
-          },
-          {
-            "latitude": -18.8908102526,
-            "longitude": 47.492699562
-          },
-          {
-            "latitude": -18.8925968107,
-            "longitude": 47.4944483623
-          },
-          {
-            "latitude": -18.8933073682,
-            "longitude": 47.4930428848
-          }
-        ],
-        "hasProduct": true
-      },
-      {
-        "name": "SS TSARA/TRA NG PBF",
-        "coordinates": [
-          {
-            "latitude": -18.935552098,
-            "longitude": 47.5286386563,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9354658379,
-            "longitude": 47.5288907839,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9354759862,
-            "longitude": 47.5291053606,
-            "radius": 30
-          },
-          {
-            "latitude": -18.935508968,
-            "longitude": 47.5292957975,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9355850797,
-            "longitude": 47.5294191791,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9356992473,
-            "longitude": 47.529405768,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9356890991,
-            "longitude": 47.5290999962,
-            "radius": 30
-          },
-          {
-            "latitude": -18.935638358,
-            "longitude": 47.528917606,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9357068585,
-            "longitude": 47.5287218047,
-            "radius": 30
-          }
-        ],
-        "hasProduct": true
-      },
-      {
-        "name": "STATION ANOSISOA NG PBF",
-        "coordinates": [
-          {
-            "latitude": -18.869271625,
-            "longitude": 47.4917963986,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8693223863,
-            "longitude": 47.4918822293,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8694264468,
-            "longitude": 47.4918554072,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8694543655,
-            "longitude": 47.4917212968,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8696168014,
-            "longitude": 47.4916488771,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8695508118,
-            "longitude": 47.4915389066,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8694264468,
-            "longitude": 47.4914477115,
-            "radius": 30
-          }
-        ],
-        "hasProduct": true
-      },
-      {
-        "name": "STATION NIRINA PBF",
-        "coordinates": [
-          {
-            "latitude": -18.9057123272,
-            "longitude": 47.5209220289,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9059521452,
-            "longitude": 47.5209407164,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9057389943,
-            "longitude": 47.5211579753,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9056691895,
-            "longitude": 47.5210427283,
-            "radius": 30
-          }
-        ],
-        "hasProduct": true
-      }
-    ],
     "5539TAP": [
       {
         "name": "DEPOT ALAROBIA.",
@@ -421,60 +2108,74 @@
         "hasProduct": false
       },
       {
-        "name": "SS MALAZA GD PBF",
+        "name": "SOCOBIS  PBF",
         "coordinates": [
           {
-            "latitude": -18.883971448,
-            "longitude": 47.6328122039,
-            "radius": 15
+            "latitude": -18.9533077288,
+            "longitude": 47.5347504752,
+            "radius": 50
           },
           {
-            "latitude": -18.8838547073,
-            "longitude": 47.6331528444,
-            "radius": 15
+            "latitude": -18.9537998652,
+            "longitude": 47.5354263919,
+            "radius": 50
           },
           {
-            "latitude": -18.8839333804,
-            "longitude": 47.6332306285,
-            "radius": 15
+            "latitude": -18.9548247219,
+            "longitude": 47.5346056359,
+            "radius": 50
           },
           {
-            "latitude": -18.8841059536,
-            "longitude": 47.6331877131,
-            "radius": 15
+            "latitude": -18.9543630298,
+            "longitude": 47.5337419646,
+            "radius": 50
+          }
+        ],
+        "hasProduct": true
+      },
+      {
+        "name": "STATION ANONY NG PBF",
+        "coordinates": [
+          {
+            "latitude": -18.9454241475,
+            "longitude": 47.5246507768,
+            "radius": 30
           },
           {
-            "latitude": -18.8841643239,
-            "longitude": 47.6332923193,
-            "radius": 15
+            "latitude": -18.9456347108,
+            "longitude": 47.5245032554,
+            "radius": 30
           },
           {
-            "latitude": -18.8842480725,
-            "longitude": 47.6332520862,
-            "radius": 15
+            "latitude": -18.9456676906,
+            "longitude": 47.5243128185,
+            "radius": 30
           },
           {
-            "latitude": -18.8843318211,
-            "longitude": 47.6333459635,
-            "radius": 15
+            "latitude": -18.9461167222,
+            "longitude": 47.5244254713,
+            "radius": 30
           },
           {
-            "latitude": -18.884425721,
-            "longitude": 47.6332440395,
-            "radius": 15
+            "latitude": -18.946073595,
+            "longitude": 47.5246775989,
+            "radius": 30
           },
           {
-            "latitude": -18.8841846266,
-            "longitude": 47.6329919119,
-            "radius": 15
+            "latitude": -18.9462055137,
+            "longitude": 47.5247178321,
+            "radius": 30
+          },
+          {
+            "latitude": -18.9461699971,
+            "longitude": 47.5248787646,
+            "radius": 30
           }
         ],
         "hasProduct": true
       }
-    ]
-  },
-  "LSS": {
-    "2456TBJ": [
+    ],
+    "5880TBD": [
       {
         "name": "DEPOT ALAROBIA.",
         "coordinates": [
@@ -532,662 +2233,45 @@
         "hasProduct": false
       },
       {
-        "name": "STATION IAVOLOHA PBF",
+        "name": "SS AMBOARA NV1 PBF",
         "coordinates": [
           {
-            "latitude": -19.0049474829,
-            "longitude": 47.5387168589,
-            "radius": 30
+            "latitude": -18.9824541607,
+            "longitude": 47.3162689248,
+            "radius": 25
           },
           {
-            "latitude": -19.0049043709,
-            "longitude": 47.539140648,
-            "radius": 30
+            "latitude": -18.9820787811,
+            "longitude": 47.3160892168,
+            "radius": 25
           },
           {
-            "latitude": -19.0054673627,
-            "longitude": 47.5392962161,
-            "radius": 30
+            "latitude": -18.9819266,
+            "longitude": 47.3163923064,
+            "radius": 25
           },
           {
-            "latitude": -19.0058604415,
-            "longitude": 47.5389636222,
-            "radius": 30
+            "latitude": -18.9818784479,
+            "longitude": 47.3165157827,
+            "radius": 25
+          },
+          {
+            "latitude": -18.9819951202,
+            "longitude": 47.3165238294,
+            "radius": 25
+          },
+          {
+            "latitude": -18.982258862,
+            "longitude": 47.3166793027,
+            "radius": 25
           }
         ],
         "hasProduct": true
       }
     ]
   },
-  "VOROMAILALA": {
-    "3076 TBC": [
-      {
-        "name": "DEPOT NOSY-BE",
-        "coordinates": [
-          {
-            "latitude": -13.4006490809,
-            "longitude": 48.214045254,
-            "radius": 50
-          },
-          {
-            "latitude": -13.4013561679,
-            "longitude": 48.2136885202,
-            "radius": 50
-          },
-          {
-            "latitude": -13.4015936026,
-            "longitude": 48.2147989547,
-            "radius": 50
-          },
-          {
-            "latitude": -13.4008343327,
-            "longitude": 48.2153005278,
-            "radius": 50
-          }
-        ],
-        "hasProduct": false
-      },
-      {
-        "name": "STATION KOEZY 3 PBF",
-        "coordinates": [
-          {
-            "latitude": -13.3954359033,
-            "longitude": 48.268811611,
-            "radius": 50
-          },
-          {
-            "latitude": -13.3954619957,
-            "longitude": 48.2690798319,
-            "radius": 50
-          },
-          {
-            "latitude": -13.3956289868,
-            "longitude": 48.2690261877,
-            "radius": 50
-          },
-          {
-            "latitude": -13.3955898483,
-            "longitude": 48.2687606491,
-            "radius": 50
-          }
-        ],
-        "hasProduct": true
-      },
-      {
-        "name": "DEPOT NOSY-BE",
-        "coordinates": [
-          {
-            "latitude": -13.4006490809,
-            "longitude": 48.214045254,
-            "radius": 50
-          },
-          {
-            "latitude": -13.4013561679,
-            "longitude": 48.2136885202,
-            "radius": 50
-          },
-          {
-            "latitude": -13.4015936026,
-            "longitude": 48.2147989547,
-            "radius": 50
-          },
-          {
-            "latitude": -13.4008343327,
-            "longitude": 48.2153005278,
-            "radius": 50
-          }
-        ],
-        "hasProduct": false
-      },
-      {
-        "name": "STATION KOEZY 3 PBF",
-        "coordinates": [
-          {
-            "latitude": -13.3954359033,
-            "longitude": 48.268811611,
-            "radius": 50
-          },
-          {
-            "latitude": -13.3954619957,
-            "longitude": 48.2690798319,
-            "radius": 50
-          },
-          {
-            "latitude": -13.3956289868,
-            "longitude": 48.2690261877,
-            "radius": 50
-          },
-          {
-            "latitude": -13.3955898483,
-            "longitude": 48.2687606491,
-            "radius": 50
-          }
-        ],
-        "hasProduct": true
-      }
-    ],
-    "3582TBH": [
-      {
-        "name": "STATION KOEZY 3 PBF",
-        "coordinates": [
-          {
-            "latitude": -13.3954359033,
-            "longitude": 48.268811611,
-            "radius": 50
-          },
-          {
-            "latitude": -13.3954619957,
-            "longitude": 48.2690798319,
-            "radius": 50
-          },
-          {
-            "latitude": -13.3956289868,
-            "longitude": 48.2690261877,
-            "radius": 50
-          },
-          {
-            "latitude": -13.3955898483,
-            "longitude": 48.2687606491,
-            "radius": 50
-          }
-        ],
-        "hasProduct": true
-      }
-    ],
-    "8311TBA": [
-      {
-        "name": "DEPOT ANTSIRANANA",
-        "coordinates": [
-          {
-            "latitude": -12.2906134046,
-            "longitude": 49.2816716903,
-            "radius": 50
-          },
-          {
-            "latitude": -12.2897013427,
-            "longitude": 49.2825274909,
-            "radius": 50
-          },
-          {
-            "latitude": -12.2909488134,
-            "longitude": 49.2844318593,
-            "radius": 50
-          },
-          {
-            "latitude": -12.2918923197,
-            "longitude": 49.2835814232,
-            "radius": 50
-          }
-        ],
-        "hasProduct": false
-      },
-      {
-        "name": "COLAS RN6 DIEGO PBF",
-        "coordinates": [
-          {
-            "latitude": -12.5777591418,
-            "longitude": 49.3969472438,
-            "radius": 50
-          },
-          {
-            "latitude": -12.5766701182,
-            "longitude": 49.3949516803,
-            "radius": 50
-          },
-          {
-            "latitude": -12.5749842167,
-            "longitude": 49.3965395481,
-            "radius": 50
-          },
-          {
-            "latitude": -12.5760208903,
-            "longitude": 49.3981703311,
-            "radius": 50
-          }
-        ],
-        "hasProduct": true
-      }
-    ]
-  },
-  "TRANSPOMAD": {
-    "3118TBB": [
-      {
-        "name": "DEPOT MORONDAVA",
-        "coordinates": [
-          {
-            "latitude": -20.2931898378,
-            "longitude": 44.2707411803,
-            "radius": 50
-          },
-          {
-            "latitude": -20.2938690819,
-            "longitude": 44.2702798404,
-            "radius": 50
-          },
-          {
-            "latitude": -20.2938917234,
-            "longitude": 44.2711891092,
-            "radius": 50
-          },
-          {
-            "latitude": -20.2931596491,
-            "longitude": 44.2711703338,
-            "radius": 50
-          }
-        ],
-        "hasProduct": false
-      },
-      {
-        "name": "SS BAOBAB NG. PBF",
-        "coordinates": [
-          {
-            "latitude": -20.292599671,
-            "longitude": 44.3146305787
-          },
-          {
-            "latitude": -20.2925241989,
-            "longitude": 44.314941715
-          },
-          {
-            "latitude": -20.2927883509,
-            "longitude": 44.3150007236
-          },
-          {
-            "latitude": -20.2928411813,
-            "longitude": 44.3147351849
-          }
-        ],
-        "hasProduct": true
-      }
-    ]
-  },
-  "TGM": {
-    "3277TBM": [
-      {
-        "name": "DEPOT ALAROBIA.",
-        "coordinates": [
-          {
-            "latitude": -18.8820892559,
-            "longitude": 47.5214439476,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8819775896,
-            "longitude": 47.5220796311,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8830764845,
-            "longitude": 47.5223398054,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8832312936,
-            "longitude": 47.5223880851,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8834267081,
-            "longitude": 47.5223424876,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8839672693,
-            "longitude": 47.5224283183,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8839774207,
-            "longitude": 47.5222003305,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8840104126,
-            "longitude": 47.5217014396,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8833125049,
-            "longitude": 47.5215566003,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8825917534,
-            "longitude": 47.5214814985,
-            "radius": 40
-          }
-        ],
-        "hasProduct": false
-      },
-      {
-        "name": "STATION SOAVA NG PBF",
-        "coordinates": [
-          {
-            "latitude": -18.9016212063,
-            "longitude": 47.6035734434,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9016592699,
-            "longitude": 47.6030584593,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9014156627,
-            "longitude": 47.6030584593,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9014308881,
-            "longitude": 47.6029109378,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9022023098,
-            "longitude": 47.6026024837,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9022987372,
-            "longitude": 47.6029618998,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9020500558,
-            "longitude": 47.6031013746,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9020906569,
-            "longitude": 47.6033642311,
-            "radius": 30
-          }
-        ],
-        "hasProduct": true
-      },
-      {
-        "name": "STATION LOHARANO PBF",
-        "coordinates": [
-          {
-            "latitude": -18.9876307532,
-            "longitude": 47.5323466125,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9876053906,
-            "longitude": 47.5320032898,
-            "radius": 30
-          },
-          {
-            "latitude": -18.988041628,
-            "longitude": 47.5319711033,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9880543093,
-            "longitude": 47.5321642223,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9880365554,
-            "longitude": 47.532314426,
-            "radius": 30
-          }
-        ],
-        "hasProduct": true
-      },
-      {
-        "name": "STATION ANOSISOA NG PBF",
-        "coordinates": [
-          {
-            "latitude": -18.869271625,
-            "longitude": 47.4917963986,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8693223863,
-            "longitude": 47.4918822293,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8694264468,
-            "longitude": 47.4918554072,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8694543655,
-            "longitude": 47.4917212968,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8696168014,
-            "longitude": 47.4916488771,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8695508118,
-            "longitude": 47.4915389066,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8694264468,
-            "longitude": 47.4914477115,
-            "radius": 30
-          }
-        ],
-        "hasProduct": true
-      }
-    ]
-  },
-  "BOTOTO ROZA": {
-    "4007FC": [
-      {
-        "name": "DEPOT AMBALAKELY FIAN",
-        "coordinates": [
-          {
-            "latitude": -21.4171936682,
-            "longitude": 47.1666649951,
-            "radius": 50
-          },
-          {
-            "latitude": -21.4173409907,
-            "longitude": 47.1673355474,
-            "radius": 50
-          },
-          {
-            "latitude": -21.4176256473,
-            "longitude": 47.1672523989,
-            "radius": 50
-          },
-          {
-            "latitude": -21.4174858161,
-            "longitude": 47.1666059865,
-            "radius": 50
-          }
-        ],
-        "hasProduct": false
-      },
-      {
-        "name": "AMBALAVOLA NG PBF",
-        "coordinates": [
-          {
-            "latitude": -21.444935695,
-            "longitude": 47.0897832865,
-            "radius": 50
-          },
-          {
-            "latitude": -21.4451029616,
-            "longitude": 47.0901990289,
-            "radius": 50
-          },
-          {
-            "latitude": -21.4455448441,
-            "longitude": 47.0899790878,
-            "radius": 50
-          },
-          {
-            "latitude": -21.4454150257,
-            "longitude": 47.0895499343,
-            "radius": 50
-          }
-        ],
-        "hasProduct": true
-      }
-    ]
-  },
-  "STTA": {
-    "4072TBP": [
-      {
-        "name": "DEPOT ALAROBIA.",
-        "coordinates": [
-          {
-            "latitude": -18.8820892559,
-            "longitude": 47.5214439476,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8819775896,
-            "longitude": 47.5220796311,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8830764845,
-            "longitude": 47.5223398054,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8832312936,
-            "longitude": 47.5223880851,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8834267081,
-            "longitude": 47.5223424876,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8839672693,
-            "longitude": 47.5224283183,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8839774207,
-            "longitude": 47.5222003305,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8840104126,
-            "longitude": 47.5217014396,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8833125049,
-            "longitude": 47.5215566003,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8825917534,
-            "longitude": 47.5214814985,
-            "radius": 40
-          }
-        ],
-        "hasProduct": false
-      },
-      {
-        "name": "SSRAILOVY NG2 PBF",
-        "coordinates": [
-          {
-            "latitude": -18.8936523899,
-            "longitude": 47.528493817,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8937462846,
-            "longitude": 47.5282658292,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8937792746,
-            "longitude": 47.5282309605,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8939213853,
-            "longitude": 47.5281960918,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8941954557,
-            "longitude": 47.528378482,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8940203552,
-            "longitude": 47.5284616305,
-            "radius": 30
-          }
-        ],
-        "hasProduct": true
-      },
-      {
-        "name": "STATION LOHARANO PBF",
-        "coordinates": [
-          {
-            "latitude": -18.9876307532,
-            "longitude": 47.5323466125,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9876053906,
-            "longitude": 47.5320032898,
-            "radius": 30
-          },
-          {
-            "latitude": -18.988041628,
-            "longitude": 47.5319711033,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9880543093,
-            "longitude": 47.5321642223,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9880365554,
-            "longitude": 47.532314426,
-            "radius": 30
-          }
-        ],
-        "hasProduct": true
-      },
-      {
-        "name": "STATION ILAMPY NG PBF",
-        "coordinates": [
-          {
-            "latitude": -19.3800178321,
-            "longitude": 47.4415335391,
-            "radius": 30
-          },
-          {
-            "latitude": -19.3802253109,
-            "longitude": 47.4417025182,
-            "radius": 30
-          },
-          {
-            "latitude": -19.3804125477,
-            "longitude": 47.4413886998,
-            "radius": 30
-          },
-          {
-            "latitude": -19.3802910968,
-            "longitude": 47.4411741231,
-            "radius": 30
-          }
-        ],
-        "hasProduct": true
-      }
-    ],
-    "4356TBP": [
+  "ETABLISSEMENT NOURDINE ALIBAY ET CIE -ENAC": {
+    "6662 TBG": [
       {
         "name": "DEPOT ALAROBIA.",
         "coordinates": [
@@ -1276,179 +2360,21 @@
         "hasProduct": true
       },
       {
-        "name": "SS ANJANAHARISOA NG3 PBF",
+        "name": "STATION AINA NG PBF",
         "coordinates": [
           {
-            "latitude": -18.89632,
-            "longitude": 47.53645,
+            "latitude": -18.8765899298,
+            "longitude": 47.5467197068,
             "radius": 30
           },
           {
-            "latitude": -18.8962643022,
-            "longitude": 47.5363344793,
+            "latitude": -18.8761330976,
+            "longitude": 47.5471649535,
             "radius": 30
           },
           {
-            "latitude": -18.896311873,
-            "longitude": 47.5362185789,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8965199606,
-            "longitude": 47.5362024857,
-            "radius": 30
-          },
-          {
-            "latitude": -18.8966240043,
-            "longitude": 47.5363205029,
-            "radius": 30
-          }
-        ],
-        "hasProduct": true
-      }
-    ],
-    "5322TBP": [
-      {
-        "name": "DEPOT ALAROBIA.",
-        "coordinates": [
-          {
-            "latitude": -18.8820892559,
-            "longitude": 47.5214439476,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8819775896,
-            "longitude": 47.5220796311,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8830764845,
-            "longitude": 47.5223398054,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8832312936,
-            "longitude": 47.5223880851,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8834267081,
-            "longitude": 47.5223424876,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8839672693,
-            "longitude": 47.5224283183,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8839774207,
-            "longitude": 47.5222003305,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8840104126,
-            "longitude": 47.5217014396,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8833125049,
-            "longitude": 47.5215566003,
-            "radius": 40
-          },
-          {
-            "latitude": -18.8825917534,
-            "longitude": 47.5214814985,
-            "radius": 40
-          }
-        ],
-        "hasProduct": false
-      },
-      {
-        "name": "SS SOA NG PBF",
-        "coordinates": [
-          {
-            "latitude": -18.9161760981,
-            "longitude": 47.4752136488,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9162395319,
-            "longitude": 47.4754443188,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9163968477,
-            "longitude": 47.4751626868,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9161456499,
-            "longitude": 47.4751036782,
-            "radius": 30
-          }
-        ],
-        "hasProduct": true
-      },
-      {
-        "name": "STATION KINTANA PBF",
-        "coordinates": [
-          {
-            "latitude": -18.9104206378,
-            "longitude": 47.5040240241,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9107708042,
-            "longitude": 47.5040025665,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9108723016,
-            "longitude": 47.5046087457,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9104663117,
-            "longitude": 47.5047723604,
-            "radius": 30
-          }
-        ],
-        "hasProduct": true
-      }
-    ],
-    "8215TAU": [
-      {
-        "name": "SS TSIKY - MHY ANDRIAMAMPIONONA PBF",
-        "coordinates": [
-          {
-            "latitude": -20.5487630659,
-            "longitude": 47.2411668401,
-            "radius": 30
-          },
-          {
-            "latitude": -20.5485320031,
-            "longitude": 47.2410434585,
-            "radius": 30
-          },
-          {
-            "latitude": -20.5486399999,
-            "longitude": 47.2412768107,
-            "radius": 30
-          },
-          {
-            "latitude": -20.5487580428,
-            "longitude": 47.2413599592,
-            "radius": 30
-          },
-          {
-            "latitude": -20.5488986895,
-            "longitude": 47.2413948279,
-            "radius": 30
-          },
-          {
-            "latitude": -20.5489790591,
-            "longitude": 47.2412633996,
+            "latitude": -18.8762498437,
+            "longitude": 47.5472749241,
             "radius": 30
           }
         ],
@@ -1456,132 +2382,181 @@
       }
     ]
   },
-  "ETABLISSEMENT NOURDINE ALIBAY ET CIE -ENAC": {
-    "6662 TBG": [
+  "SOMATRAM": {
+    "7618AF": [
       {
-        "name": "DEPOT ALAROBIA.",
+        "name": "DEPOT RAFFINERIE TERMINAL",
         "coordinates": [
           {
-            "latitude": -18.8820892559,
-            "longitude": 47.5214439476,
-            "radius": 40
+            "latitude": -18.166620446,
+            "longitude": 49.400207088,
+            "radius": 30
           },
           {
-            "latitude": -18.8819775896,
-            "longitude": 47.5220796311,
-            "radius": 40
+            "latitude": -18.1659399816,
+            "longitude": 49.3991335778,
+            "radius": 30
           },
           {
-            "latitude": -18.8830764845,
-            "longitude": 47.5223398054,
-            "radius": 40
+            "latitude": -18.1662559979,
+            "longitude": 49.3979212193,
+            "radius": 30
           },
           {
-            "latitude": -18.8832312936,
-            "longitude": 47.5223880851,
-            "radius": 40
+            "latitude": -18.1671836555,
+            "longitude": 49.3950780778,
+            "radius": 30
           },
           {
-            "latitude": -18.8834267081,
-            "longitude": 47.5223424876,
-            "radius": 40
+            "latitude": -18.1691816704,
+            "longitude": 49.3969341664,
+            "radius": 30
+          }
+        ],
+        "priorite": "Haute",
+        "hasProduct": false
+      },
+      {
+        "name": "SS BARIKADIMY PBF",
+        "coordinates": [
+          {
+            "latitude": -18.1469999846,
+            "longitude": 49.3694499972,
+            "radius": 30
           },
           {
-            "latitude": -18.8839672693,
-            "longitude": 47.5224283183,
-            "radius": 40
+            "latitude": -18.1468139222,
+            "longitude": 49.3690557124,
+            "radius": 30
           },
           {
-            "latitude": -18.8839774207,
-            "longitude": 47.5222003305,
-            "radius": 40
+            "latitude": -18.1461282937,
+            "longitude": 49.3693990352,
+            "radius": 30
           },
           {
-            "latitude": -18.8840104126,
-            "longitude": 47.5217014396,
-            "radius": 40
+            "latitude": -18.1461053544,
+            "longitude": 49.369704807,
+            "radius": 30
           },
           {
-            "latitude": -18.8833125049,
-            "longitude": 47.5215566003,
-            "radius": 40
+            "latitude": -18.1462531853,
+            "longitude": 49.369806731,
+            "radius": 30
+          }
+        ],
+        "priorite": "Haute",
+        "hasProduct": true
+      },
+      {
+        "name": "DEPOT RAFFINERIE TERMINAL",
+        "coordinates": [
+          {
+            "latitude": -18.166620446,
+            "longitude": 49.400207088,
+            "radius": 30
           },
           {
-            "latitude": -18.8825917534,
-            "longitude": 47.5214814985,
-            "radius": 40
+            "latitude": -18.1659399816,
+            "longitude": 49.3991335778,
+            "radius": 30
+          },
+          {
+            "latitude": -18.1662559979,
+            "longitude": 49.3979212193,
+            "radius": 30
+          },
+          {
+            "latitude": -18.1671836555,
+            "longitude": 49.3950780778,
+            "radius": 30
+          },
+          {
+            "latitude": -18.1691816704,
+            "longitude": 49.3969341664,
+            "radius": 30
           }
         ],
         "hasProduct": false
       },
       {
-        "name": "SOCIÉTÉ TANJONA PBF",
+        "name": "SS RELAIS DU STADE HIARO RAJAONARISON PBL",
         "coordinates": [
           {
-            "latitude": -18.9574083439,
-            "longitude": 47.5298978159
+            "latitude": -18.1515293327,
+            "longitude": 49.4145163998,
+            "radius": 30
           },
           {
-            "latitude": -18.9574996661,
-            "longitude": 47.5305093595
+            "latitude": -18.1512030948,
+            "longitude": 49.4144842133,
+            "radius": 30
           },
           {
-            "latitude": -18.9588086113,
-            "longitude": 47.5306381056
+            "latitude": -18.1511317302,
+            "longitude": 49.4148168073,
+            "radius": 30
           },
           {
-            "latitude": -18.9589709604,
-            "longitude": 47.5297797987
+            "latitude": -18.1514732606,
+            "longitude": 49.4149026379,
+            "radius": 30
           }
         ],
         "hasProduct": true
       },
       {
-        "name": "SS TSARA/TRA NG PBF",
+        "name": "SS RELAIS DU STADE HIARO RAJAONARISON PBL",
         "coordinates": [
           {
-            "latitude": -18.935552098,
-            "longitude": 47.5286386563,
+            "latitude": -18.1515293327,
+            "longitude": 49.4145163998,
             "radius": 30
           },
           {
-            "latitude": -18.9354658379,
-            "longitude": 47.5288907839,
+            "latitude": -18.1512030948,
+            "longitude": 49.4144842133,
             "radius": 30
           },
           {
-            "latitude": -18.9354759862,
-            "longitude": 47.5291053606,
+            "latitude": -18.1511317302,
+            "longitude": 49.4148168073,
             "radius": 30
           },
           {
-            "latitude": -18.935508968,
-            "longitude": 47.5292957975,
+            "latitude": -18.1514732606,
+            "longitude": 49.4149026379,
+            "radius": 30
+          }
+        ],
+        "hasProduct": true
+      },
+      {
+        "name": "SS BARIKADIMY PBF",
+        "coordinates": [
+          {
+            "latitude": -18.1469999846,
+            "longitude": 49.3694499972,
             "radius": 30
           },
           {
-            "latitude": -18.9355850797,
-            "longitude": 47.5294191791,
+            "latitude": -18.1468139222,
+            "longitude": 49.3690557124,
             "radius": 30
           },
           {
-            "latitude": -18.9356992473,
-            "longitude": 47.529405768,
+            "latitude": -18.1461282937,
+            "longitude": 49.3693990352,
             "radius": 30
           },
           {
-            "latitude": -18.9356890991,
-            "longitude": 47.5290999962,
+            "latitude": -18.1461053544,
+            "longitude": 49.369704807,
             "radius": 30
           },
           {
-            "latitude": -18.935638358,
-            "longitude": 47.528917606,
-            "radius": 30
-          },
-          {
-            "latitude": -18.9357068585,
-            "longitude": 47.5287218047,
+            "latitude": -18.1462531853,
+            "longitude": 49.369806731,
             "radius": 30
           }
         ],
@@ -1589,103 +2564,148 @@
       }
     ]
   },
-  "MASY GERTINE": {
-    "8289 TBR": [
+  "TRJ": {
+    "9272AF": [
       {
-        "name": "DEPOT MAHAJANGA",
+        "name": "DEPOT RAFFINERIE TERMINAL",
         "coordinates": [
           {
-            "latitude": -15.70965609,
-            "longitude": 46.3062497016,
-            "radius": 100
+            "latitude": -18.166620446,
+            "longitude": 49.400207088,
+            "radius": 30
           },
           {
-            "latitude": -15.7100330643,
-            "longitude": 46.3052250977,
-            "radius": 100
+            "latitude": -18.1659399816,
+            "longitude": 49.3991335778,
+            "radius": 30
           },
           {
-            "latitude": -15.7106888946,
-            "longitude": 46.3054611321,
-            "radius": 100
+            "latitude": -18.1662559979,
+            "longitude": 49.3979212193,
+            "radius": 30
           },
           {
-            "latitude": -15.7105236462,
-            "longitude": 46.306512558,
-            "radius": 100
+            "latitude": -18.1671836555,
+            "longitude": 49.3950780778,
+            "radius": 30
+          },
+          {
+            "latitude": -18.1691816704,
+            "longitude": 49.3969341664,
+            "radius": 30
           }
         ],
         "hasProduct": false
       },
       {
-        "name": "SS DOMOINA NG PBF",
+        "name": "ORANGE MADAGASCAR PBF",
         "coordinates": [
           {
-            "latitude": -15.7193732666,
-            "longitude": 46.3275674826,
-            "radius": 30
+            "latitude": -18.1867120466,
+            "longitude": 49.3799519899,
+            "radius": 50
           },
           {
-            "latitude": -15.7190221286,
-            "longitude": 46.3275326139,
-            "radius": 30
+            "latitude": -18.1872216894,
+            "longitude": 49.3795657518,
+            "radius": 50
           },
           {
-            "latitude": -15.7190453657,
-            "longitude": 46.3270605451,
-            "radius": 30
+            "latitude": -18.1875427636,
+            "longitude": 49.3803221347,
+            "radius": 50
           },
           {
-            "latitude": -15.7193861761,
-            "longitude": 46.3269934899,
-            "radius": 30
+            "latitude": -18.187048411,
+            "longitude": 49.3806386354,
+            "radius": 50
           }
         ],
         "hasProduct": true
       },
       {
-        "name": "SS IMALANDY PBF",
+        "name": "TSIMISARAKA NG3 PBF",
         "coordinates": [
           {
-            "latitude": -15.7086603533,
-            "longitude": 46.3767642566,
+            "latitude": -18.1699307254,
+            "longitude": 49.3957295145,
             "radius": 30
           },
           {
-            "latitude": -15.7083298531,
-            "longitude": 46.3770619818,
+            "latitude": -18.1704123843,
+            "longitude": 49.395107242,
             "radius": 30
           },
           {
-            "latitude": -15.7088875719,
-            "longitude": 46.3777432629,
+            "latitude": -18.1705882276,
+            "longitude": 49.395273539,
             "radius": 30
           },
           {
-            "latitude": -15.7092103251,
-            "longitude": 46.3774535843,
+            "latitude": -18.1701040208,
+            "longitude": 49.3958877648,
             "radius": 30
           }
         ],
         "hasProduct": true
-      },
+      }
+    ]
+  },
+  "IHARANA FITATERANA": {
+    "9859DD": [
       {
-        "name": "STATION ATAFANA PBF",
+        "name": "DEPOT VOHEMAR",
         "coordinates": [
           {
-            "latitude": -15.7218415432,
-            "longitude": 46.3130781895,
-            "radius": 30
+            "latitude": -13.355145553,
+            "longitude": 50.0060126288,
+            "radius": 50
           },
           {
-            "latitude": -15.7219448177,
-            "longitude": 46.3123352176,
-            "radius": 30
+            "latitude": -13.3548115145,
+            "longitude": 50.0055995686,
+            "radius": 50
           },
           {
-            "latitude": -15.7214052077,
-            "longitude": 46.3129762656,
-            "radius": 30
+            "latitude": -13.3551220659,
+            "longitude": 50.005258928,
+            "radius": 50
+          },
+          {
+            "latitude": -13.3555904301,
+            "longitude": 50.0057956337,
+            "radius": 50
+          },
+          {
+            "latitude": -13.3552563922,
+            "longitude": 50.0061228632,
+            "radius": 50
+          }
+        ],
+        "hasProduct": false
+      },
+      {
+        "name": "SS MAHAVAVY 5 PBF",
+        "coordinates": [
+          {
+            "latitude": -13.19928542,
+            "longitude": 49.0493075887,
+            "radius": 50
+          },
+          {
+            "latitude": -13.1990216735,
+            "longitude": 49.0498064796,
+            "radius": 50
+          },
+          {
+            "latitude": -13.1984132276,
+            "longitude": 49.0496535937,
+            "radius": 50
+          },
+          {
+            "latitude": -13.1985437955,
+            "longitude": 49.0490259568,
+            "radius": 50
           }
         ],
         "hasProduct": true

@@ -13,8 +13,11 @@
     "wialon": "node src/routing/wialon-zones.js",
     "routes": "node src/routing/calculate-routes.js",
     "run-all": "node run-all.js",
+    "report": "node src/report/wialon-report.js",
     "send-emails": "node src/emails/send-route-emails.js",
-    "report:schedule": "node src/report/schedule-report.js"
+    "report:schedule": "node src/report/schedule-report.js",
+    "schedule:now": "node src/report/schedule-report.js --now",
+    "schedule:report:now": "node src/report/schedule-report.js --now --report"
   },
   "author": "",
   "license": "ISC",

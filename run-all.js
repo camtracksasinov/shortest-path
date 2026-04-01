@@ -7,13 +7,15 @@ const { matchCoordinates } = require('./src/routing/wialon-zones');
 const { calculateOptimalRoute } = require('./src/routing/calculate-routes');
 const { updateExcelWithRouteOrder } = require('./src/routing/update-excel-order');
 const { processExcelAndSendEmails } = require('./src/emails/send-route-emails');
+const { configA: sftpConfig } = require('./src/sftp/sftp-config');
 
-const sftpConfig = {
-  host: process.env.SFTP_HOST,
-  port: process.env.SFTP_PORT || 22,
-  username: process.env.SFTP_USERNAME,
-  password: process.env.SFTP_PASSWORD
-};
+// ── Camtrack server config (COMMENTED OUT — now using Galana via sftp-config.js)
+// const sftpConfig = {
+//   host: process.env.SFTP_HOST,       // bi.camtrack.mg
+//   port: process.env.SFTP_PORT || 22,
+//   username: process.env.SFTP_USERNAME, // usertestgalana
+//   password: process.env.SFTP_PASSWORD
+// };
 
 async function downloadAllFiles() {
   const sftp = new SftpClient();
@@ -137,14 +139,17 @@ async function processFile(filePath) {
   console.log('\n📧 Step 5b: Sending route emails to transporters...');
   await processExcelAndSendEmails(updatedPath);
 
-  // Step 6: Run report only if the updated file's date matches today
+  // Step 6: Run report only if the updated file's date matches today AND --no-report not passed
+  const noReport = process.argv.includes('--no-report');
   const baseName = path.basename(updatedPath);
   const isUpdatedFile = baseName.includes('_updated-with-order');
   const dateMatch = baseName.match(/(\d{2})-(\d{2})-(\d{4})/);
   const fileDate = dateMatch ? `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}` : null;
   const todayStr = new Date().toISOString().split('T')[0];
 
-  if (isUpdatedFile && fileDate === todayStr) {
+  if (noReport) {
+    console.log(`\nℹ️  Step 6: Report skipped (--no-report flag).`);
+  } else if (isUpdatedFile && fileDate === todayStr) {
     console.log(`\n📊 Step 6: Running report for today's file (${baseName})...`);
     const { execSync } = require('child_process');
     execSync(`node src/report/wialon-report.js --file "${updatedPath}"`, { stdio: 'inherit' });

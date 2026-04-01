@@ -1,12 +1,15 @@
 const SftpClient = require('ssh2-sftp-client');
 require('dotenv').config();
 
-const sftpConfig = {
-  host: process.env.SFTP_HOST,
-  port: process.env.SFTP_PORT || 22,
-  username: process.env.SFTP_USERNAME,
-  password: process.env.SFTP_PASSWORD
-};
+const { configA: sftpConfig } = require('./sftp-config');
+
+// ── Camtrack server config (COMMENTED OUT — now using Galana via sftp-config.js)
+// const sftpConfig = {
+//   host: process.env.SFTP_HOST,       // bi.camtrack.mg
+//   port: process.env.SFTP_PORT || 22,
+//   username: process.env.SFTP_USERNAME, // usertestgalana
+//   password: process.env.SFTP_PASSWORD
+// };
 
 async function listFiles() {
   const sftp = new SftpClient();

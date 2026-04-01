@@ -4,17 +4,15 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
-// SFTP Configuration
-const sftpConfig = {
-  host: process.env.SFTP_HOST || 'your-server-host.com',
-  port: process.env.SFTP_PORT || 22,
-  username: process.env.SFTP_USERNAME || 'your-username',
-  password: process.env.SFTP_PASSWORD || 'your-password',
-  // Uncomment if using private key:
-  // privateKey: fs.readFileSync(process.env.SFTP_PRIVATE_KEY_PATH)
-};
+const { configA: sftpConfig, remotePath } = require('./sftp-config');
 
-const remotePath = process.env.SFTP_REMOTE_PATH || '/IN';
+// ── Camtrack server config (COMMENTED OUT — now using Galana via sftp-config.js)
+// const sftpConfig = {
+//   host: process.env.SFTP_HOST || 'bi.camtrack.mg',
+//   port: process.env.SFTP_PORT || 22,
+//   username: process.env.SFTP_USERNAME || 'usertestgalana',
+//   password: process.env.SFTP_PASSWORD
+// };
 const localDownloadPath = path.join(__dirname, '../../downloads');
 
 // Ensure download directory exists

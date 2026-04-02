@@ -293,13 +293,34 @@ async function processReportData(rows, orderedZones, tripDetailRows) {
   const tsToLocale = ts => {
     const d = new Date(ts * 1000);
     d.setHours(d.getHours() + TIMEZONE_OFFSET);
-    return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const dd = String(d.getUTCDate()).padStart(2, '0');
+    const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const yyyy = d.getUTCFullYear();
+    const hh = String(d.getUTCHours()).padStart(2, '0');
+    const min = String(d.getUTCMinutes()).padStart(2, '0');
+    return `${dd}/${mm}/${yyyy} ${hh}h${min}`;
+  };
+
+  // Reformat any Wialon time string to DD/MM/YYYY HHhMM (24h)
+  const formatWialonTime = (str) => {
+    if (!str || str === '-----') return str;
+    // Match "DD.MM.YYYY HH:MM:SS" or "DD/MM/YYYY HH:MM:SS" (with optional seconds)
+    const m = str.match(/(\d{2})[./](\d{2})[./](\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?/i);
+    if (!m) return str;
+    let hh = parseInt(m[4], 10);
+    const min = m[5];
+    const ampm = m[7];
+    if (ampm) {
+      if (ampm.toUpperCase() === 'PM' && hh !== 12) hh += 12;
+      if (ampm.toUpperCase() === 'AM' && hh === 12) hh = 0;
+    }
+    return `${m[1]}/${m[2]}/${m[3]} ${String(hh).padStart(2, '0')}h${min}`;
   };
 
   const getTripDepartureTs  = t => t.c[1]?.v ?? t.t1;
-  const getTripDepartureStr = t => (typeof t.c[1] === 'object' ? t.c[1]?.t : t.c[1]) || tsToLocale(getTripDepartureTs(t));
+  const getTripDepartureStr = t => formatWialonTime((typeof t.c[1] === 'object' ? t.c[1]?.t : t.c[1]) || tsToLocale(getTripDepartureTs(t)));
   const getTripArrivalTs    = t => t.c[3]?.v ?? t.t2;
-  const getTripArrivalStr   = t => t.c[3]?.t || tsToLocale(getTripArrivalTs(t));
+  const getTripArrivalStr   = t => formatWialonTime(t.c[3]?.t || tsToLocale(getTripArrivalTs(t)));
   const getTripStartZone    = t => (typeof t.c[2] === 'object' ? (t.c[2]?.t || '') : (t.c[2] || ''));
   const getTripEndZone      = t => t.c[4]?.t || '';
 
@@ -817,7 +838,7 @@ async function generateReport(targetFile = null) {
             const t2 = sub.c?.[3]?.v ?? sub.t2;
             if (!inTrajectoryWindow(t1, t2)) continue;
             const grouping = sub.c?.[1]?.t ?? sub.c?.[1] ?? '';
-            const beginning = sub.c?.[2]?.t ?? '';
+            const beginning = formatWialonTime(sub.c?.[2]?.t ?? '');
             const duration = sub.c?.[4]?.t ?? sub.c?.[4] ?? '';
             // en agglomération: c[5] is max speed; hors agglomération: c[5] is distance, c[6] is max speed
             const c5 = sub.c?.[5]?.t ?? sub.c?.[5] ?? '';
@@ -840,8 +861,8 @@ async function generateReport(targetFile = null) {
           if (!t1 || !t2) continue;
           if (!inTrajectoryWindow(t1, t2)) continue;
           const grouping   = sub.c?.[1]?.t ?? sub.c?.[1] ?? '';
-          const beginning  = sub.c?.[2]?.t ?? '';
-          const end        = sub.c?.[4]?.t ?? '';
+          const beginning  = formatWialonTime(sub.c?.[2]?.t ?? '');
+          const end        = formatWialonTime(sub.c?.[4]?.t ?? '');
           const engineHours = sub.c?.[6]?.t ?? sub.c?.[6] ?? '';
           const totalTime  = sub.c?.[7]?.t ?? sub.c?.[7] ?? '';
           const inMotion   = sub.c?.[8]?.t ?? sub.c?.[8] ?? '';
@@ -859,10 +880,10 @@ async function generateReport(targetFile = null) {
           const t2 = sub.c?.[3]?.v ?? sub.t2;
           if (!t1 || !t2) continue;
           if (!inTrajectoryWindow(t1, t2)) continue;
-          const beginning = sub.c?.[2]?.t ?? '';
+          const beginning = formatWialonTime(sub.c?.[2]?.t ?? '');
           if (!beginning || beginning === '-----') continue;
           const vehicle   = sub.c?.[1]?.t ?? sub.c?.[1] ?? '';
-          const end       = sub.c?.[3]?.t ?? '';
+          const end       = formatWialonTime(sub.c?.[3]?.t ?? '');
           const mileage   = sub.c?.[4]?.t ?? sub.c?.[4] ?? '';
           const maxSpeed  = sub.c?.[5]?.t ?? sub.c?.[5] ?? '';
           if (maxSpeed === '0 km/h') continue;

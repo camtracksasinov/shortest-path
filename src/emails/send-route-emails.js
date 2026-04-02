@@ -78,6 +78,19 @@ async function sendRouteEmail(vehicleData, recipientEmail) {
 */
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Format "DD.MM.YYYY HH:MM" or "DD/MM/YYYY HH:MM AM/PM" → "DD/MM/YYYY HHhMM" (24h)
+function formatDateTime(value) {
+  if (!value) return 'N/A';
+  const m = value.toString().trim().match(/(\d{2})[./](\d{2})[./](\d{4})\s+(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?/i);
+  if (!m) return value;
+  let hh = parseInt(m[4], 10);
+  if (m[6]) {
+    if (m[6].toUpperCase() === 'PM' && hh !== 12) hh += 12;
+    if (m[6].toUpperCase() === 'AM' && hh === 12) hh = 0;
+  }
+  return `${m[1]}/${m[2]}/${m[3]} ${String(hh).padStart(2, '0')}h${m[5]}`;
+}
+
 // Generate one grouped HTML email for all vehicles of a transporter
 function generateGroupedEmailHTML(transporteurName, vehicles, deliveryDate) {
   const dateLabel = deliveryDate ? `du ${deliveryDate}` : '';
@@ -112,7 +125,7 @@ function generateGroupedEmailHTML(transporteurName, vehicles, deliveryDate) {
       <table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:13px;">
         <tr>
           <td style="padding:4px 8px;width:50%;"><b>Chauffeur :</b> ${v.chauffeur || 'N/A'}</td>
-          <td style="padding:4px 8px;"><b>Heure de départ :</b> ${v.heureArrivee || 'N/A'}</td>
+          <td style="padding:4px 8px;"><b>Heure de départ :</b> ${formatDateTime(v.heureArrivee)}</td>
         </tr>
         <tr>
           <td style="padding:4px 8px;"><b>Dépôt de départ :</b> ${v.depotDepart || 'N/A'}</td>
@@ -253,7 +266,7 @@ async function processExcelAndSendEmails(excelPath) {
       transporteurMap[transporteur].vehicles[vehicule] = {
         vehicule,
         chauffeur:   row[chauffeurIdx] || '',
-        heureArrivee: row[rvArriveIdx] || '',
+        heureArrivee: '',
         depotDepart: '',
         routes: []
       };
@@ -261,7 +274,18 @@ async function processExcelAndSendEmails(excelPath) {
 
     const veh = transporteurMap[transporteur].vehicles[vehicule];
 
-    if (row[trajectIdx] === 1 && row[coordIdx]) veh.depotDepart = row[coordIdx];
+    // Parking row: no trajet order, coordonnees zone contains "parking"
+    const isParking = !row[trajectIdx] && row[coordIdx] && row[coordIdx].toString().toLowerCase().includes('parking');
+    if (isParking) {
+      if (!veh.depotDepart) veh.depotDepart = row[coordIdx];
+      if (!veh.heureArrivee && row[rvArriveIdx]) veh.heureArrivee = row[rvArriveIdx];
+    }
+
+    // Fallback: if no parking row found, use Trajet 1 row
+    if (row[trajectIdx] === 1 && row[coordIdx]) {
+      if (!veh.depotDepart) veh.depotDepart = row[coordIdx];
+      if (!veh.heureArrivee && row[rvArriveIdx]) veh.heureArrivee = row[rvArriveIdx];
+    }
 
     if (row[trajectIdx] && row[coordIdx] && !row[coordIdx].toString().toLowerCase().includes('parking')) {
       veh.routes.push({

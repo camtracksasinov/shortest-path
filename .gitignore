@@ -1,3 +1,7 @@
 node_modules/
 .env
 logs/*.log
+logs/*.png
+active/active-livraison.xlsx
+active/.~*
+downloads/.~*

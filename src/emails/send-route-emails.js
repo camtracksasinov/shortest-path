@@ -171,19 +171,24 @@ function generateGroupedEmailHTML(transporteurName, vehicles, deliveryDate) {
 async function sendGroupedEmail(transporteurName, email, vehicles, deliveryDate) {
   const dateLabel = deliveryDate ? ` – ${deliveryDate}` : '';
   const subject = `Plan de Trajet de Livraison${dateLabel} – ${transporteurName}`;
-  try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-      to: email,
-      subject,
-      html: generateGroupedEmailHTML(transporteurName, vehicles, deliveryDate)
-    });
-    console.log(`✅ Grouped email sent to ${email} (${transporteurName} — ${vehicles.length} vehicle(s))`);
-    return true;
-  } catch (error) {
-    console.error(`❌ Failed to send email to ${email} (${transporteurName}):`, error.message);
-    return false;
+  const recipients = email.split(';').map(e => e.trim()).filter(Boolean);
+  const html = generateGroupedEmailHTML(transporteurName, vehicles, deliveryDate);
+  let allOk = true;
+  for (const recipient of recipients) {
+    try {
+      await transporter.sendMail({
+        from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+        to: recipient,
+        subject,
+        html
+      });
+      console.log(`✅ Grouped email sent to ${recipient} (${transporteurName} — ${vehicles.length} vehicle(s))`);
+    } catch (error) {
+      console.error(`❌ Failed to send email to ${recipient} (${transporteurName}):`, error.message);
+      allOk = false;
+    }
   }
+  return allOk;
 }
 
 async function downloadUpdatedFileFromSFTP() {

@@ -34,19 +34,32 @@ async function startServer() {
 
 startServer();
 
+const { handleWialonNotification } = require('./src/notifications/wialon-notify-handler');
+
 const WIALON_LOG = path.join(__dirname, 'logs', 'wialon-notifications.txt');
 
 function appendLog(text) {
   const line = `[${new Date().toLocaleString()}] ${text}\n`;
   fs.appendFileSync(WIALON_LOG, line, 'utf8');
-  console.log('📩 Wialon notification logged:', text);
 }
 
 // Wialon notification receiver
-app.post('/wialon-notify', (req, res) => {
-  const message = req.body?.message || req.body?.text || JSON.stringify(req.body);
-  appendLog(message);
-  res.status(200).send('OK');
+app.post('/wialon-notify', async (req, res) => {
+  const raw = req.body;
+  const logText = typeof raw === 'string' ? raw : JSON.stringify(raw);
+  appendLog(logText);
+  console.log('📩 Wialon notification received:', logText);
+
+  res.status(200).send('OK'); // respond immediately so Wialon doesn't retry
+
+  try {
+    const result = await handleWialonNotification(raw);
+    if (result.skipped) {
+      console.log(`⏭  Notification skipped: ${result.reason}`);
+    }
+  } catch (err) {
+    console.error('❌ Notification handler error:', err.message);
+  }
 });
 
 // Calculate centroid of a geofence (polygon)

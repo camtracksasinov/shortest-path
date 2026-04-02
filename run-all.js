@@ -133,6 +133,12 @@ async function processFile(filePath) {
   fs.writeFileSync(routesPath, JSON.stringify(optimalRoutes, null, 2));
   const updatedPath = await updateExcelWithRouteOrder(filePath, routesPath);
 
+  // Keep a local active copy for Wialon notifications (no SFTP needed at runtime)
+  const activePath = path.join(__dirname, 'active', 'active-livraison.xlsx');
+  if (fs.existsSync(activePath)) fs.unlinkSync(activePath);
+  fs.copyFileSync(updatedPath, activePath);
+  console.log(`  📋 Active copy saved: active/active-livraison.xlsx`);
+
   console.log('\n📤 Step 5: Uploading updated file to SFTP...');
   await uploadUpdatedFile(updatedPath);
 

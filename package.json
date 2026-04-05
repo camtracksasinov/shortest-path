@@ -13,6 +13,7 @@
     "sftp": "node src/sftp/sftp-excel-reader.js",
     "wialon": "node src/routing/wialon-zones.js",
     "routes": "node src/routing/calculate-routes.js",
+    "manual": "node manual-process.js",
     "run-all": "node run-all.js",
     "report": "node src/report/wialon-report.js",
     "send-emails": "node src/emails/send-route-emails.js",

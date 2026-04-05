@@ -1,0 +1,182 @@
+const readline = require('readline');
+const path = require('path');
+const fs = require('fs');
+const SftpClient = require('ssh2-sftp-client');
+require('dotenv').config();
+
+const { configA: sftpConfig } = require('./src/sftp/sftp-config');
+const { matchCoordinates } = require('./src/routing/wialon-zones');
+const { calculateOptimalRoute } = require('./src/routing/calculate-routes');
+const { updateExcelWithRouteOrder } = require('./src/routing/update-excel-order');
+const { generateReport } = require('./src/report/wialon-report');
+
+const DOWNLOADS = path.join(__dirname, 'downloads');
+
+const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+const ask = q => new Promise(resolve => rl.question(q, resolve));
+
+// ── Parse Excel for coordinates (same logic as run-all.js) ───────────────────
+async function parseExcelForCoordinates(filePath) {
+  const XLSX = require('xlsx');
+  const workbook = XLSX.readFile(filePath);
+  const data = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 });
+  const headers = data[0];
+  const coordIdx      = headers.findIndex(h => h && h.toString().toLowerCase().includes('coordonnees zone'));
+  const transporteurIdx = headers.findIndex(h => h && h.toString().toLowerCase().includes('transporteur'));
+  const camionIdx     = headers.findIndex(h => h && (h.toString().toLowerCase().includes('camion') || h.toString().toLowerCase().includes('vehicule')));
+  const goIdx         = headers.findIndex(h => h === 'GO');
+  const scIdx         = headers.findIndex(h => h === 'SC');
+  const plIdx         = headers.findIndex(h => h === 'PL');
+  const foIdx         = headers.findIndex(h => h === 'FO');
+  const prioriteIdx   = headers.findIndex(h => h && h.toString().toLowerCase().includes('priorite'));
+
+  const rowsToInclude = new Set();
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][goIdx] || data[i][scIdx] || data[i][plIdx] || data[i][foIdx]) {
+      rowsToInclude.add(i);
+      if (i > 1) rowsToInclude.add(i - 1);
+    }
+  }
+
+  const transporteurMap = {};
+  for (let i = 1; i < data.length; i++) {
+    if (!rowsToInclude.has(i)) continue;
+    const transporteur = data[i][transporteurIdx];
+    const camion = camionIdx !== -1 ? data[i][camionIdx] : 'N/A';
+    const coord = data[i][coordIdx];
+    const priorite = prioriteIdx !== -1 ? data[i][prioriteIdx] : '';
+    const hasProduct = !!(data[i][goIdx] || data[i][scIdx] || data[i][plIdx] || data[i][foIdx]);
+    if (transporteur && coord) {
+      if (!transporteurMap[transporteur]) transporteurMap[transporteur] = {};
+      if (!transporteurMap[transporteur][camion]) transporteurMap[transporteur][camion] = [];
+      transporteurMap[transporteur][camion].push({ coord, priorite, hasProduct });
+    }
+  }
+  return transporteurMap;
+}
+
+// ── Download a specific file from SFTP ───────────────────────────────────────
+async function downloadFile(fileName) {
+  const sftp = new SftpClient();
+  await sftp.connect(sftpConfig);
+  const list = await sftp.list('/IN');
+  const found = list.find(f => f.name === fileName);
+  if (!found) {
+    await sftp.end();
+    return null;
+  }
+  const localPath = path.join(DOWNLOADS, fileName);
+  await sftp.get(`/IN/${fileName}`, localPath);
+  await sftp.end();
+  return localPath;
+}
+
+// ── Upload updated file back to SFTP ─────────────────────────────────────────
+async function uploadFile(localPath) {
+  const sftp = new SftpClient();
+  await sftp.connect(sftpConfig);
+  await sftp.put(localPath, `/IN/${path.basename(localPath)}`);
+  console.log(`  ✅ Uploaded: ${path.basename(localPath)} → /IN`);
+  await sftp.end();
+}
+
+// ── Run routing only (no emails, no active copy) ──────────────────────────────
+async function runRoutingOnly(localPath) {
+  const fileName = path.basename(localPath);
+  console.log(`\n${'='.repeat(70)}`);
+  console.log(`📄 ROUTING: ${fileName}`);
+  console.log('='.repeat(70));
+
+  console.log('\n📍 Fetching coordinates from Wialon...');
+  const coordData = await parseExcelForCoordinates(localPath);
+  const zonesData = await matchCoordinates(coordData);
+
+  console.log('\n🗺️  Calculating optimal routes...');
+  const optimalRoutes = await calculateOptimalRoute(zonesData);
+
+  console.log('\n📝 Updating Excel with optimal order...');
+  const routesPath = path.join(DOWNLOADS, `optimal-routes-${path.basename(localPath, '.xlsx')}.json`);
+  fs.writeFileSync(routesPath, JSON.stringify(optimalRoutes, null, 2));
+  const updatedPath = await updateExcelWithRouteOrder(localPath, routesPath);
+
+  console.log('\n📤 Uploading updated file to SFTP...');
+  await uploadFile(updatedPath);
+
+  console.log(`\n✅ Routing done. Updated file: ${path.basename(updatedPath)}`);
+  console.log('ℹ️  No emails sent, no active copy saved (past date).\n');
+  return updatedPath;
+}
+
+// ── Ask about report ──────────────────────────────────────────────────────────
+async function askReport(updatedPath) {
+  const ans = (await ask('📊 Run the end-of-day report for this file? (yes/no): ')).trim().toLowerCase();
+  if (ans === 'yes' || ans === 'y') {
+    console.log('\n📊 Running report...\n');
+    await generateReport(updatedPath);
+    return;
+  }
+
+  // No → ask for another file or quit
+  const ans2 = (await ask('Run report for a different file? (yes/no): ')).trim().toLowerCase();
+  if (ans2 === 'yes' || ans2 === 'y') {
+    const otherName = (await ask('Enter the exact file name (e.g. Livraison 26-03-2026.1_updated-with-order.xlsx): ')).trim();
+    const otherPath = path.join(DOWNLOADS, otherName);
+    if (!fs.existsSync(otherPath)) {
+      console.log(`❌ File not found locally: ${otherName}`);
+    } else {
+      console.log('\n📊 Running report...\n');
+      await generateReport(otherPath);
+    }
+  } else {
+    console.log('\n👋 Exiting.');
+  }
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+async function main() {
+  console.log('\n========================================');
+  console.log('  Manual Process — Routing & Report');
+  console.log('========================================\n');
+
+  const action = (await ask('What do you want to do?\n  [1] Routing order for a past date\n  [2] Report only for a specific file\nChoice (1/2): ')).trim();
+
+  if (action === '1') {
+    // ── Routing ──
+    const fileName = (await ask('\nEnter the exact file name on the server\n(e.g. Livraison 26-03-2026.1.xlsx): ')).trim();
+
+    console.log(`\n🔍 Checking file on SFTP server...`);
+    const localPath = await downloadFile(fileName);
+    if (!localPath) {
+      console.log(`❌ File "${fileName}" not found in /IN on the server.`);
+      rl.close();
+      return;
+    }
+    console.log(`✅ Downloaded: ${fileName}\n`);
+
+    const updatedPath = await runRoutingOnly(localPath);
+    await askReport(updatedPath);
+
+  } else if (action === '2') {
+    // ── Report only ──
+    const fileName = (await ask('\nEnter the exact file name\n(e.g. Livraison 26-03-2026.1_updated-with-order.xlsx): ')).trim();
+    const localPath = path.join(DOWNLOADS, fileName);
+    if (!fs.existsSync(localPath)) {
+      console.log(`❌ File not found locally: ${fileName}`);
+      rl.close();
+      return;
+    }
+    console.log('\n📊 Running report...\n');
+    await generateReport(localPath);
+
+  } else {
+    console.log('❌ Invalid choice.');
+  }
+
+  rl.close();
+}
+
+main().catch(err => {
+  console.error('\n❌ Error:', err.message);
+  rl.close();
+  process.exit(1);
+});

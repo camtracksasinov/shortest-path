@@ -1104,6 +1104,10 @@ async function generateReport(targetFile = null) {
 }
 
 // Run the report
-const fileArg = process.argv.find(a => a.startsWith('--file='))?.split('=').slice(1).join('=') ||
-  (process.argv.indexOf('--file') !== -1 ? process.argv[process.argv.indexOf('--file') + 1] : null);
-generateReport(fileArg);
+if (require.main === module) {
+  const fileArg = process.argv.find(a => a.startsWith('--file='))?.split('=').slice(1).join('=') ||
+    (process.argv.indexOf('--file') !== -1 ? process.argv[process.argv.indexOf('--file') + 1] : null);
+  generateReport(fileArg);
+}
+
+module.exports = { generateReport };

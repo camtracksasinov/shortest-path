@@ -14,7 +14,7 @@ const BASE_URL = `${process.env.WIALON_BASE_URL}/wialon/ajax.html`;
 const TIMEZONE_OFFSET = parseInt(process.env.TIMEZONE_OFFSET || '2');
 
 const sftpConfig = configA;  // Galana — download updated files from /IN
-const sftpUploadConfig = configB; // Camtrack — upload rapport to /OUT
+const sftpUploadConfig = configB; // Camtrack destination — upload rapport to /OUT
 
 let sessionId = null;
 let sftp = new SftpClient();
@@ -228,6 +228,20 @@ async function getSpeedingDetailRows(tableIndex) {
   return response.data;
 }
 
+function formatWialonTime(str) {
+  if (!str || str === '-----') return str;
+  const m = str.match(/(\d{2})[./](\d{2})[./](\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?/i);
+  if (!m) return str;
+  let hh = parseInt(m[4], 10);
+  const min = m[5];
+  const ampm = m[7];
+  if (ampm) {
+    if (ampm.toUpperCase() === 'PM' && hh !== 12) hh += 12;
+    if (ampm.toUpperCase() === 'AM' && hh === 12) hh = 0;
+  }
+  return `${m[1]}/${m[2]}/${m[3]} ${String(hh).padStart(2, '0')}h${min}`;
+}
+
 function isValidConducteContinueRow(sub) {
   // c[6]=Engine hours, c[10]=Mileage — skip if both are zero/empty/dashes
   const engineHours = sub.c?.[6]?.t ?? sub.c?.[6] ?? '';
@@ -280,6 +294,7 @@ async function getTripDetailRows(rowIndex) {
 
 function calculateDuration(firstIn, lastOut) {
   const diff = lastOut - firstIn;
+  if (diff < 0) return 'N/A';
   const hours = Math.floor(diff / 3600);
   const minutes = Math.floor((diff % 3600) / 60);
   const seconds = diff % 60;
@@ -299,22 +314,6 @@ async function processReportData(rows, orderedZones, tripDetailRows) {
     const hh = String(d.getUTCHours()).padStart(2, '0');
     const min = String(d.getUTCMinutes()).padStart(2, '0');
     return `${dd}/${mm}/${yyyy} ${hh}h${min}`;
-  };
-
-  // Reformat any Wialon time string to DD/MM/YYYY HHhMM (24h)
-  const formatWialonTime = (str) => {
-    if (!str || str === '-----') return str;
-    // Match "DD.MM.YYYY HH:MM:SS" or "DD/MM/YYYY HH:MM:SS" (with optional seconds)
-    const m = str.match(/(\d{2})[./](\d{2})[./](\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?/i);
-    if (!m) return str;
-    let hh = parseInt(m[4], 10);
-    const min = m[5];
-    const ampm = m[7];
-    if (ampm) {
-      if (ampm.toUpperCase() === 'PM' && hh !== 12) hh += 12;
-      if (ampm.toUpperCase() === 'AM' && hh === 12) hh = 0;
-    }
-    return `${m[1]}/${m[2]}/${m[3]} ${String(hh).padStart(2, '0')}h${min}`;
   };
 
   const getTripDepartureTs  = t => t.c[1]?.v ?? t.t1;
@@ -359,6 +358,12 @@ async function processReportData(rows, orderedZones, tripDetailRows) {
       // For depot: if no trips end here, vehicle never actually visited — ignore geofence rows
       if (isDepot && tripsEndingHere.length === 0) {
         results.push({ zone: zoneName, order: zone.order, firstEntry: '--', lastExit: '--', duration: '--', kilometrage: '--', vitesseMoyenne: '--', vitesseMax: '--', trajectory: '', status: 'Not visited' });
+        continue;
+      }
+
+      // For parking: if no trips at all, vehicle never actually visited — ignore geofence rows
+      if (isParking && tripsEndingHere.length === 0 && tripsStartingHere.length === 0) {
+        results.push({ zone: zoneName, order: zone.order, firstEntry: 'N/A', lastExit: 'N/A', duration: 'N/A', kilometrage: 'N/A', vitesseMoyenne: 'N/A', vitesseMax: 'N/A', trajectory: '', status: 'Not visited' });
         continue;
       }
 
@@ -489,10 +494,15 @@ async function processReportData(rows, orderedZones, tripDetailRows) {
         const lastArrTs  = lastArrivalWithinCutoff ? getTripArrivalTs(lastArrivalWithinCutoff) : -Infinity;
         const useArrival = lastArrTs > lastDepTs;
 
-        firstEntryTs = firstEntryCandidate ? firstEntryCandidate.ts : zoneVisits[0].entryTime;
-        lastExitTs   = useArrival ? lastArrTs : (lastDeparture ? lastDepTs : zoneVisits[zoneVisits.length - 1].exitTime);
-        firstEntry   = firstEntryCandidate ? firstEntryCandidate.str : tsToLocale(firstEntryTs);
-        lastExit     = useArrival ? getTripArrivalStr(lastArrivalWithinCutoff) : (lastDeparture ? getTripDepartureStr(lastDeparture) : tsToLocale(lastExitTs));
+        firstEntryTs = firstEntryCandidate ? firstEntryCandidate.ts : null;
+        lastExitTs   = useArrival ? lastArrTs : (lastDeparture ? lastDepTs : null);
+        firstEntry   = firstEntryCandidate ? firstEntryCandidate.str : 'N/A';
+        lastExit     = useArrival ? getTripArrivalStr(lastArrivalWithinCutoff) : (lastDeparture ? getTripDepartureStr(lastDeparture) : 'N/A');
+
+        if (!firstEntryCandidate && !lastDeparture && !lastArrivalWithinCutoff) {
+          results.push({ zone: zoneName, order: zone.order, firstEntry: 'N/A', lastExit: 'N/A', duration: 'N/A', kilometrage: 'N/A', vitesseMoyenne: 'N/A', vitesseMax: 'N/A', trajectory: '', status: 'Not visited' });
+          continue;
+        }
       } else {
         const firstArrival = tripsEndingHere.length > 0
           ? tripsEndingHere.reduce((min, t) => (getTripArrivalTs(t) < getTripArrivalTs(min) ? t : min))
@@ -539,8 +549,8 @@ async function processReportData(rows, orderedZones, tripDetailRows) {
           }
         }
 
-        firstEntryTs = firstArrival ? getTripArrivalTs(firstArrival) : zoneVisits[0].entryTime;
-        firstEntry   = firstArrival ? getTripArrivalStr(firstArrival) : tsToLocale(firstEntryTs);
+        firstEntryTs = firstArrival ? getTripArrivalTs(firstArrival) : null;
+        firstEntry   = firstArrival ? getTripArrivalStr(firstArrival) : 'N/A';
         if (lastDeparture) {
           lastExitTs = getTripDepartureTs(lastDeparture);
           lastExit   = getTripDepartureStr(lastDeparture);
@@ -554,14 +564,28 @@ async function processReportData(rows, orderedZones, tripDetailRows) {
         }
       }
 
-      const duration = calculateDuration(firstEntryTs, lastExitTs);
-      results.push({ zone: zoneName, order: zone.order, firstEntry, lastExit, firstEntryTs, lastExitTs, duration, kilometrage: '--', vitesseMoyenne: '--', vitesseMax: '--', trajectory: '', status: 'Completed' });
+      const duration = (firstEntryTs && lastExitTs) ? calculateDuration(firstEntryTs, lastExitTs) : 'N/A';
+      results.push({ zone: zoneName, order: zone.order, firstEntry, lastExit, firstEntryTs, lastExitTs: lastExitTs ?? firstEntryTs, duration, kilometrage: '--', vitesseMoyenne: '--', vitesseMax: '--', trajectory: '', status: 'Completed' });
       continue;
     }
 
     // Regular delivery zone — use trips data for accurate first entry / last exit
-    const tripsEndingAtZone   = missionTrips.filter(t => getTripEndZone(t).includes(zoneName));
-    const tripsStartingAtZone = missionTrips.filter(t => getTripStartZone(t).includes(zoneName));
+    // c[4] = end zone name, c[2] = start zone name (may contain "X km from ZONE" approach text)
+    const tripsEndingAtZone   = missionTrips.filter(t => {
+      const endZone = getTripEndZone(t);
+      const beforeColon = endZone.split(':')[0].toUpperCase();
+      return beforeColon.includes(zoneName.toUpperCase());
+    });
+    const tripsStartingAtZone = missionTrips.filter(t => {
+      const startZone = getTripStartZone(t);
+      if (!startZone.includes(zoneName)) return false;
+      // Exclude approach rows: "X km from ZONE" — vehicle was outside the zone
+      if (/\bfrom\b/i.test(startZone.split(zoneName)[0])) return false;
+      // Exclude rows where the zone name only appears inside a longer address (after ":")
+      // e.g. "Other Zone: address near ZONE" — the actual start zone is "Other Zone"
+      const beforeColon = startZone.split(':')[0].toUpperCase();
+      return beforeColon.includes(zoneName.toUpperCase());
+    });
 
     const firstArrivalTrip  = tripsEndingAtZone.length > 0
       ? tripsEndingAtZone.reduce((min, t) => (getTripArrivalTs(t) < getTripArrivalTs(min) ? t : min))
@@ -570,12 +594,12 @@ async function processReportData(rows, orderedZones, tripDetailRows) {
       ? tripsStartingAtZone.reduce((max, t) => (getTripDepartureTs(t) > getTripDepartureTs(max) ? t : max))
       : null;
 
-    firstEntryTs = firstArrivalTrip  ? getTripArrivalTs(firstArrivalTrip)   : zoneVisits[0].entryTime;
-    lastExitTs   = lastDepartureTrip ? getTripDepartureTs(lastDepartureTrip) : zoneVisits[zoneVisits.length - 1].exitTime;
-    firstEntry   = firstArrivalTrip  ? getTripArrivalStr(firstArrivalTrip)   : tsToLocale(firstEntryTs);
-    lastExit     = lastDepartureTrip ? getTripDepartureStr(lastDepartureTrip) : tsToLocale(lastExitTs);
+    firstEntryTs = firstArrivalTrip  ? getTripArrivalTs(firstArrivalTrip)   : null;
+    lastExitTs   = lastDepartureTrip ? getTripDepartureTs(lastDepartureTrip) : null;
+    firstEntry   = firstArrivalTrip  ? getTripArrivalStr(firstArrivalTrip)   : 'N/A';
+    lastExit     = lastDepartureTrip ? getTripDepartureStr(lastDepartureTrip) : 'N/A';
 
-    const duration = calculateDuration(firstEntryTs, lastExitTs);
+    const duration = (firstEntryTs && lastExitTs) ? calculateDuration(firstEntryTs, lastExitTs) : 'N/A';
 
     let kilometrage = 'N/A', vitesseMoyenne = 'N/A', vitesseMax = 'N/A', trajectory = '';
 
@@ -662,7 +686,116 @@ function displayTable(vehicleName, results) {
   console.log('='.repeat(W) + '\n');
 }
 
-async function generateReport(targetFile = null) {
+function applyRealOrderAdjustment(data, vehicleResultsMap) {
+  const headers = data[0];
+  const camionIdx      = headers.findIndex(h => h && h.toString().toLowerCase().includes('camion'));
+  const clientDepotIdx = headers.findIndex(h => h && h.toString().toLowerCase().includes('client/depot'));
+  const trajectIdx     = headers.findIndex(h => h && h.toString().toLowerCase() === 'trajet order' || (h && h.toString().toLowerCase().includes('trajet') && !h.toString().toLowerCase().includes('coordonnees')));
+  const coordIdx       = headers.findIndex(h => h && h.toString().toLowerCase().includes('coordonnees zone'));
+
+  // Columns that must NOT be permuted (anchored to their planned zone row)
+  const anchoredCols = new Set([trajectIdx, coordIdx, clientDepotIdx].filter(i => i !== -1));
+
+  // Insert 2 new columns right after clientDepotIdx
+  const insertAt = clientDepotIdx + 1;
+  headers.splice(insertAt, 0, 'Ordre trajet suivi', 'Trajet zone suivi');
+  for (let i = 1; i < data.length; i++) {
+    data[i].splice(insertAt, 0, '', '');
+  }
+
+  // Shift anchored col indices that are at or after insertAt
+  const shift = idx => (idx !== -1 && idx >= insertAt) ? idx + 2 : idx;
+  const camionIdxS      = shift(camionIdx);
+  const clientDepotIdxS = clientDepotIdx; // was before insertAt, unchanged
+  const trajectIdxS     = shift(trajectIdx);
+  const coordIdxS       = shift(coordIdx);
+  const ordreTrajetIdx  = insertAt;       // new col 1
+  const zoneTrajetIdx   = insertAt + 1;   // new col 2
+
+  // Columns that stay anchored to their planned row (never permuted)
+  const finalAnchoredCols = new Set([trajectIdxS, coordIdxS, clientDepotIdxS, ordreTrajetIdx, zoneTrajetIdx].filter(i => i !== -1));
+
+  // Group data rows by vehicle
+  const vehicleRowMap = {};
+  for (let i = 1; i < data.length; i++) {
+    const camion = data[i][camionIdxS]?.toString().trim();
+    if (!camion) continue;
+    if (!vehicleRowMap[camion]) vehicleRowMap[camion] = [];
+    vehicleRowMap[camion].push(i);
+  }
+
+  for (const [vehicleName, rowIndices] of Object.entries(vehicleRowMap)) {
+    const results = vehicleResultsMap[vehicleName];
+    if (!results) continue;
+
+    // Separate parking rows (no trajet order) from trajet rows
+    const parkingRowIndices = rowIndices.filter(i => {
+      const coord = data[i][coordIdxS]?.toString().toLowerCase() || '';
+      return coord.includes('parking');
+    });
+    const trajetRowIndices = rowIndices.filter(i => !parkingRowIndices.includes(i));
+
+    if (trajetRowIndices.length < 2) continue; // nothing to reorder
+
+    // Map each trajet row to its result by Client/Depot
+    const trajetRows = trajetRowIndices.map(i => {
+      const clientDepot = data[i][clientDepotIdxS]?.toString().trim() || '';
+      const result = results.find(r => r.zone === clientDepot);
+      return { rowIdx: i, clientDepot, firstEntryTs: result?.firstEntryTs ?? null };
+    });
+
+    // Keep depot (trajet order 1) fixed — it's the first trajet row
+    const depotRow = trajetRows[0];
+    const deliveryRows = trajetRows.slice(1);
+
+    // Sort delivery rows by firstEntryTs; null/undefined goes last
+    const sorted = [...deliveryRows].sort((a, b) => {
+      if (a.firstEntryTs == null && b.firstEntryTs == null) return 0;
+      if (a.firstEntryTs == null) return 1;
+      if (b.firstEntryTs == null) return -1;
+      return a.firstEntryTs - b.firstEntryTs;
+    });
+
+    // Build real order: depot first, then sorted deliveries
+    const realOrder = [depotRow, ...sorted];
+
+    // Fill Ordre trajet suivi + Trajet zone suivi on the planned rows
+    realOrder.forEach((item, idx) => {
+      const realOrderNum = idx + 1;
+      const realZoneName = item.clientDepot;
+      // Find the planned row that has this zone as Client/Depot
+      const plannedRowIdx = trajetRowIndices[idx];
+      data[plannedRowIdx][ordreTrajetIdx] = realOrderNum;
+      data[plannedRowIdx][zoneTrajetIdx]  = realZoneName;
+    });
+
+    // Now permute all non-anchored columns:
+    // For each planned position i, the data should come from realOrder[i].rowIdx
+    const totalCols = headers.length;
+    const permutableCols = [];
+    for (let c = 0; c < totalCols; c++) {
+      if (!finalAnchoredCols.has(c)) permutableCols.push(c);
+    }
+
+    // Snapshot current values for all trajet rows
+    const snapshot = {};
+    for (const ri of trajetRowIndices) {
+      snapshot[ri] = [...data[ri]];
+    }
+
+    // Apply permutation: planned row at position p gets permutable col values from realOrder[p]
+    trajetRowIndices.forEach((plannedRowIdx, p) => {
+      const sourceRowIdx = realOrder[p].rowIdx;
+      for (const c of permutableCols) {
+        data[plannedRowIdx][c] = snapshot[sourceRowIdx][c];
+      }
+    });
+  }
+
+  return data;
+}
+
+async function generateReport(targetFile = null, sendEmails = true) {
   try {
     let downloadedFiles;
     if (targetFile) {
@@ -687,6 +820,7 @@ async function generateReport(targetFile = null) {
       const allSpeedingOutRows = [];
       const allNightRows = [];
       const allConducteContinueRows = [];
+      const vehicleResultsMap = {}; // vehicleName → results[]
 
       const workbook = XLSX.readFile(downloadedFile);
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -826,6 +960,7 @@ async function generateReport(targetFile = null) {
       }
 
       displayTable(formattedName, results);
+      vehicleResultsMap[vehicleName] = results;
 
       // Collect speeding display rows from same source as counting (tableIndex 0 / 2)
       const inTrajectoryWindow = (t1, t2) => trajectoryWindows.some(w => t1 <= w.windowEnd && (t2 ?? t1) >= w.windowStart);
@@ -909,38 +1044,50 @@ async function generateReport(targetFile = null) {
       }
     }
     
+    // Apply real order adjustment — inserts 2 new columns and permutes rows
+    console.log('\n🔀 Applying real trajectory order adjustment...');
+    applyRealOrderAdjustment(data, vehicleResultsMap);
+    const totalCols = data[0].length;
+
     const workbookOut = new ExcelJS.Workbook();
     const worksheetOut = workbookOut.addWorksheet('Report');
     worksheetOut.addRows(data);
     
     const originalColWidths = worksheet['!cols'] || [];
-    for (let i = 0; i < headers.length - 9; i++) {
+    for (let i = 0; i < totalCols - 12; i++) {
       worksheetOut.getColumn(i + 1).width = originalColWidths[i]?.wch || 15;
     }
-    worksheetOut.getColumn(headers.length - 9).width = 22;
-    worksheetOut.getColumn(headers.length - 8).width = 22;
-    worksheetOut.getColumn(headers.length - 7).width = 20;
-    worksheetOut.getColumn(headers.length - 6).width = 25;
-    worksheetOut.getColumn(headers.length - 5).width = 18;
-    worksheetOut.getColumn(headers.length - 4).width = 15;
-    worksheetOut.getColumn(headers.length - 3).width = 25;
-    worksheetOut.getColumn(headers.length - 2).width = 30;
-    worksheetOut.getColumn(headers.length - 1).width = 20;
-    worksheetOut.getColumn(headers.length).width = 20;
-    
+    // 2 new cols: Ordre trajet suivi, Trajet zone suivi
+    worksheetOut.getColumn(totalCols - 11).width = 20;
+    worksheetOut.getColumn(totalCols - 10).width = 30;
+    // Report cols
+    worksheetOut.getColumn(totalCols - 9).width = 22;
+    worksheetOut.getColumn(totalCols - 8).width = 22;
+    worksheetOut.getColumn(totalCols - 7).width = 20;
+    worksheetOut.getColumn(totalCols - 6).width = 25;
+    worksheetOut.getColumn(totalCols - 5).width = 18;
+    worksheetOut.getColumn(totalCols - 4).width = 15;
+    worksheetOut.getColumn(totalCols - 3).width = 25;
+    worksheetOut.getColumn(totalCols - 2).width = 30;
+    worksheetOut.getColumn(totalCols - 1).width = 20;
+    worksheetOut.getColumn(totalCols).width = 20;
+
     const headerRow = worksheetOut.getRow(1);
     headerRow.height = 45;
-    const newColumnsStartIdx = headers.length - 9;
-    const yellowColumnsStartIdx = headers.length - 3; // last 4 cols: Survitesse en ville, Survitesse Hors Aglo, Conduite de nuit, Conduite Continue
+    const newReportColsStart  = totalCols - 9;  // Heure d'arrivée onwards
+    const yellowColsStart     = totalCols - 3;  // Survitesse en ville onwards
+    const newInsertedColStart = totalCols - 11; // Ordre trajet suivi, Trajet zone suivi
     headerRow.eachCell((cell, colNumber) => {
-      if (colNumber >= yellowColumnsStartIdx) {
-        // Survitesse en ville, Survitesse Hors Agglomération, Conduite de nuit, Conduite Continue - yellow
+      if (colNumber >= yellowColsStart) {
         cell.font = { bold: true, color: { argb: 'FF000000' } };
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFF00' } };
-      } else if (colNumber >= newColumnsStartIdx) {
-        // Heure d'arrivée, Heure de départ, Délai, Kilométrage, Vitesse moy, Vitesse max - red
+      } else if (colNumber >= newReportColsStart) {
         cell.font = { bold: true, color: { argb: 'FF000000' } };
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFF0000' } };
+      } else if (colNumber === newInsertedColStart || colNumber === newInsertedColStart + 1) {
+        // Ordre trajet suivi + Trajet zone suivi — green
+        cell.font = { bold: true, color: { argb: 'FF000000' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF92D050' } };
       } else {
         cell.font = { bold: true, color: { argb: 'FF000000' } };
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFB8CCE4' } };
@@ -1091,6 +1238,13 @@ async function generateReport(targetFile = null) {
     
     const originalFileName = path.basename(downloadedFile);
     await uploadToSFTP(outputPath, originalFileName);
+
+    // Clean up local files — keep nothing in downloads after upload
+    try { fs.unlinkSync(outputPath); console.log(`  🗑️  Deleted local rapport: ${path.basename(outputPath)}`); } catch (_) {}
+    // Only delete the downloaded input file if it was fetched from SFTP (not passed in as a pre-existing local file)
+    if (!targetFile) {
+      try { fs.unlinkSync(downloadedFile); console.log(`  🗑️  Deleted local input: ${path.basename(downloadedFile)}`); } catch (_) {}
+    }
     }
     
   } catch (error) {

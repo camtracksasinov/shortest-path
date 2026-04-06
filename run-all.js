@@ -145,6 +145,11 @@ async function processFile(filePath) {
   console.log('\n📧 Step 5b: Sending route emails to transporters...');
   await processExcelAndSendEmails(updatedPath);
 
+  // Clean up: remove original downloaded file and its optimal-routes JSON
+  try { fs.unlinkSync(filePath); console.log(`  🗑️  Deleted: ${fileName}`); } catch (_) {}
+  const routesPath2 = path.join(__dirname, 'downloads', `optimal-routes-${path.basename(filePath, '.xlsx')}.json`);
+  try { fs.unlinkSync(routesPath2); } catch (_) {}
+
   // Step 6: Run report only if the updated file's date matches today AND --no-report not passed
   const noReport = process.argv.includes('--no-report');
   const baseName = path.basename(updatedPath);

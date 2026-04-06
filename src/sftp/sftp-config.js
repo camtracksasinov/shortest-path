@@ -2,7 +2,6 @@ const fs = require('fs');
 require('dotenv').config();
 
 // ── Galana server (ftp.galana.mg) — private key authentication ──────────────
-// privateKey is read lazily (getter) so a missing key path does not crash on require()
 const configA = {
   host: process.env.SOURCE_HOST,
   port: 22,

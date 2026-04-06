@@ -102,6 +102,11 @@ async function runRoutingOnly(localPath) {
   console.log('\n📤 Uploading updated file to SFTP...');
   await uploadFile(updatedPath);
 
+  // Clean up: remove original downloaded file and its optimal-routes JSON
+  try { fs.unlinkSync(localPath); console.log(`  🗑️  Deleted: ${fileName}`); } catch (_) {}
+  const routesPath2 = path.join(DOWNLOADS, `optimal-routes-${path.basename(localPath, '.xlsx')}.json`);
+  try { fs.unlinkSync(routesPath2); } catch (_) {}
+
   console.log(`\n✅ Routing done. Updated file: ${path.basename(updatedPath)}`);
   console.log('ℹ️  No emails sent, no active copy saved (past date).\n');
   return updatedPath;
@@ -120,16 +125,29 @@ async function askReport(updatedPath) {
   const ans2 = (await ask('Run report for a different file? (yes/no): ')).trim().toLowerCase();
   if (ans2 === 'yes' || ans2 === 'y') {
     const otherName = (await ask('Enter the exact file name (e.g. Livraison 26-03-2026.1_updated-with-order.xlsx): ')).trim();
-    const otherPath = path.join(DOWNLOADS, otherName);
-    if (!fs.existsSync(otherPath)) {
-      console.log(`❌ File not found locally: ${otherName}`);
-    } else {
+    const otherPath = await resolveFile(otherName);
+    if (otherPath) {
       console.log('\n📊 Running report...\n');
       await generateReport(otherPath);
     }
   } else {
     console.log('\n👋 Exiting.');
   }
+}
+
+// ── Resolve file: check locally first, then download from SFTP /IN ──────────
+async function resolveFile(fileName) {
+  const localPath = path.join(DOWNLOADS, fileName);
+  if (fs.existsSync(localPath)) return localPath;
+
+  console.log(`🔍 Not found locally — checking SFTP server...`);
+  const downloaded = await downloadFile(fileName);
+  if (!downloaded) {
+    console.log(`❌ File "${fileName}" not found locally or in /IN on the server.`);
+    return null;
+  }
+  console.log(`✅ Downloaded: ${fileName}`);
+  return downloaded;
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
@@ -159,12 +177,8 @@ async function main() {
   } else if (action === '2') {
     // ── Report only ──
     const fileName = (await ask('\nEnter the exact file name\n(e.g. Livraison 26-03-2026.1_updated-with-order.xlsx): ')).trim();
-    const localPath = path.join(DOWNLOADS, fileName);
-    if (!fs.existsSync(localPath)) {
-      console.log(`❌ File not found locally: ${fileName}`);
-      rl.close();
-      return;
-    }
+    const localPath = await resolveFile(fileName);
+    if (!localPath) { rl.close(); return; }
     console.log('\n📊 Running report...\n');
     await generateReport(localPath);
 

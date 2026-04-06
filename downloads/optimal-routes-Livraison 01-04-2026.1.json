@@ -488,7 +488,7 @@
       ]
     },
     "4730DJ": {
-      "totalDistance": 572892,
+      "totalDistance": 572891,
       "totalDistanceKm": "572.89",
       "route": [
         {
@@ -2485,7 +2485,7 @@
   },
   "SOMATRAM": {
     "7618AF": {
-      "totalDistance": 12743,
+      "totalDistance": 12744,
       "totalDistanceKm": "12.74",
       "route": [
         {
@@ -2674,8 +2674,8 @@
   },
   "TRJ": {
     "9272AF": {
-      "totalDistance": 4869,
-      "totalDistanceKm": "4.87",
+      "totalDistance": 4835,
+      "totalDistanceKm": "4.83",
       "route": [
         {
           "step": 1,

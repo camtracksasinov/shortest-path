@@ -43,6 +43,8 @@ async function downloadAllFiles() {
     return `${match[3]}-${match[2]}-${match[1]}`;
   };
 
+  const serverFileNames = new Set(list.map(f => f.name));
+
   const targets = list.filter(f => {
     if (!f.name.startsWith('Livraison') || !f.name.match(/\.\d+\.xlsx$/)) return false;
     const d = parseDateFromName(f.name);
@@ -54,9 +56,26 @@ async function downloadAllFiles() {
     await sftp.end();
     return [];
   }
-  console.log(`\n📊 Found ${targets.length} file(s) for tomorrow (${fmt(tomorrow)}):`);
+
+  // Filter out files that already have a corresponding _updated-with-order file on the server
+  const pending = targets.filter(f => {
+    const updatedName = f.name.replace(/(\.\d+)\.xlsx$/, '$1_updated-with-order.xlsx');
+    if (serverFileNames.has(updatedName)) {
+      console.log(`  ⏭️  Skipping (already processed): ${f.name} → ${updatedName} exists`);
+      return false;
+    }
+    return true;
+  });
+
+  if (pending.length === 0) {
+    console.log(`\nℹ️  All files for tomorrow (${fmt(tomorrow)}) have already been processed — nothing to do.`);
+    await sftp.end();
+    return [];
+  }
+
+  console.log(`\n📊 Found ${pending.length} new file(s) to process for tomorrow (${fmt(tomorrow)}):`);
   const downloaded = [];
-  for (const file of targets) {
+  for (const file of pending) {
     const localPath = path.join(__dirname, 'downloads', file.name);
     await sftp.get(`/IN/${file.name}`, localPath);
     console.log(`  ✅ Downloaded: ${file.name}`);

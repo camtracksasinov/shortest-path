@@ -1,51 +1,102 @@
 #!/bin/bash
+set -e
 
-echo "=== OSRM Self-Hosted Setup Script ==="
-echo ""
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DATA_DIR="$PROJECT_DIR/osrm-data"
+MAP_FILE="madagascar-latest.osm.pbf"
+OSRM_FILE="madagascar-latest.osrm"
+CONTAINER_NAME="osrm-server"
+IMAGE="ghcr.io/project-osrm/osrm-backend"
 
-# Check if Docker is installed
+echo "========================================"
+echo "   OSRM Madagascar Setup"
+echo "========================================"
+
+# ── 1. Check Docker ───────────────────────────────────────────────────────────
 if ! command -v docker &> /dev/null; then
-    echo "Docker not found. Installing Docker..."
-    sudo apt update
-    sudo apt install -y docker.io
-    sudo systemctl start docker
-    sudo systemctl enable docker
-    sudo usermod -aG docker $USER
-    echo "Docker installed. You may need to log out and back in."
-fi
-
-# Create data directory
-echo "Creating OSRM data directory..."
-mkdir -p osrm-data
-cd osrm-data
-
-# Download Cameroon map data
-if [ ! -f "cameroon-latest.osm.pbf" ]; then
-    echo "Downloading Cameroon map data..."
-    wget http://download.geofabrik.de/africa/cameroon-latest.osm.pbf
+  echo "▶ Docker not found. Installing..."
+  sudo apt update -qq
+  sudo apt install -y docker.io
+  sudo systemctl start docker
+  sudo systemctl enable docker
+  sudo usermod -aG docker "$USER"
+  echo "  ✅ Docker installed."
 else
-    echo "Map data already exists."
+  echo "  ✅ Docker already installed."
 fi
 
-# Process map data
-echo "Processing map data (this may take a few minutes)..."
+# ── 2. Create data directory ──────────────────────────────────────────────────
+mkdir -p "$DATA_DIR"
 
-echo "Step 1/3: Extracting..."
-docker run -t -v "${PWD}:/data" ghcr.io/project-osrm/osrm-backend osrm-extract -p /opt/car.lua /data/cameroon-latest.osm.pbf
+# ── 3. Download map data ──────────────────────────────────────────────────────
+if [ ! -f "$DATA_DIR/$MAP_FILE" ]; then
+  echo "▶ Downloading Madagascar map data..."
+  wget -O "$DATA_DIR/$MAP_FILE" "http://download.geofabrik.de/africa/$MAP_FILE"
+  echo "  ✅ Download complete."
+else
+  echo "  ✅ Map data already exists, skipping download."
+fi
 
-echo "Step 2/3: Partitioning..."
-docker run -t -v "${PWD}:/data" ghcr.io/project-osrm/osrm-backend osrm-partition /data/cameroon-latest.osrm
+# ── 4. Process map data (skip if already processed) ──────────────────────────
+if [ ! -f "$DATA_DIR/$OSRM_FILE" ]; then
+  echo "▶ Step 1/3: Extracting road network..."
+  docker run --rm -v "$DATA_DIR:/data" "$IMAGE" \
+    osrm-extract -p /opt/car.lua /data/$MAP_FILE
 
-echo "Step 3/3: Customizing..."
-docker run -t -v "${PWD}:/data" ghcr.io/project-osrm/osrm-backend osrm-customize /data/cameroon-latest.osrm
+  echo "▶ Step 2/3: Partitioning..."
+  docker run --rm -v "$DATA_DIR:/data" "$IMAGE" \
+    osrm-partition /data/$OSRM_FILE
+
+  echo "▶ Step 3/3: Customizing..."
+  docker run --rm -v "$DATA_DIR:/data" "$IMAGE" \
+    osrm-customize /data/$OSRM_FILE
+
+  echo "  ✅ Map processing complete."
+else
+  echo "  ✅ OSRM data already processed, skipping."
+fi
+
+# ── 5. Remove old container if exists ────────────────────────────────────────
+if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+  echo "▶ Removing existing container '$CONTAINER_NAME'..."
+  docker rm -f "$CONTAINER_NAME"
+fi
+
+# ── 6. Start persistent OSRM container ───────────────────────────────────────
+echo "▶ Starting OSRM container..."
+docker run -d \
+  --name "$CONTAINER_NAME" \
+  --restart always \
+  -p 5000:5000 \
+  -v "$DATA_DIR:/data" \
+  "$IMAGE" \
+  osrm-routed --algorithm mld /data/$OSRM_FILE
+
+# ── 7. Wait and verify ────────────────────────────────────────────────────────
+echo "▶ Waiting for OSRM to be ready..."
+for i in $(seq 1 15); do
+  if curl -sf "http://localhost:5000/route/v1/driving/47.5079,-18.9137;47.5200,-18.9000?overview=false" > /dev/null 2>&1; then
+    echo "  ✅ OSRM is up and responding at http://localhost:5000"
+    break
+  fi
+  sleep 2
+  if [ "$i" -eq 15 ]; then
+    echo "  ⚠️  OSRM did not respond in time. Check: docker logs $CONTAINER_NAME"
+  fi
+done
+
+# ── 8. Ensure OSRM_URL is set in .env ────────────────────────────────────────
+ENV_FILE="$PROJECT_DIR/.env"
+if grep -q "^OSRM_URL=" "$ENV_FILE" 2>/dev/null; then
+  sed -i "s|^OSRM_URL=.*|OSRM_URL=http://localhost:5000|" "$ENV_FILE"
+else
+  echo "OSRM_URL=http://localhost:5000" >> "$ENV_FILE"
+fi
+echo "  ✅ OSRM_URL set in .env"
 
 echo ""
-echo "=== Setup Complete! ==="
-echo ""
-echo "To start OSRM server, run:"
-echo "docker run -t -i -p 5000:5000 -v \"\${PWD}:/data\" ghcr.io/project-osrm/osrm-backend osrm-routed --algorithm mld /data/cameroon-latest.osrm"
-echo ""
-echo "Or use docker-compose:"
-echo "cd .. && docker-compose up -d"
-echo ""
-echo "OSRM will be available at: http://localhost:5000"
+echo "========================================"
+echo "   Setup Complete!"
+echo "   OSRM running at: http://localhost:5000"
+echo "   Container '$CONTAINER_NAME' will auto-restart on reboot."
+echo "========================================"

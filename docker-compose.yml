@@ -8,7 +8,7 @@ services:
       - "5000:5000"
     volumes:
       - ./osrm-data:/data
-    command: osrm-routed --algorithm mld /data/cameroon-latest.osrm
+    command: osrm-routed --algorithm mld /data/madagascar-latest.osrm
     restart: unless-stopped
     networks:
       - app-network
@@ -20,6 +20,7 @@ services:
       - "3000:3000"
     environment:
       - OSRM_URL=http://osrm:5000
+      - NODE_ENV=production
     depends_on:
       - osrm
     restart: unless-stopped

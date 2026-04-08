@@ -183,6 +183,15 @@ async function processFile(filePath) {
     console.log(`\n📊 Step 6: Running report for today's file (${baseName})...`);
     const { execSync } = require('child_process');
     execSync(`node src/report/wialon-report.js --file "${updatedPath}"`, { stdio: 'inherit' });
+
+    // Delete active file after report — tomorrow's active copy will be set when run-all runs next
+    const activePath = path.join(__dirname, 'active', 'active-livraison.xlsx');
+    try {
+      if (fs.existsSync(activePath)) {
+        fs.unlinkSync(activePath);
+        console.log(`  🗑️  Active file deleted after report — ready for next delivery day.`);
+      }
+    } catch (_) {}
   } else {
     console.log(`\nℹ️  Step 6: Report skipped — file date (${fileDate}) ≠ today (${todayStr}). Will run on delivery day.`);
   }

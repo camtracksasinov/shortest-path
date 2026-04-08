@@ -3,12 +3,17 @@ const nodemailer = require('nodemailer');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const SftpClient = require('ssh2-sftp-client');
 require('dotenv').config();
+
+const { configA } = require('../sftp/sftp-config');
 
 const DOWNLOADS = path.join(__dirname, '../../downloads');
 const ACTIVE_DIR = path.join(__dirname, '../../active');
+const ACTIVE_FILE = path.join(ACTIVE_DIR, 'active-livraison.xlsx');
 const OSRM_URL = process.env.OSRM_URL || 'http://router.project-osrm.org';
 const TIMEZONE_OFFSET = parseInt(process.env.TIMEZONE_OFFSET || '2');
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'peroldulrich@icloud.com';
 
 const mailer = nodemailer.createTransport({
   host: process.env.EMAIL_HOST || 'smtp.office365.com',
@@ -16,6 +21,60 @@ const mailer = nodemailer.createTransport({
   secure: false,
   auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASSWORD }
 });
+
+function nowMadagascar() {
+  return new Date().toLocaleString('fr-FR', { timeZone: 'Indian/Antananarivo', hour12: false });
+}
+
+async function sendAdminEmail(subject, html) {
+  try {
+    await mailer.sendMail({
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      to: ADMIN_EMAIL,
+      subject,
+      html
+    });
+  } catch (e) {
+    console.error('❌ Admin email failed:', e.message);
+  }
+}
+
+// ── SFTP fallback: fetch today's updated file if active copy is missing ───────
+async function fetchTodayActiveFromSFTP() {
+  const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const parseDateFromName = name => {
+    const m = name.match(/(\d{2})-(\d{2})-(\d{4})/);
+    return m ? `${m[3]}-${m[2]}-${m[1]}` : null;
+  };
+
+  const sftp = new SftpClient();
+  try {
+    await sftp.connect(configA);
+    const list = await sftp.list('/IN');
+    // Only today's _updated-with-order files
+    const candidates = list.filter(f =>
+      f.name.startsWith('Livraison') &&
+      f.name.match(/\.\d+_updated-with-order\.xlsx$/) &&
+      parseDateFromName(f.name) === todayStr
+    );
+    if (candidates.length === 0) {
+      console.log(`  ℹ️  No today's updated file found on SFTP for ${todayStr}`);
+      await sftp.end();
+      return false;
+    }
+    // Pick the most recently modified one
+    const latest = candidates.sort((a, b) => b.modifyTime - a.modifyTime)[0];
+    console.log(`  📥 Fetching active file from SFTP: ${latest.name}`);
+    await sftp.get(`/IN/${latest.name}`, ACTIVE_FILE);
+    await sftp.end();
+    console.log(`  ✅ Active file restored from SFTP: ${latest.name}`);
+    return true;
+  } catch (err) {
+    console.error('  ❌ SFTP fallback failed:', err.message);
+    try { await sftp.end(); } catch (_) {}
+    return false;
+  }
+}
 
 // ── Time helpers ──────────────────────────────────────────────────────────────
 
@@ -36,12 +95,15 @@ function estimatedArrival(distanceKm, speedKmh) {
   return fmt24(d);
 }
 
-// ── Excel loader — reads the active copy kept by run-all.js ─────────────────
+// ── Excel loader — reads the active copy, falls back to SFTP if missing ────────
 
-function loadActiveExcel() {
-  const activePath = path.join(ACTIVE_DIR, 'active-livraison.xlsx');
-  if (!fs.existsSync(activePath)) return null;
-  const wb = XLSX.readFile(activePath);
+async function loadActiveExcel() {
+  if (!fs.existsSync(ACTIVE_FILE)) {
+    console.log('  ⚠️  active-livraison.xlsx not found — attempting SFTP fallback...');
+    const restored = await fetchTodayActiveFromSFTP();
+    if (!restored) return null;
+  }
+  const wb = XLSX.readFile(ACTIVE_FILE);
   const ws = wb.Sheets[wb.SheetNames[0]];
   return XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
 }
@@ -251,21 +313,39 @@ async function handleWialonNotification(rawBody) {
 
   if (!text) return { skipped: true, reason: 'empty body' };
 
+  // ── 1. Notify admin: raw Wialon notification received ──────────────────────
+  await sendAdminEmail(
+    `📡 Wialon notification received`,
+    `<p><strong>Time (Madagascar):</strong> ${nowMadagascar()}</p>
+     <p><strong>Raw notification:</strong></p>
+     <pre style="background:#f5f5f5;padding:10px;border-radius:4px;font-size:13px">${text}</pre>`
+  );
+
   const vehicleName = extractVehicleName(text);
   if (!vehicleName) return { skipped: true, reason: 'no vehicle name' };
 
   const event = parseNotification(text);
   if (!event) return { skipped: true, reason: 'no actionable event or missing destination' };
 
-  const data = loadActiveExcel();
-  if (!data) return { skipped: true, reason: 'no active/active-livraison.xlsx found — run routing first' };
+  // ── 2. Load active Excel (with SFTP fallback if file is missing) ────────────
+  const data = await loadActiveExcel();
+  if (!data) {
+    await sendAdminEmail(
+      `⚠️ Wialon notification — no active file`,
+      `<p><strong>Time (Madagascar):</strong> ${nowMadagascar()}</p>
+       <p>Received a notification for <strong>${vehicleName}</strong> → <strong>${event.destination}</strong>
+          but <code>active-livraison.xlsx</code> was not found locally and could not be restored from SFTP.</p>
+       <p>No client email was sent.</p>`
+    );
+    return { skipped: true, reason: 'no active/active-livraison.xlsx found — run routing first' };
+  }
 
   const vehicles = buildExcelLookup(data);
   const context = findVehicleContext(vehicles, vehicleName, event.destination);
   if (!context || context.emails.length === 0)
     return { skipped: true, reason: `no email for vehicle "${vehicleName}"` };
 
-  // Compute distance from previous zone to destination for enroute types
+  // ── 3. Compute distance for enroute events ──────────────────────────────────
   let distanceToNext = null;
   if ((event.type === 'enroute_depot' || event.type === 'enroute_client') && context.prevZone) {
     distanceToNext = await getDistanceBetweenZones(context.prevZone, event.destination);
@@ -275,6 +355,7 @@ async function handleWialonNotification(rawBody) {
   const mail = buildEmail(vehicleName, event, context, distanceToNext);
   if (!mail) return { skipped: true, reason: 'could not build email' };
 
+  // ── 4. Send client email(s) ─────────────────────────────────────────────────
   await Promise.all(context.emails.map(recipient =>
     mailer.sendMail({
       from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
@@ -285,6 +366,21 @@ async function handleWialonNotification(rawBody) {
   ));
 
   console.log(`✅ Wialon email [${event.type}] → ${context.emails.join(', ')} (${vehicleName} → ${event.destination})`);
+
+  // ── 5. Notify admin: client email was sent ──────────────────────────────────
+  await sendAdminEmail(
+    `✅ Client notification sent — ${vehicleName} → ${event.destination}`,
+    `<p><strong>Time (Madagascar):</strong> ${nowMadagascar()}</p>
+     <p><strong>Vehicle:</strong> ${vehicleName}</p>
+     <p><strong>Event type:</strong> ${event.type}</p>
+     <p><strong>Destination:</strong> ${event.destination}</p>
+     <p><strong>Client email(s) notified:</strong> ${context.emails.join(', ')}</p>
+     <p><strong>Subject sent:</strong> ${mail.subject}</p>
+     <hr style="border:none;border-top:1px solid #ddd">
+     <p><strong>Message body:</strong></p>
+     <pre style="background:#f5f5f5;padding:10px;border-radius:4px;font-size:13px">${mail.body}</pre>`
+  );
+
   return { sent: true, type: event.type, vehicle: vehicleName, to: context.emails };
 }
 

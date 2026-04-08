@@ -43,23 +43,50 @@ function appendLog(text) {
   fs.appendFileSync(WIALON_LOG, line, 'utf8');
 }
 
+// ── Notification queue (concurrency = 3) ──────────────────────────────────────
+// Wialon can fire 50+ POSTs simultaneously. Processing each notification involves
+// SFTP, OSRM and SMTP calls — running all concurrently would exhaust connections
+// and hit rate limits. This queue accepts all incoming POSTs instantly (200 OK)
+// but processes them at most CONCURRENCY at a time.
+const CONCURRENCY = 3;
+let running = 0;
+const queue = [];
+
+function enqueue(task) {
+  queue.push(task);
+  drain();
+}
+
+function drain() {
+  while (running < CONCURRENCY && queue.length > 0) {
+    const task = queue.shift();
+    running++;
+    task().finally(() => {
+      running--;
+      drain();
+    });
+  }
+}
+
 // Wialon notification receiver
-app.post('/wialon-notify', async (req, res) => {
+app.post('/wialon-notify', (req, res) => {
   const raw = req.body;
   const logText = typeof raw === 'string' ? raw : JSON.stringify(raw);
   appendLog(logText);
-  console.log('📩 Wialon notification received:', logText);
+  console.log(`📩 Wialon notification queued (queue: ${queue.length + 1}, running: ${running})`);
 
   res.status(200).send('OK'); // respond immediately so Wialon doesn't retry
 
-  try {
-    const result = await handleWialonNotification(raw);
-    if (result.skipped) {
-      console.log(`⏭  Notification skipped: ${result.reason}`);
+  enqueue(async () => {
+    try {
+      const result = await handleWialonNotification(raw);
+      if (result.skipped) {
+        console.log(`⏭  Notification skipped: ${result.reason}`);
+      }
+    } catch (err) {
+      console.error('❌ Notification handler error:', err.message);
     }
-  } catch (err) {
-    console.error('❌ Notification handler error:', err.message);
-  }
+  });
 });
 
 // Calculate centroid of a geofence (polygon)

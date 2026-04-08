@@ -9,8 +9,6 @@ require('dotenv').config();
 const { configA } = require('../sftp/sftp-config');
 
 const DOWNLOADS = path.join(__dirname, '../../downloads');
-const ACTIVE_DIR = path.join(__dirname, '../../active');
-const ACTIVE_FILE = path.join(ACTIVE_DIR, 'active-livraison.xlsx');
 const OSRM_URL = process.env.OSRM_URL || 'http://router.project-osrm.org';
 const TIMEZONE_OFFSET = parseInt(process.env.TIMEZONE_OFFSET || '2');
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'peroldulrich@icloud.com';
@@ -39,41 +37,66 @@ async function sendAdminEmail(subject, html) {
   }
 }
 
-// ── SFTP fallback: fetch today's updated file if active copy is missing ───────
-async function fetchTodayActiveFromSFTP() {
-  const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-  const parseDateFromName = name => {
-    const m = name.match(/(\d{2})-(\d{2})-(\d{4})/);
-    return m ? `${m[3]}-${m[2]}-${m[1]}` : null;
-  };
+// ── Parse date string DD-MM-YYYY from filename ────────────────────────────────
+function parseDateFromName(name) {
+  const m = name.match(/(\d{2})-(\d{2})-(\d{4})/);
+  return m ? `${m[3]}-${m[2]}-${m[1]}` : null;
+}
 
+// ── Load all today's _updated-with-order files (local + SFTP) ─────────────────
+async function loadTodayExcelFiles() {
+  const todayStr = new Date().toISOString().split('T')[0];
+  const isTodayFile = name =>
+    name.startsWith('Livraison') &&
+    name.match(/\.\d+_updated-with-order\.xlsx$/) &&
+    parseDateFromName(name) === todayStr;
+
+  // 1. Collect local files
+  const localFiles = fs.existsSync(DOWNLOADS)
+    ? fs.readdirSync(DOWNLOADS).filter(isTodayFile).map(n => path.join(DOWNLOADS, n))
+    : [];
+
+  // 2. Fetch missing files from SFTP
   const sftp = new SftpClient();
   try {
     await sftp.connect(configA);
     const list = await sftp.list('/IN');
-    // Only today's _updated-with-order files
-    const candidates = list.filter(f =>
-      f.name.startsWith('Livraison') &&
-      f.name.match(/\.\d+_updated-with-order\.xlsx$/) &&
-      parseDateFromName(f.name) === todayStr
-    );
-    if (candidates.length === 0) {
-      console.log(`  ℹ️  No today's updated file found on SFTP for ${todayStr}`);
-      await sftp.end();
-      return false;
+    const remoteToday = list.filter(f => isTodayFile(f.name));
+
+    for (const f of remoteToday) {
+      const local = path.join(DOWNLOADS, f.name);
+      if (!fs.existsSync(local)) {
+        console.log(`  📥 Fetching from SFTP: ${f.name}`);
+        await sftp.get(`/IN/${f.name}`, local);
+        localFiles.push(local);
+      }
     }
-    // Pick the most recently modified one
-    const latest = candidates.sort((a, b) => b.modifyTime - a.modifyTime)[0];
-    console.log(`  📥 Fetching active file from SFTP: ${latest.name}`);
-    await sftp.get(`/IN/${latest.name}`, ACTIVE_FILE);
     await sftp.end();
-    console.log(`  ✅ Active file restored from SFTP: ${latest.name}`);
-    return true;
   } catch (err) {
-    console.error('  ❌ SFTP fallback failed:', err.message);
+    console.error('  ⚠️  SFTP fetch failed:', err.message);
     try { await sftp.end(); } catch (_) {}
-    return false;
   }
+
+  if (localFiles.length === 0) {
+    console.log(`  ℹ️  No today's updated files found for ${todayStr}`);
+    return null;
+  }
+
+  // 3. Parse and merge all files into one row array
+  const allRows = [];
+  for (const filePath of localFiles) {
+    try {
+      const wb = XLSX.readFile(filePath);
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      allRows.push({ file: path.basename(filePath), rows });
+      console.log(`  ✅ Loaded: ${path.basename(filePath)} (${rows.length - 1} data rows)`);
+    } catch (e) {
+      console.error(`  ❌ Failed to read ${path.basename(filePath)}:`, e.message);
+    }
+  }
+
+  return allRows.length > 0 ? allRows : null;
 }
 
 // ── Time helpers ──────────────────────────────────────────────────────────────
@@ -95,44 +118,39 @@ function estimatedArrival(distanceKm, speedKmh) {
   return fmt24(d);
 }
 
-// ── Excel loader — reads the active copy, falls back to SFTP if missing ────────
+// ── Build lookup from multiple file datasets ─────────────────────────────────
+// Each entry in allRows: { file, rows } where rows[0] = headers
+// vehicles[camion] = [ { trajet, zone, clientDepot, emailClient, chauffeur, sourceFile } ]
 
-async function loadActiveExcel() {
-  if (!fs.existsSync(ACTIVE_FILE)) {
-    console.log('  ⚠️  active-livraison.xlsx not found — attempting SFTP fallback...');
-    const restored = await fetchTodayActiveFromSFTP();
-    if (!restored) return null;
-  }
-  const wb = XLSX.readFile(ACTIVE_FILE);
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  return XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-}
-
-function buildExcelLookup(data) {
-  const headers = data[0];
-  const col = name => headers.findIndex(h => h && h.toString().toLowerCase().includes(name));
-  const idx = {
-    camion:      col('camion'),
-    zone:        col('coordonnees zone'),
-    clientDepot: col('client/depot'),
-    trajet:      col('trajet order'),
-    emailClient: col('email client'),
-    chauffeur:   col('chauffeur'),
-  };
-
+function buildExcelLookup(allRows) {
   const vehicles = {};
-  for (let i = 1; i < data.length; i++) {
-    const row = data[i];
-    const camion = row[idx.camion]?.toString().trim();
-    if (!camion) continue;
-    if (!vehicles[camion]) vehicles[camion] = [];
-    vehicles[camion].push({
-      trajet:      row[idx.trajet],
-      zone:        row[idx.zone]?.toString().trim() || '',
-      clientDepot: row[idx.clientDepot]?.toString().trim() || '',
-      emailClient: row[idx.emailClient]?.toString().trim() || '',
-      chauffeur:   row[idx.chauffeur]?.toString().trim() || '',
-    });
+
+  for (const { file, rows } of allRows) {
+    const headers = rows[0];
+    const col = name => headers.findIndex(h => h && h.toString().toLowerCase().includes(name));
+    const idx = {
+      camion:      col('camion'),
+      zone:        col('coordonnees zone'),
+      clientDepot: col('client/depot'),
+      trajet:      col('trajet order'),
+      emailClient: col('email client'),
+      chauffeur:   col('chauffeur'),
+    };
+
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      const camion = row[idx.camion]?.toString().trim();
+      if (!camion) continue;
+      if (!vehicles[camion]) vehicles[camion] = [];
+      vehicles[camion].push({
+        trajet:      row[idx.trajet],
+        zone:        row[idx.zone]?.toString().trim() || '',
+        clientDepot: row[idx.clientDepot]?.toString().trim() || '',
+        emailClient: row[idx.emailClient]?.toString().trim() || '',
+        chauffeur:   row[idx.chauffeur]?.toString().trim() || '',
+        sourceFile:  file,
+      });
+    }
   }
   return vehicles;
 }
@@ -218,6 +236,13 @@ async function getDistanceBetweenZones(fromZone, toZone) {
 
 // ── Excel context lookup ──────────────────────────────────────────────────────
 
+// ── Find vehicle context across all merged rows ───────────────────────────────
+// Rules:
+//  - Vehicle must exist in the lookup
+//  - Destination must match a trajectory row (zone) — otherwise skip
+//  - If multiple files have the same trajectory for the same vehicle,
+//    collect all emails and deduplicate before sending
+
 function findVehicleContext(vehicles, vehicleName, destination) {
   const nameUp = vehicleName.toUpperCase();
   const camionKey = Object.keys(vehicles).find(k => {
@@ -227,20 +252,29 @@ function findVehicleContext(vehicles, vehicleName, destination) {
   if (!camionKey) return null;
 
   const rows = vehicles[camionKey];
-  const emailRow = rows.find(r => r.emailClient);
-  const emails = emailRow
-    ? emailRow.emailClient.split(';').map(e => e.trim()).filter(Boolean)
-    : [];
-  const chauffeur = rows.find(r => r.chauffeur)?.chauffeur || '';
-
   const destUp = destination.toUpperCase();
-  const matchedRow = rows.find(r =>
-    r.zone.toUpperCase().includes(destUp) || destUp.includes(r.zone.toUpperCase())
+
+  // All rows whose zone matches the destination (across all source files)
+  const matchedRows = rows.filter(r =>
+    r.zone && (r.zone.toUpperCase().includes(destUp) || destUp.includes(r.zone.toUpperCase()))
   );
+
+  // No trajectory match → ignore notification
+  if (matchedRows.length === 0) return null;
+
+  // Collect and deduplicate emails across all matched rows
+  const emailSet = new Set();
+  for (const r of matchedRows) {
+    if (r.emailClient) r.emailClient.split(';').map(e => e.trim()).filter(Boolean).forEach(e => emailSet.add(e));
+  }
+  const emails = [...emailSet];
+
+  const chauffeur = rows.find(r => r.chauffeur)?.chauffeur || '';
+  const matchedRow = matchedRows[0]; // use first match for display/distance
 
   // Previous zone by trajet order (for distance calculation)
   let prevZone = null;
-  if (matchedRow && matchedRow.trajet) {
+  if (matchedRow?.trajet) {
     const prevOrder = parseInt(matchedRow.trajet) - 1;
     prevZone = rows.find(r => parseInt(r.trajet) === prevOrder)?.zone || null;
   }
@@ -319,23 +353,28 @@ async function handleWialonNotification(rawBody) {
   const event = parseNotification(text);
   if (!event) return { skipped: true, reason: 'no actionable event or missing destination' };
 
-  // ── 1. Load active Excel (with SFTP fallback if file is missing) ────────────
-  const data = await loadActiveExcel();
-  if (!data) {
+  // ── 1. Load all today's updated Excel files ──────────────────────────────────
+  const allRows = await loadTodayExcelFiles();
+  if (!allRows) {
     await sendAdminEmail(
       `⚠️ Wialon notification — no active file`,
       `<p><strong>Time (Madagascar):</strong> ${nowMadagascar()}</p>
        <p>Received a notification for <strong>${vehicleName}</strong> → <strong>${event.destination}</strong>
-          but <code>active-livraison.xlsx</code> was not found locally and could not be restored from SFTP.</p>
+          but no today's <code>_updated-with-order.xlsx</code> files were found locally or on SFTP.</p>
        <p>No client email was sent.</p>`
     );
-    return { skipped: true, reason: 'no active/active-livraison.xlsx found — run routing first' };
+    return { skipped: true, reason: 'no today updated files found' };
   }
 
-  const vehicles = buildExcelLookup(data);
+  const vehicles = buildExcelLookup(allRows);
   const context = findVehicleContext(vehicles, vehicleName, event.destination);
-  if (!context || context.emails.length === 0)
-    return { skipped: true, reason: `no email for vehicle "${vehicleName}"` };
+
+  // Vehicle not found at all
+  if (!context) return { skipped: true, reason: `vehicle "${vehicleName}" not found in any today's file` };
+
+  // Vehicle found but no trajectory matches destination → ignore
+  if (context.emails.length === 0)
+    return { skipped: true, reason: `no trajectory match for "${vehicleName}" → "${event.destination}"` };
 
   // ── 2. Compute distance for enroute events ──────────────────────────────────
   let distanceToNext = null;

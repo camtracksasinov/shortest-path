@@ -38,7 +38,7 @@ async function runRouting() {
   // Step 1 — Download + process files via run-all.js --no-report
   let output = '';
   try {
-    output = execSync('node run-all.js --no-report', { cwd: ROOT, encoding: 'utf8' });
+    output = execSync('node run-all.js --no-report', { cwd: ROOT, encoding: 'utf8', shell: '/bin/sh', env: { ...process.env, PATH: process.env.PATH || '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' } });
     console.log(output);
 
     // Collect files that were processed (updated-with-order)
@@ -89,7 +89,7 @@ async function runReport() {
 
   // Step 1 — Wialon report generation
   try {
-    execSync('node src/report/wialon-report.js', { stdio: 'inherit', cwd: ROOT });
+    execSync('node src/report/wialon-report.js', { stdio: 'inherit', cwd: ROOT, shell: '/bin/sh', env: { ...process.env, PATH: process.env.PATH || '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' } });
     summary.steps.push({ name: 'Wialon Report Generation', status: 'ok', detail: 'Report generated successfully' });
   } catch (err) {
     summary.steps.push({ name: 'Wialon Report Generation', status: 'error', detail: err.message.split('\n')[0] });

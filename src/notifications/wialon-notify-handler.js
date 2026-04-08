@@ -313,21 +313,13 @@ async function handleWialonNotification(rawBody) {
 
   if (!text) return { skipped: true, reason: 'empty body' };
 
-  // ── 1. Notify admin: raw Wialon notification received ──────────────────────
-  await sendAdminEmail(
-    `📡 Wialon notification received`,
-    `<p><strong>Time (Madagascar):</strong> ${nowMadagascar()}</p>
-     <p><strong>Raw notification:</strong></p>
-     <pre style="background:#f5f5f5;padding:10px;border-radius:4px;font-size:13px">${text}</pre>`
-  );
-
   const vehicleName = extractVehicleName(text);
   if (!vehicleName) return { skipped: true, reason: 'no vehicle name' };
 
   const event = parseNotification(text);
   if (!event) return { skipped: true, reason: 'no actionable event or missing destination' };
 
-  // ── 2. Load active Excel (with SFTP fallback if file is missing) ────────────
+  // ── 1. Load active Excel (with SFTP fallback if file is missing) ────────────
   const data = await loadActiveExcel();
   if (!data) {
     await sendAdminEmail(
@@ -345,7 +337,7 @@ async function handleWialonNotification(rawBody) {
   if (!context || context.emails.length === 0)
     return { skipped: true, reason: `no email for vehicle "${vehicleName}"` };
 
-  // ── 3. Compute distance for enroute events ──────────────────────────────────
+  // ── 2. Compute distance for enroute events ──────────────────────────────────
   let distanceToNext = null;
   if ((event.type === 'enroute_depot' || event.type === 'enroute_client') && context.prevZone) {
     distanceToNext = await getDistanceBetweenZones(context.prevZone, event.destination);
@@ -355,7 +347,7 @@ async function handleWialonNotification(rawBody) {
   const mail = buildEmail(vehicleName, event, context, distanceToNext);
   if (!mail) return { skipped: true, reason: 'could not build email' };
 
-  // ── 4. Send client email(s) ─────────────────────────────────────────────────
+  // ── 3. Send client email(s) ─────────────────────────────────────────────────
   await Promise.all(context.emails.map(recipient =>
     mailer.sendMail({
       from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
@@ -367,7 +359,7 @@ async function handleWialonNotification(rawBody) {
 
   console.log(`✅ Wialon email [${event.type}] → ${context.emails.join(', ')} (${vehicleName} → ${event.destination})`);
 
-  // ── 5. Notify admin: client email was sent ──────────────────────────────────
+  // ── 4. Notify admin: client email was sent ──────────────────────────────────
   await sendAdminEmail(
     `✅ Client notification sent — ${vehicleName} → ${event.destination}`,
     `<p><strong>Time (Madagascar):</strong> ${nowMadagascar()}</p>

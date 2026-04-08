@@ -29,12 +29,24 @@ fi
 mkdir -p "$DATA_DIR"
 
 # ── 3. Download map data ──────────────────────────────────────────────────────
-if [ ! -f "$DATA_DIR/$MAP_FILE" ]; then
+download_map() {
   echo "▶ Downloading Madagascar map data..."
-  wget -O "$DATA_DIR/$MAP_FILE" "http://download.geofabrik.de/africa/$MAP_FILE"
+  wget --tries=3 --continue -O "$DATA_DIR/$MAP_FILE" "http://download.geofabrik.de/africa/$MAP_FILE"
   echo "  ✅ Download complete."
+}
+
+if [ ! -f "$DATA_DIR/$MAP_FILE" ]; then
+  download_map
 else
-  echo "  ✅ Map data already exists, skipping download."
+  # Verify the file is a valid PBF (not truncated/corrupted)
+  if ! docker run --rm -v "$DATA_DIR:/data" "$IMAGE" \
+      osmium fileinfo /data/$MAP_FILE > /dev/null 2>&1; then
+    echo "  ⚠️  Existing map file is corrupted. Re-downloading..."
+    rm -f "$DATA_DIR/$MAP_FILE"
+    download_map
+  else
+    echo "  ✅ Map data already exists and is valid, skipping download."
+  fi
 fi
 
 # ── 4. Process map data (skip if already processed) ──────────────────────────

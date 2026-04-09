@@ -153,10 +153,9 @@ async function processFile(filePath) {
   const updatedPath = await updateExcelWithRouteOrder(filePath, routesPath);
 
   // Keep a local active copy for Wialon notifications (no SFTP needed at runtime)
-  const activePath = path.join(__dirname, 'active', 'active-livraison.xlsx');
-  if (fs.existsSync(activePath)) fs.unlinkSync(activePath);
+  const activePath = path.join(__dirname, 'active', path.basename(updatedPath));
   fs.copyFileSync(updatedPath, activePath);
-  console.log(`  📋 Active copy saved: active/active-livraison.xlsx`);
+  console.log(`  📋 Active copy saved: active/${path.basename(updatedPath)}`);
 
   console.log('\n📤 Step 5: Uploading updated file to SFTP...');
   await uploadUpdatedFile(updatedPath);
@@ -184,11 +183,12 @@ async function processFile(filePath) {
     const { execSync } = require('child_process');
     execSync(`node src/report/wialon-report.js --file "${updatedPath}"`, { stdio: 'inherit' });
 
-    // Delete active file after report — tomorrow's active copy will be set when run-all runs next
-    const activePath = path.join(__dirname, 'active', 'active-livraison.xlsx');
+    // Delete only this file's active copy after report — tomorrow's stays untouched
+    const activeDir = path.join(__dirname, 'active');
     try {
-      if (fs.existsSync(activePath)) {
-        fs.unlinkSync(activePath);
+      const activeFile = path.join(activeDir, path.basename(updatedPath));
+      if (fs.existsSync(activeFile)) {
+        fs.unlinkSync(activeFile);
         console.log(`  🗑️  Active file deleted after report — ready for next delivery day.`);
       }
     } catch (_) {}

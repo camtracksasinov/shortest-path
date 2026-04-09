@@ -9,6 +9,7 @@ require('dotenv').config();
 const { configA } = require('../sftp/sftp-config');
 
 const DOWNLOADS = path.join(__dirname, '../../downloads');
+const ACTIVE_DIR = path.join(__dirname, '../../active');
 const OSRM_URL = process.env.OSRM_URL || 'http://router.project-osrm.org';
 const TIMEZONE_OFFSET = parseInt(process.env.TIMEZONE_OFFSET || '2');
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'peroldulrich@icloud.com';
@@ -43,38 +44,52 @@ function parseDateFromName(name) {
   return m ? `${m[3]}-${m[2]}-${m[1]}` : null;
 }
 
+// ── In-memory cache: reloaded once per day ────────────────────────────────────
+let _cache = null; // { date: 'YYYY-MM-DD', allRows: [...] }
+
 // ── Load all today's _updated-with-order files (local + SFTP) ─────────────────
 async function loadTodayExcelFiles() {
   const todayStr = new Date().toISOString().split('T')[0];
+
+  if (_cache?.date === todayStr) return _cache.allRows;
+
   const isTodayFile = name =>
     name.startsWith('Livraison') &&
     name.match(/\.\d+_updated-with-order\.xlsx$/) &&
     parseDateFromName(name) === todayStr;
 
-  // 1. Collect local files
-  const localFiles = fs.existsSync(DOWNLOADS)
-    ? fs.readdirSync(DOWNLOADS).filter(isTodayFile).map(n => path.join(DOWNLOADS, n))
+  // 1. Read from active/ — match files whose date is today OR tomorrow
+  //    (run-all.js generates tomorrow's files today, they become active at midnight)
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+  const isActiveFile = name =>
+    name.startsWith('Livraison') &&
+    name.match(/\.\d+_updated-with-order\.xlsx$/) &&
+    (parseDateFromName(name) === todayStr || parseDateFromName(name) === tomorrowStr);
+
+  let localFiles = fs.existsSync(ACTIVE_DIR)
+    ? fs.readdirSync(ACTIVE_DIR).filter(isActiveFile).map(n => path.join(ACTIVE_DIR, n))
     : [];
 
-  // 2. Fetch missing files from SFTP
-  const sftp = new SftpClient();
-  try {
-    await sftp.connect(configA);
-    const list = await sftp.list('/IN');
-    const remoteToday = list.filter(f => isTodayFile(f.name));
-
-    for (const f of remoteToday) {
-      const local = path.join(DOWNLOADS, f.name);
-      if (!fs.existsSync(local)) {
+  // 2. Fall back to SFTP only if active/ has nothing for today/tomorrow
+  if (localFiles.length === 0) {
+    const sftp = new SftpClient();
+    try {
+      await sftp.connect(configA);
+      const list = await sftp.list('/IN');
+      for (const f of list.filter(f => isActiveFile(f.name))) {
+        const local = path.join(ACTIVE_DIR, f.name);
         console.log(`  📥 Fetching from SFTP: ${f.name}`);
         await sftp.get(`/IN/${f.name}`, local);
         localFiles.push(local);
       }
+      await sftp.end();
+    } catch (err) {
+      console.error('  ⚠️  SFTP fallback failed:', err.message);
+      try { await sftp.end(); } catch (_) {}
     }
-    await sftp.end();
-  } catch (err) {
-    console.error('  ⚠️  SFTP fetch failed:', err.message);
-    try { await sftp.end(); } catch (_) {}
   }
 
   if (localFiles.length === 0) {
@@ -96,7 +111,10 @@ async function loadTodayExcelFiles() {
     }
   }
 
-  return allRows.length > 0 ? allRows : null;
+  if (allRows.length === 0) return null;
+
+  _cache = { date: todayStr, allRows };
+  return allRows;
 }
 
 // ── Time helpers ──────────────────────────────────────────────────────────────

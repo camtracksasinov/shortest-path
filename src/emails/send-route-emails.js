@@ -1,5 +1,5 @@
 const XLSX = require('xlsx');
-const nodemailer = require('nodemailer');
+const { sendMail } = require('./graph-mailer');
 const SftpClient = require('ssh2-sftp-client');
 const path = require('path');
 require('dotenv').config();
@@ -7,13 +7,6 @@ require('dotenv').config();
 const { configA } = require('../sftp/sftp-config');
 
 const remotePath = process.env.SOURCE_DIR || '/IN';
-
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-  port: process.env.EMAIL_PORT || 587,
-  secure: false,
-  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASSWORD }
-});
 
 // ─── INDIVIDUAL EMAIL (commented out — kept for reference) ───────────────────
 /*
@@ -171,24 +164,15 @@ function generateGroupedEmailHTML(transporteurName, vehicles, deliveryDate) {
 async function sendGroupedEmail(transporteurName, email, vehicles, deliveryDate) {
   const dateLabel = deliveryDate ? ` – ${deliveryDate}` : '';
   const subject = `Plan de Trajet de Livraison${dateLabel} – ${transporteurName}`;
-  const recipients = email.split(';').map(e => e.trim()).filter(Boolean);
   const html = generateGroupedEmailHTML(transporteurName, vehicles, deliveryDate);
-  let allOk = true;
-  for (const recipient of recipients) {
-    try {
-      await transporter.sendMail({
-        from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-        to: recipient,
-        subject,
-        html
-      });
-      console.log(`✅ Grouped email sent to ${recipient} (${transporteurName} — ${vehicles.length} vehicle(s))`);
-    } catch (error) {
-      console.error(`❌ Failed to send email to ${recipient} (${transporteurName}):`, error.message);
-      allOk = false;
-    }
+  try {
+    await sendMail({ to: email, subject, html });
+    console.log(`✅ Grouped email sent to ${email} (${transporteurName} — ${vehicles.length} vehicle(s))`);
+    return true;
+  } catch (error) {
+    console.error(`❌ Failed to send email to ${email} (${transporteurName}):`, error.message);
+    return false;
   }
-  return allOk;
 }
 
 async function downloadUpdatedFileFromSFTP() {

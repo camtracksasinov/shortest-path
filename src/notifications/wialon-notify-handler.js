@@ -12,7 +12,7 @@ const DOWNLOADS = path.join(__dirname, '../../downloads');
 const ACTIVE_DIR = path.join(__dirname, '../../active');
 const OSRM_URL = process.env.OSRM_URL || 'http://router.project-osrm.org';
 const TIMEZONE_OFFSET = parseInt(process.env.TIMEZONE_OFFSET || '2');
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'peroldulrich@icloud.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'ulrich.kamsu@camtrack.net';
 
 const mailer = nodemailer.createTransport({
   host: process.env.EMAIL_HOST || 'smtp.office365.com',

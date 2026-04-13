@@ -1,17 +1,7 @@
-const nodemailer = require('nodemailer');
+const { sendMail } = require('../emails/graph-mailer');
 require('dotenv').config();
 
-const ADMIN_EMAIL = 'peroldulrich@icloud.com';
-
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtp.office365.com',
-  port: process.env.EMAIL_PORT || 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD
-  }
-});
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'ulrich.kamsu@camtrack.net';
 
 function nowCameroon() {
   return new Date().toLocaleString('fr-FR', { timeZone: 'Africa/Douala', hour12: false });
@@ -21,12 +11,7 @@ function nowMadagascar() {
 }
 
 async function send(subject, html) {
-  await transporter.sendMail({
-    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-    to: ADMIN_EMAIL,
-    subject,
-    html
-  });
+  await sendMail({ to: ADMIN_EMAIL, subject, html });
 }
 
 // ── 1. Warning email — 30 min before execution ────────────────────────────────

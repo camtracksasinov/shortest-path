@@ -55,18 +55,49 @@ async function parseExcelForCoordinates(filePath) {
   return transporteurMap;
 }
 
+function getMonthFolderName() {
+  const MONTHS_FR = ['JANVIER','FEVRIER','MARS','AVRIL','MAI','JUIN',
+                     'JUILLET','AOUT','SEPTEMBRE','OCTOBRE','NOVEMBRE','DECEMBRE'];
+  const now = new Date();
+  return `${MONTHS_FR[now.getMonth()]}${now.getFullYear()}`;
+}
+
 // ── Download a specific file from SFTP ───────────────────────────────────────
 async function downloadFile(fileName) {
   const sftp = new SftpClient();
   await sftp.connect(sftpConfig);
-  const list = await sftp.list('/IN');
-  const found = list.find(f => f.name === fileName);
+
+  const monthFolder = getMonthFolderName();
+  const monthPath = `/IN/${monthFolder}`;
+
+  // Move any stray Livraison*.xlsx files from /IN root into the month folder
+  const rootList = await sftp.list('/IN');
+  for (const f of rootList) {
+    if (f.type === '-' && f.name.startsWith('Livraison') && f.name.endsWith('.xlsx')) {
+      try {
+        await sftp.rename(`/IN/${f.name}`, `${monthPath}/${f.name}`);
+        console.log(`  📁 Moved to ${monthFolder}: ${f.name}`);
+      } catch (e) {
+        console.warn(`  ⚠️  Could not move ${f.name}: ${e.message}`);
+      }
+    }
+  }
+
+  // Look in month folder first, then fall back to root
+  const monthList = await sftp.list(monthPath);
+  const found = monthList.find(f => f.name === fileName)
+    ? { path: `${monthPath}/${fileName}` }
+    : rootList.find(f => f.name === fileName)
+      ? { path: `/IN/${fileName}` }
+      : null;
+
   if (!found) {
     await sftp.end();
     return null;
   }
+
   const localPath = path.join(DOWNLOADS, fileName);
-  await sftp.get(`/IN/${fileName}`, localPath);
+  await sftp.get(found.path, localPath);
   await sftp.end();
   return localPath;
 }
@@ -75,8 +106,10 @@ async function downloadFile(fileName) {
 async function uploadFile(localPath) {
   const sftp = new SftpClient();
   await sftp.connect(sftpConfig);
-  await sftp.put(localPath, `/IN/${path.basename(localPath)}`);
-  console.log(`  ✅ Uploaded: ${path.basename(localPath)} → /IN`);
+  const monthFolder = getMonthFolderName();
+  const remotePath = `/IN/${monthFolder}/${path.basename(localPath)}`;
+  await sftp.put(localPath, remotePath);
+  console.log(`  ✅ Uploaded: ${path.basename(localPath)} → /IN/${monthFolder}`);
   await sftp.end();
 }
 
@@ -143,7 +176,7 @@ async function resolveFile(fileName) {
   console.log(`🔍 Not found locally — checking SFTP server...`);
   const downloaded = await downloadFile(fileName);
   if (!downloaded) {
-    console.log(`❌ File "${fileName}" not found locally or in /IN on the server.`);
+    console.log(`❌ File "${fileName}" not found locally or in /IN/${getMonthFolderName()} on the server.`);
     return null;
   }
   console.log(`✅ Downloaded: ${fileName}`);

@@ -57,11 +57,34 @@ async function getVehicles() {
   return vehicles;
 }
 
+function getMonthFolderName() {
+  const MONTHS_FR = ['JANVIER','FEVRIER','MARS','AVRIL','MAI','JUIN',
+                     'JUILLET','AOUT','SEPTEMBRE','OCTOBRE','NOVEMBRE','DECEMBRE'];
+  const now = new Date();
+  return `${MONTHS_FR[now.getMonth()]}${now.getFullYear()}`;
+}
+
 async function downloadFromSFTP() {
   console.log('📥 Downloading Excel files from SFTP server...');
   await sftp.connect(sftpConfig);
 
-  const list = await sftp.list('/IN');
+  const monthFolder = getMonthFolderName();
+  const monthPath = `/IN/${monthFolder}`;
+
+  // Move any stray matching files from /IN root into the month folder
+  const rootList = await sftp.list('/IN');
+  for (const f of rootList) {
+    if (f.type === '-' && f.name.startsWith('Livraison') && f.name.endsWith('.xlsx')) {
+      try {
+        await sftp.rename(`/IN/${f.name}`, `${monthPath}/${f.name}`);
+        console.log(`  📁 Moved to ${monthFolder}: ${f.name}`);
+      } catch (e) {
+        console.warn(`  ⚠️  Could not move ${f.name}: ${e.message}`);
+      }
+    }
+  }
+
+  const list = await sftp.list(monthPath);
 
   const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
   const parseDateFromName = name => {
@@ -77,20 +100,19 @@ async function downloadFromSFTP() {
   );
 
   if (targetFiles.length === 0) {
-    throw new Error(`No "Livraison*.N_updated-with-order.xlsx" files for today (${todayStr}) found in /IN folder`);
+    throw new Error(`No "Livraison*.N_updated-with-order.xlsx" files for today (${todayStr}) found in ${monthPath}`);
   }
-  
+
   console.log(`📄 Found ${targetFiles.length} file(s)`);
-  
+
   const downloadedFiles = [];
   for (const file of targetFiles) {
     console.log(`  - ${file.name}`);
-    const remoteFile = `/IN/${file.name}`;
     const localFile = path.join(DOWNLOADS, file.name);
-    await sftp.get(remoteFile, localFile);
+    await sftp.get(`${monthPath}/${file.name}`, localFile);
     downloadedFiles.push(localFile);
   }
-  
+
   console.log('✅ Downloaded from SFTP\n');
   await sftp.end();
   return downloadedFiles;
@@ -98,32 +120,28 @@ async function downloadFromSFTP() {
 
 async function uploadToSFTP(localFile, originalName) {
   console.log('📤 Uploading report to SFTP /OUT folder...');
-  
+
   const sftpUpload = new SftpClient();
   await sftpUpload.connect(sftpUploadConfig);
-  
+
+  const monthFolder = getMonthFolderName();
+  const outMonthPath = `/OUT/${monthFolder}`;
+
+  // Create /OUT month folder only if it doesn't exist
+  const outExists = await sftpUpload.exists(outMonthPath);
+  if (!outExists) await sftpUpload.mkdir(outMonthPath, true);
+
   const outputName = path.basename(originalName).replace(/(\.\d+)_updated-with-order\.xlsx$/, '$1_rapport-effectue.xlsx');
-  const remoteFile = `/OUT/${outputName}`;
-  
-  try {
-    await sftpUpload.mkdir('/OUT', true);
-  } catch (err) {
-    console.log('   /OUT directory already exists or created');
-  }
-  
+  const remoteFile = `${outMonthPath}/${outputName}`;
+
   try {
     await sftpUpload.delete(remoteFile);
     console.log(`   🗑️  Deleted existing file: ${outputName}`);
-  } catch (err) {
-    // File doesn't exist, continue
-  }
-  
+  } catch (_) {}
+
   await sftpUpload.put(localFile, remoteFile);
   console.log(`✅ Uploaded to: ${remoteFile}`);
-  
-  const list = await sftpUpload.list('/OUT');
-  console.log(`📋 Files in /OUT: ${list.map(f => f.name).join(', ')}\n`);
-  
+
   await sftpUpload.end();
 }
 

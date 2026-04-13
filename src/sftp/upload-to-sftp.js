@@ -3,21 +3,19 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
-const { configA: sftpConfig, remotePath } = require('./sftp-config');
+const { configA: sftpConfig } = require('./sftp-config');
 
-// ── Camtrack server config (COMMENTED OUT — now using Galana via sftp-config.js)
-// const sftpConfig = {
-//   host: process.env.SFTP_HOST || 'bi.camtrack.mg',
-//   port: process.env.SFTP_PORT || 22,
-//   username: process.env.SFTP_USERNAME || 'usertestgalana',
-//   password: process.env.SFTP_PASSWORD
-// };
+function getMonthFolderName() {
+  const MONTHS_FR = ['JANVIER','FEVRIER','MARS','AVRIL','MAI','JUIN',
+                     'JUILLET','AOUT','SEPTEMBRE','OCTOBRE','NOVEMBRE','DECEMBRE'];
+  const now = new Date();
+  return `${MONTHS_FR[now.getMonth()]}${now.getFullYear()}`;
+}
 
 async function uploadUpdatedFile() {
   const sftp = new SftpClient();
-  
+
   try {
-    // Find the updated file
     const downloadDir = path.join(__dirname, '../../downloads');
     const files = fs.readdirSync(downloadDir)
       .filter(f => f.startsWith('Livraison') && f.match(/\.\d+_updated-with-order\.xlsx$/))
@@ -27,29 +25,33 @@ async function uploadUpdatedFile() {
         time: fs.statSync(path.join(downloadDir, f)).mtime.getTime()
       }))
       .sort((a, b) => b.time - a.time);
-    
+
     if (files.length === 0) {
       console.log('❌ No updated file found to upload.');
       return;
     }
-    
+
     await sftp.connect(sftpConfig);
     console.log('✅ Connected to SFTP server\n');
 
+    const monthFolder = getMonthFolderName();
+    const monthPath = `/IN/${monthFolder}`;
+    await sftp.mkdir(monthPath, true).catch(() => {});
+
     for (const fileToUpload of files) {
       console.log(`📤 Uploading: ${fileToUpload.name}...`);
-      const remoteFilePath = `${remotePath}/${fileToUpload.name}`;
+      const remoteFilePath = `${monthPath}/${fileToUpload.name}`;
       await sftp.put(fileToUpload.path, remoteFilePath);
       console.log(`✅ Uploaded to: ${remoteFilePath}`);
     }
-    
+
     await sftp.end();
     console.log('🔌 SFTP connection closed.\n');
-    
+
   } catch (error) {
     console.error('❌ Error:', error.message);
   } finally {
-    await sftp.end();
+    await sftp.end().catch(() => {});
   }
 }
 

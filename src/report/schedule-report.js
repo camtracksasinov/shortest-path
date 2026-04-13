@@ -8,13 +8,16 @@ const { sendWarningEmail, sendProcessStartEmail, sendProcessEndEmail } = require
 const ROOT = path.join(__dirname, '../..');
 
 // ── Timezone mapping ──────────────────────────────────────────────────────────
-// Madagascar UTC+3
+// Cameroon UTC+1  |  Madagascar UTC+3
 //
-// Routing  : 13h → 19h Madagascar (every hour)  →  UTC 10:00 → 16:00
-// Warning  : 30 min before each run              →  UTC 09:30 → 15:30
+// MORNING Routing (Cameroon) : 06h → 09h  →  UTC 05:00 → 08:00
+// Warning                    : 30 min before  →  UTC 04:30 → 07:30
 //
-// Report   : 22h Madagascar                      →  UTC 19:00
-// Warning  : 21h30 Madagascar                    →  UTC 18:30
+// AFTERNOON Routing (Madagascar): 13h → 19h  →  UTC 10:00 → 16:00
+// Warning                       : 30 min before  →  UTC 09:30 → 15:30
+//
+// Report   : 22h Madagascar  →  UTC 19:00
+// Warning  : 21h30 Madagascar  →  UTC 18:30
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ── Routing runner ────────────────────────────────────────────────────────────
@@ -123,7 +126,19 @@ if (process.argv.includes('--now')) {
 } else {
   // ── Scheduled launch ─────────────────────────────────────────────────────────
 
-  // Routing warnings (30 min before each run) — Madagascar UTC+3
+  // Morning routing warnings (30 min before each run) — Cameroon UTC+1 / Madagascar UTC+3
+  cron.schedule('30  2 * * *', () => sendWarningEmail('routing', '06h00').catch(console.error)); // 05h30 Cameroon / 06h30 Mada
+  cron.schedule('30  3 * * *', () => sendWarningEmail('routing', '07h00').catch(console.error)); // 06h30 Cameroon / 07h30 Mada
+  cron.schedule('30  4 * * *', () => sendWarningEmail('routing', '08h00').catch(console.error)); // 07h30 Cameroon / 08h30 Mada
+  cron.schedule('30  5 * * *', () => sendWarningEmail('routing', '09h00').catch(console.error)); // 08h30 Cameroon / 09h30 Mada
+
+  // Morning routing runs — 04h→07h Cameroon = 06h→09h Madagascar (UTC 03:00 → 06:00)
+  cron.schedule('0  3 * * *', runRouting); // 04h Cameroon / 06h Madagascar
+  cron.schedule('0  4 * * *', runRouting); // 05h Cameroon / 07h Madagascar
+  cron.schedule('0  5 * * *', runRouting); // 06h Cameroon / 08h Madagascar
+  cron.schedule('0  6 * * *', runRouting); // 07h Cameroon / 09h Madagascar
+
+  // Afternoon routing warnings (30 min before each run) — Madagascar UTC+3
   cron.schedule('30  9 * * *', () => sendWarningEmail('routing', '13h00').catch(console.error)); // before 13h Mada
   cron.schedule('30 10 * * *', () => sendWarningEmail('routing', '14h00').catch(console.error)); // before 14h Mada
   cron.schedule('30 11 * * *', () => sendWarningEmail('routing', '15h00').catch(console.error)); // before 15h Mada
@@ -132,7 +147,7 @@ if (process.argv.includes('--now')) {
   cron.schedule('30 14 * * *', () => sendWarningEmail('routing', '18h00').catch(console.error)); // before 18h Mada
   cron.schedule('30 15 * * *', () => sendWarningEmail('routing', '19h00').catch(console.error)); // before 19h Mada
 
-  // Routing runs — every hour from 13h to 19h Madagascar (UTC 10:00 → 16:00)
+  // Afternoon routing runs — every hour from 13h to 19h Madagascar (UTC 10:00 → 16:00)
   cron.schedule('0 10 * * *', runRouting); // 13h Madagascar
   cron.schedule('0 11 * * *', runRouting); // 14h Madagascar
   cron.schedule('0 12 * * *', runRouting); // 15h Madagascar
@@ -149,9 +164,17 @@ if (process.argv.includes('--now')) {
 
   console.log('⏰ Scheduler started (UTC times):');
   console.log('');
-  console.log('  ROUTING  (Madagascar UTC+3)');
+  console.log('  MORNING ROUTING  (Cameroon UTC+1 / Madagascar UTC+3 — same UTC slots)');
+  console.log('  ├─ ⚠️  Warnings  → 02:30 / 03:30 / 04:30 / 05:30 UTC');
+  console.log('  │                   (03h30 / 04h30 / 05h30 / 06h30 Cameroon)');
+  console.log('  │                   (05h30 / 06h30 / 07h30 / 08h30 Madagascar)');
+  console.log('  └─ 🔄 Runs      → 03:00 / 04:00 / 05:00 / 06:00 UTC');
+  console.log('                     (04h00 / 05h00 / 06h00 / 07h00 Cameroon)');
+  console.log('                     (06h00 / 07h00 / 08h00 / 09h00 Madagascar)');
+  console.log('');
+  console.log('  AFTERNOON ROUTING  (Madagascar UTC+3)');
   console.log('  ├─ ⚠️  Warnings  → 09:30 / 10:30 / 11:30 / 12:30 / 13:30 / 14:30 / 15:30 UTC');
-  console.log('  │                   (13h30 / 14h30 / 15h30 / 16h30 / 17h30 / 18h30 / 19h30 Mada)');
+  console.log('  │                   (12h30 / 13h30 / 14h30 / 15h30 / 16h30 / 17h30 / 18h30 Mada)');
   console.log('  └─ 🔄 Runs      → 10:00 / 11:00 / 12:00 / 13:00 / 14:00 / 15:00 / 16:00 UTC');
   console.log('                     (13h00 / 14h00 / 15h00 / 16h00 / 17h00 / 18h00 / 19h00 Mada)');
   console.log('');

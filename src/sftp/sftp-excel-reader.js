@@ -4,7 +4,14 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
-const { configA: sftpConfig, remotePath } = require('./sftp-config');
+const { configA: sftpConfig } = require('./sftp-config');
+
+function getMonthFolderName() {
+  const MONTHS_FR = ['JANVIER','FEVRIER','MARS','AVRIL','MAI','JUIN',
+                     'JUILLET','AOUT','SEPTEMBRE','OCTOBRE','NOVEMBRE','DECEMBRE'];
+  const now = new Date();
+  return `${MONTHS_FR[now.getMonth()]}${now.getFullYear()}`;
+}
 
 // ── Camtrack server config (COMMENTED OUT — now using Galana via sftp-config.js)
 // const sftpConfig = {
@@ -30,31 +37,47 @@ async function connectAndDownloadExcel() {
     
     await sftp.connect(sftpConfig);
     console.log('✅ Connected successfully!\n');
-    
-    // List files in the IN folder
-    console.log(`📂 Listing files in ${remotePath}...`);
-    const fileList = await sftp.list(remotePath);
-    
+
+    const monthFolder = getMonthFolderName();
+    const monthPath = `/IN/${monthFolder}`;
+
+    // Move any stray Livraison*.xlsx files from /IN root into the month folder
+    const rootList = await sftp.list('/IN');
+    for (const f of rootList) {
+      if (f.type === '-' && f.name.startsWith('Livraison') && f.name.endsWith('.xlsx')) {
+        try {
+          await sftp.rename(`/IN/${f.name}`, `${monthPath}/${f.name}`);
+          console.log(`  📁 Moved to ${monthFolder}: ${f.name}`);
+        } catch (e) {
+          console.warn(`  ⚠️  Could not move ${f.name}: ${e.message}`);
+        }
+      }
+    }
+
+    // List files in the month folder
+    console.log(`📂 Listing files in ${monthPath}...`);
+    const fileList = await sftp.list(monthPath);
+
     // Filter Excel files starting with "Livraison" and exclude updated files
-    const excelFiles = fileList.filter(file => 
-      file.name.startsWith('Livraison') && 
+    const excelFiles = fileList.filter(file =>
+      file.name.startsWith('Livraison') &&
       file.name.match(/\.\d+\.xlsx$/) &&
       !file.name.includes('_updated-with-order')
     );
-    
+
     if (excelFiles.length === 0) {
-      console.log('❌ No Excel files matching pattern "Livraison*.N.xlsx" found in the IN folder.');
+      console.log(`❌ No Excel files matching pattern "Livraison*.N.xlsx" found in ${monthPath}.`);
       return;
     }
-    
+
     console.log(`\n📊 Found ${excelFiles.length} Excel file(s):`);
     excelFiles.forEach((file, index) => {
       console.log(`   ${index + 1}. ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
     });
-    
-    // Download the first Excel file (or you can modify to download all)
+
+    // Download the first Excel file
     const fileToDownload = excelFiles[0];
-    const remoteFilePath = `${remotePath}/${fileToDownload.name}`;
+    const remoteFilePath = `${monthPath}/${fileToDownload.name}`;
     const localFilePath = path.join(localDownloadPath, fileToDownload.name);
     
     console.log(`\n⬇️  Downloading: ${fileToDownload.name}...`);

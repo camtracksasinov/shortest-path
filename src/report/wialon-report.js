@@ -86,7 +86,7 @@ async function downloadFromSFTP() {
 
   const list = await sftp.list(monthPath);
 
-  const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Indian/Antananarivo' }); // YYYY-MM-DD in Madagascar time // YYYY-MM-DD
   const parseDateFromName = name => {
     const match = name.match(/(\d{2})-(\d{2})-(\d{4})/);
     if (!match) return null;
@@ -848,8 +848,9 @@ async function generateReport(targetFile = null, sendEmails = true) {
       headers.push("Heure d'arrivée", "Heure de départ", "Délai de livraison", "Kilométrage effectif, km", "Vitesse moyenne", "Vitesse max", "Survitesse en ville", "Survitesse Hors Aglomération", "Conduite de nuit", "Conduite Continue");
       
       const dateStr = reportDate.toISOString().split('T')[0];
-      const from = Math.floor(new Date(`${dateStr}T00:00:00Z`).getTime() / 1000);
-      const to = Math.floor(new Date(`${dateStr}T23:59:59Z`).getTime() / 1000);
+      const tzOffset = parseInt(process.env.TIMEZONE_OFFSET || '3');
+      const from = Math.floor(new Date(`${dateStr}T00:00:00Z`).getTime() / 1000) - tzOffset * 3600;
+      const to   = Math.floor(new Date(`${dateStr}T23:59:59Z`).getTime() / 1000) - tzOffset * 3600;
 
       console.log(`🕒 Report date: ${dateStr} | timestamps: ${from} to ${to}\n`);
       console.log('📊 Step 5: Generating reports for each vehicle...\n');

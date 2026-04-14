@@ -56,7 +56,7 @@ async function downloadAllFiles() {
 
   const list = await sftp.list(monthPath);
 
-  const today = new Date();
+  const today = new Date(new Date().toLocaleDateString('en-CA', { timeZone: 'Indian/Antananarivo' }));
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
   const fmt = d => d.toISOString().split('T')[0];
@@ -199,7 +199,7 @@ async function processFile(filePath) {
   const isUpdatedFile = baseName.includes('_updated-with-order');
   const dateMatch = baseName.match(/(\d{2})-(\d{2})-(\d{4})/);
   const fileDate = dateMatch ? `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}` : null;
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Indian/Antananarivo' }); // YYYY-MM-DD in Madagascar time
 
   if (noReport) {
     console.log(`\nℹ️  Step 6: Report skipped (--no-report flag).`);

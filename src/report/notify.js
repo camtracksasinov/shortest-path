@@ -15,17 +15,17 @@ async function send(subject, html) {
 }
 
 // ── 1. Warning email — 30 min before execution ────────────────────────────────
-async function sendWarningEmail(type, scheduledTimeCameroon) {
+async function sendWarningEmail(type, scheduledTimeMadagascar) {
   const label = type === 'report' ? '📊 Report' : '🔄 Routing';
   await send(
     `⚠️ ${label} — Starts in 30 minutes`,
     `<p>Hello,</p>
      <p>This is a <strong>30-minute warning</strong>.</p>
      <p>The <strong>${label}</strong> process is scheduled to start at
-        <strong>${scheduledTimeCameroon} (Cameroon)</strong>.</p>
+        <strong>${scheduledTimeMadagascar} (Madagascar)</strong>.</p>
      <table style="border-collapse:collapse;font-size:14px">
-       <tr><td style="padding:4px 12px 4px 0"><strong>Cameroon</strong></td><td>${nowCameroon()}</td></tr>
        <tr><td style="padding:4px 12px 4px 0"><strong>Madagascar</strong></td><td>${nowMadagascar()}</td></tr>
+       <tr><td style="padding:4px 12px 4px 0"><strong>Cameroon</strong></td><td>${nowCameroon()}</td></tr>
      </table>
      <p>The server is running normally. ✅</p>`
   );

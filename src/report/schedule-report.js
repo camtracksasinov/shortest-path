@@ -16,8 +16,8 @@ const ROOT = path.join(__dirname, '../..');
 // AFTERNOON Routing (Madagascar): 13h → 19h  →  UTC 10:00 → 16:00
 // Warning                       : 30 min before  →  UTC 09:30 → 15:30
 //
-// Report   : 22h Madagascar  →  UTC 19:00
-// Warning  : 21h30 Madagascar  →  UTC 18:30
+// Report   : 00h00 Madagascar  →  UTC 21:00
+// Warning  : 23h30 Madagascar  →  UTC 20:30
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ── Routing runner ────────────────────────────────────────────────────────────
@@ -156,11 +156,11 @@ if (process.argv.includes('--now')) {
   cron.schedule('0 15 * * *', runRouting); // 18h Madagascar
   cron.schedule('0 16 * * *', runRouting); // 19h Madagascar
 
-  // Report warning (30 min before)
-  cron.schedule('30 18 * * *', () => sendWarningEmail('report', '22h00').catch(console.error)); // 21h30 Madagascar
+  // Report warning (30 min before) — 23h30 Madagascar = 20h30 UTC
+  cron.schedule('30 20 * * *', () => sendWarningEmail('report', '00h00').catch(console.error));
 
-  // Report run
-  cron.schedule('0 19 * * *', runReport); // 22h Madagascar
+  // Report run — 00h00 Madagascar = 21h00 UTC
+  cron.schedule('0 21 * * *', runReport);
 
   console.log('⏰ Scheduler started (UTC times):');
   console.log('');
@@ -179,8 +179,8 @@ if (process.argv.includes('--now')) {
   console.log('                     (13h00 / 14h00 / 15h00 / 16h00 / 17h00 / 18h00 / 19h00 Mada)');
   console.log('');
   console.log('  REPORT   (Madagascar UTC+3)');
-  console.log('  ├─ ⚠️  Warning   → 18:30 UTC  (21h30 Madagascar)');
-  console.log('  └─ 📊 Run       → 19:00 UTC  (22h00 Madagascar)');
+  console.log('  ├─ ⚠️  Warning   → 20:30 UTC  (23h30 Madagascar)');
+  console.log('  └─ 📊 Run       → 21:00 UTC  (00h00 Madagascar)');
   console.log('');
   console.log('💡 Manual launch (no schedule):');
   console.log('   node src/report/schedule-report.js --now           → routing');

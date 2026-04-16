@@ -356,23 +356,17 @@ async function processReportData(rows, orderedZones, tripDetailRows) {
 
   const getTripDepartureTs  = t => t.c[1]?.v ?? t.t1;
   const getTripDepartureStr = t => {
-    const tField = typeof t.c[1] === 'object' ? t.c[1]?.t : t.c[1];
-    if (tField) {
-      const converted = formatWialonTime(tField);
-      console.log(`  🕐 TZ convert [departure] UTC: ${tField}  →  Madagascar: ${converted}`);
-      return converted;
-    }
-    return tsToLocale(getTripDepartureTs(t));
+    const ts = getTripDepartureTs(t);
+    const result = tsToLocale(ts);
+    console.log(`  🕐 TZ convert [departure] UTC ts: ${ts}  →  Madagascar: ${result}`);
+    return result;
   };
   const getTripArrivalTs    = t => t.c[3]?.v ?? t.t2;
   const getTripArrivalStr   = t => {
-    const tField = t.c[3]?.t;
-    if (tField) {
-      const converted = formatWialonTime(tField);
-      console.log(`  🕐 TZ convert [arrival]   UTC: ${tField}  →  Madagascar: ${converted}`);
-      return converted;
-    }
-    return tsToLocale(getTripArrivalTs(t));
+    const ts = getTripArrivalTs(t);
+    const result = tsToLocale(ts);
+    console.log(`  🕐 TZ convert [arrival]   UTC ts: ${ts}  →  Madagascar: ${result}`);
+    return result;
   };
   const getTripStartZone    = t => (typeof t.c[2] === 'object' ? (t.c[2]?.t || '') : (t.c[2] || ''));
   const getTripEndZone      = t => t.c[4]?.t || '';

@@ -11,15 +11,15 @@ const ROOT = path.join(__dirname, '../..');
 // Server UTC  |  Cameroon UTC+1  |  Madagascar UTC+3
 //
 // MORNING Routing — processes TODAY's files (current day)
-//   06h → 12h Madagascar  →  UTC 03:00 → 09:00
-//   Warnings 30 min before  →  UTC 02:30 → 08:30
+//   06h00 → 12h00 Madagascar  →  UTC 03:00 → 09:00  (every 30 min)
+//   Warnings 15 min before each run
 //
 // AFTERNOON Routing — processes TOMORROW's files (next day)
-//   13h → 19h Madagascar  →  UTC 10:00 → 16:00
-//   Warnings 30 min before  →  UTC 09:30 → 15:30
+//   13h00 → 19h00 Madagascar  →  UTC 10:00 → 16:00  (every 30 min)
+//   Warnings 15 min before each run
 //
 // Report   : 00h00 Madagascar  →  UTC 21:00
-// Warning  : 23h30 Madagascar  →  UTC 20:30
+// Warning  : 23h45 Madagascar  →  UTC 20:45
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ── Shared routing runner ─────────────────────────────────────────────────────
@@ -135,60 +135,86 @@ if (process.argv.includes('--now')) {
 } else {
   // ── Scheduled launch ─────────────────────────────────────────────────────────
 
-  // ── MORNING routing — TODAY's files — 06h→12h Madagascar (UTC 03:00→09:00) ──
-  cron.schedule('30  2 * * *', () => sendWarningEmail('routing', '06h00 🌅 matin').catch(console.error));  // UTC 02:30 → warn 06h Mada
-  cron.schedule('30  3 * * *', () => sendWarningEmail('routing', '07h00 🌅 matin').catch(console.error));  // UTC 03:30 → warn 07h Mada
-  cron.schedule('30  4 * * *', () => sendWarningEmail('routing', '08h00 🌅 matin').catch(console.error));  // UTC 04:30 → warn 08h Mada
-  cron.schedule('30  5 * * *', () => sendWarningEmail('routing', '09h00 🌅 matin').catch(console.error));  // UTC 05:30 → warn 09h Mada
-  cron.schedule('30  6 * * *', () => sendWarningEmail('routing', '10h00 🌅 matin').catch(console.error));  // UTC 06:30 → warn 10h Mada
-  cron.schedule('30  7 * * *', () => sendWarningEmail('routing', '11h00 🌅 matin').catch(console.error));  // UTC 07:30 → warn 11h Mada
-  cron.schedule('30  8 * * *', () => sendWarningEmail('routing', '12h00 🌅 matin').catch(console.error));  // UTC 08:30 → warn 12h Mada
+  // ── MORNING routing — TODAY's files — 06h00→12h00 Madagascar (UTC 03:00→09:00) every 30 min ──
+  // Warnings at :45 and :15 (15 min before each :00 and :30 run)
+  cron.schedule('45  2 * * *', () => sendWarningEmail('routing', '06h00 🌅 matin').catch(console.error));  // UTC 02:45 → warn before 06h00 Mada
+  cron.schedule('15  3 * * *', () => sendWarningEmail('routing', '06h30 🌅 matin').catch(console.error));  // UTC 03:15 → warn before 06h30 Mada
+  cron.schedule('45  3 * * *', () => sendWarningEmail('routing', '07h00 🌅 matin').catch(console.error));  // UTC 03:45 → warn before 07h00 Mada
+  cron.schedule('15  4 * * *', () => sendWarningEmail('routing', '07h30 🌅 matin').catch(console.error));  // UTC 04:15 → warn before 07h30 Mada
+  cron.schedule('45  4 * * *', () => sendWarningEmail('routing', '08h00 🌅 matin').catch(console.error));  // UTC 04:45 → warn before 08h00 Mada
+  cron.schedule('15  5 * * *', () => sendWarningEmail('routing', '08h30 🌅 matin').catch(console.error));  // UTC 05:15 → warn before 08h30 Mada
+  cron.schedule('45  5 * * *', () => sendWarningEmail('routing', '09h00 🌅 matin').catch(console.error));  // UTC 05:45 → warn before 09h00 Mada
+  cron.schedule('15  6 * * *', () => sendWarningEmail('routing', '09h30 🌅 matin').catch(console.error));  // UTC 06:15 → warn before 09h30 Mada
+  cron.schedule('45  6 * * *', () => sendWarningEmail('routing', '10h00 🌅 matin').catch(console.error));  // UTC 06:45 → warn before 10h00 Mada
+  cron.schedule('15  7 * * *', () => sendWarningEmail('routing', '10h30 🌅 matin').catch(console.error));  // UTC 07:15 → warn before 10h30 Mada
+  cron.schedule('45  7 * * *', () => sendWarningEmail('routing', '11h00 🌅 matin').catch(console.error));  // UTC 07:45 → warn before 11h00 Mada
+  cron.schedule('15  8 * * *', () => sendWarningEmail('routing', '11h30 🌅 matin').catch(console.error));  // UTC 08:15 → warn before 11h30 Mada
+  cron.schedule('45  8 * * *', () => sendWarningEmail('routing', '12h00 🌅 matin').catch(console.error));  // UTC 08:45 → warn before 12h00 Mada
 
-  cron.schedule('0  3 * * *', runMorningRouting);  // UTC 03:00 → 06h Madagascar
-  cron.schedule('0  4 * * *', runMorningRouting);  // UTC 04:00 → 07h Madagascar
-  cron.schedule('0  5 * * *', runMorningRouting);  // UTC 05:00 → 08h Madagascar
-  cron.schedule('0  6 * * *', runMorningRouting);  // UTC 06:00 → 09h Madagascar
-  cron.schedule('0  7 * * *', runMorningRouting);  // UTC 07:00 → 10h Madagascar
-  cron.schedule('0  8 * * *', runMorningRouting);  // UTC 08:00 → 11h Madagascar
-  cron.schedule('0  9 * * *', runMorningRouting);  // UTC 09:00 → 12h Madagascar
+  cron.schedule(' 0  3 * * *', runMorningRouting);  // UTC 03:00 → 06h00 Madagascar
+  cron.schedule('30  3 * * *', runMorningRouting);  // UTC 03:30 → 06h30 Madagascar
+  cron.schedule(' 0  4 * * *', runMorningRouting);  // UTC 04:00 → 07h00 Madagascar
+  cron.schedule('30  4 * * *', runMorningRouting);  // UTC 04:30 → 07h30 Madagascar
+  cron.schedule(' 0  5 * * *', runMorningRouting);  // UTC 05:00 → 08h00 Madagascar
+  cron.schedule('30  5 * * *', runMorningRouting);  // UTC 05:30 → 08h30 Madagascar
+  cron.schedule(' 0  6 * * *', runMorningRouting);  // UTC 06:00 → 09h00 Madagascar
+  cron.schedule('30  6 * * *', runMorningRouting);  // UTC 06:30 → 09h30 Madagascar
+  cron.schedule(' 0  7 * * *', runMorningRouting);  // UTC 07:00 → 10h00 Madagascar
+  cron.schedule('30  7 * * *', runMorningRouting);  // UTC 07:30 → 10h30 Madagascar
+  cron.schedule(' 0  8 * * *', runMorningRouting);  // UTC 08:00 → 11h00 Madagascar
+  cron.schedule('30  8 * * *', runMorningRouting);  // UTC 08:30 → 11h30 Madagascar
+  cron.schedule(' 0  9 * * *', runMorningRouting);  // UTC 09:00 → 12h00 Madagascar
 
-  // ── AFTERNOON routing — TOMORROW's files — 13h→19h Madagascar (UTC 10:00→16:00) ──
-  cron.schedule('30  9 * * *', () => sendWarningEmail('routing', '13h00 🌇 après-midi').catch(console.error)); // UTC 09:30 → warn 13h Mada
-  cron.schedule('30 10 * * *', () => sendWarningEmail('routing', '14h00 🌇 après-midi').catch(console.error)); // UTC 10:30 → warn 14h Mada
-  cron.schedule('30 11 * * *', () => sendWarningEmail('routing', '15h00 🌇 après-midi').catch(console.error)); // UTC 11:30 → warn 15h Mada
-  cron.schedule('30 12 * * *', () => sendWarningEmail('routing', '16h00 🌇 après-midi').catch(console.error)); // UTC 12:30 → warn 16h Mada
-  cron.schedule('30 13 * * *', () => sendWarningEmail('routing', '17h00 🌇 après-midi').catch(console.error)); // UTC 13:30 → warn 17h Mada
-  cron.schedule('30 14 * * *', () => sendWarningEmail('routing', '18h00 🌇 après-midi').catch(console.error)); // UTC 14:30 → warn 18h Mada
-  cron.schedule('30 15 * * *', () => sendWarningEmail('routing', '19h00 🌇 après-midi').catch(console.error)); // UTC 15:30 → warn 19h Mada
+  // ── AFTERNOON routing — TOMORROW's files — 13h00→19h00 Madagascar (UTC 10:00→16:00) every 30 min ──
+  // Warnings at :45 and :15 (15 min before each :00 and :30 run)
+  cron.schedule('45  9 * * *', () => sendWarningEmail('routing', '13h00 🌇 après-midi').catch(console.error)); // UTC 09:45 → warn before 13h00 Mada
+  cron.schedule('15 10 * * *', () => sendWarningEmail('routing', '13h30 🌇 après-midi').catch(console.error)); // UTC 10:15 → warn before 13h30 Mada
+  cron.schedule('45 10 * * *', () => sendWarningEmail('routing', '14h00 🌇 après-midi').catch(console.error)); // UTC 10:45 → warn before 14h00 Mada
+  cron.schedule('15 11 * * *', () => sendWarningEmail('routing', '14h30 🌇 après-midi').catch(console.error)); // UTC 11:15 → warn before 14h30 Mada
+  cron.schedule('45 11 * * *', () => sendWarningEmail('routing', '15h00 🌇 après-midi').catch(console.error)); // UTC 11:45 → warn before 15h00 Mada
+  cron.schedule('15 12 * * *', () => sendWarningEmail('routing', '15h30 🌇 après-midi').catch(console.error)); // UTC 12:15 → warn before 15h30 Mada
+  cron.schedule('45 12 * * *', () => sendWarningEmail('routing', '16h00 🌇 après-midi').catch(console.error)); // UTC 12:45 → warn before 16h00 Mada
+  cron.schedule('15 13 * * *', () => sendWarningEmail('routing', '16h30 🌇 après-midi').catch(console.error)); // UTC 13:15 → warn before 16h30 Mada
+  cron.schedule('45 13 * * *', () => sendWarningEmail('routing', '17h00 🌇 après-midi').catch(console.error)); // UTC 13:45 → warn before 17h00 Mada
+  cron.schedule('15 14 * * *', () => sendWarningEmail('routing', '17h30 🌇 après-midi').catch(console.error)); // UTC 14:15 → warn before 17h30 Mada
+  cron.schedule('45 14 * * *', () => sendWarningEmail('routing', '18h00 🌇 après-midi').catch(console.error)); // UTC 14:45 → warn before 18h00 Mada
+  cron.schedule('15 15 * * *', () => sendWarningEmail('routing', '18h30 🌇 après-midi').catch(console.error)); // UTC 15:15 → warn before 18h30 Mada
+  cron.schedule('45 15 * * *', () => sendWarningEmail('routing', '19h00 🌇 après-midi').catch(console.error)); // UTC 15:45 → warn before 19h00 Mada
 
-  cron.schedule('0 10 * * *', runAfternoonRouting); // UTC 10:00 → 13h Madagascar
-  cron.schedule('0 11 * * *', runAfternoonRouting); // UTC 11:00 → 14h Madagascar
-  cron.schedule('0 12 * * *', runAfternoonRouting); // UTC 12:00 → 15h Madagascar
-  cron.schedule('0 13 * * *', runAfternoonRouting); // UTC 13:00 → 16h Madagascar
-  cron.schedule('0 14 * * *', runAfternoonRouting); // UTC 14:00 → 17h Madagascar
-  cron.schedule('0 15 * * *', runAfternoonRouting); // UTC 15:00 → 18h Madagascar
-  cron.schedule('0 16 * * *', runAfternoonRouting); // UTC 16:00 → 19h Madagascar
+  cron.schedule(' 0 10 * * *', runAfternoonRouting); // UTC 10:00 → 13h00 Madagascar
+  cron.schedule('30 10 * * *', runAfternoonRouting); // UTC 10:30 → 13h30 Madagascar
+  cron.schedule(' 0 11 * * *', runAfternoonRouting); // UTC 11:00 → 14h00 Madagascar
+  cron.schedule('30 11 * * *', runAfternoonRouting); // UTC 11:30 → 14h30 Madagascar
+  cron.schedule(' 0 12 * * *', runAfternoonRouting); // UTC 12:00 → 15h00 Madagascar
+  cron.schedule('30 12 * * *', runAfternoonRouting); // UTC 12:30 → 15h30 Madagascar
+  cron.schedule(' 0 13 * * *', runAfternoonRouting); // UTC 13:00 → 16h00 Madagascar
+  cron.schedule('30 13 * * *', runAfternoonRouting); // UTC 13:30 → 16h30 Madagascar
+  cron.schedule(' 0 14 * * *', runAfternoonRouting); // UTC 14:00 → 17h00 Madagascar
+  cron.schedule('30 14 * * *', runAfternoonRouting); // UTC 14:30 → 17h30 Madagascar
+  cron.schedule(' 0 15 * * *', runAfternoonRouting); // UTC 15:00 → 18h00 Madagascar
+  cron.schedule('30 15 * * *', runAfternoonRouting); // UTC 15:30 → 18h30 Madagascar
+  cron.schedule(' 0 16 * * *', runAfternoonRouting); // UTC 16:00 → 19h00 Madagascar
 
   // ── Report — 00h00 Madagascar = UTC 21:00 ────────────────────────────────────
-  cron.schedule('30 20 * * *', () => sendWarningEmail('report', '00h00').catch(console.error));
-  cron.schedule('0 21 * * *', runReport);
+  cron.schedule('45 20 * * *', () => sendWarningEmail('report', '00h00').catch(console.error)); // UTC 20:45 → warn 23h45 Mada
+  cron.schedule(' 0 21 * * *', runReport);
 
   console.log('⏰ Scheduler started (UTC times):');
   console.log('');
-  console.log('  🌅 MORNING ROUTING  — TODAY\'s files (--today flag)');
-  console.log('  ├─ ⚠️  Warnings  → 02:30 / 03:30 / 04:30 / 05:30 / 06:30 / 07:30 / 08:30 UTC');
-  console.log('  │                   (05h30→11h30 Madagascar)');
-  console.log('  └─ 🔄 Runs      → 03:00 / 04:00 / 05:00 / 06:00 / 07:00 / 08:00 / 09:00 UTC');
-  console.log('                     (06h00 → 12h00 Madagascar)');
+  console.log('  🌅 MORNING ROUTING  — TODAY\'s files — every 30 min');
+  console.log('  ├─ ⚠️  Warnings  → 15 min before each run (:45 and :15)');
+  console.log('  │                   UTC 02:45 → 08:45  (Mada 05h45 → 11h45)');
+  console.log('  └─ 🔄 Runs      → UTC 03:00, 03:30, 04:00 … 08:30, 09:00');
+  console.log('                     Mada 06h00, 06h30, 07h00 … 11h30, 12h00');
   console.log('');
-  console.log('  🌇 AFTERNOON ROUTING  — TOMORROW\'s files');
-  console.log('  ├─ ⚠️  Warnings  → 09:30 / 10:30 / 11:30 / 12:30 / 13:30 / 14:30 / 15:30 UTC');
-  console.log('  │                   (12h30 → 18h30 Madagascar)');
-  console.log('  └─ 🔄 Runs      → 10:00 / 11:00 / 12:00 / 13:00 / 14:00 / 15:00 / 16:00 UTC');
-  console.log('                     (13h00 → 19h00 Madagascar)');
+  console.log('  🌇 AFTERNOON ROUTING  — TOMORROW\'s files — every 30 min');
+  console.log('  ├─ ⚠️  Warnings  → 15 min before each run (:45 and :15)');
+  console.log('  │                   UTC 09:45 → 15:45  (Mada 12h45 → 18h45)');
+  console.log('  └─ 🔄 Runs      → UTC 10:00, 10:30, 11:00 … 15:30, 16:00');
+  console.log('                     Mada 13h00, 13h30, 14h00 … 18h30, 19h00');
   console.log('');
   console.log('  REPORT   (Madagascar UTC+3)');
-  console.log('  ├─ ⚠️  Warning   → 20:30 UTC  (23h30 Madagascar)');
+  console.log('  ├─ ⚠️  Warning   → 20:45 UTC  (23h45 Madagascar)');
   console.log('  └─ 📊 Run       → 21:00 UTC  (00h00 Madagascar)');
   console.log('');
   console.log('💡 Manual launch (no schedule):');

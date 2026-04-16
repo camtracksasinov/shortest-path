@@ -33,31 +33,54 @@ async function runRouting(mode) {
   const targetLabel = mode === 'morning' ? 'today' : 'tomorrow';
 
   console.log(`\n🔄 Starting ${label} routing (${targetLabel}'s files)...`);
-  try { await sendProcessStartEmail('routing'); } catch (e) { console.error('❌ Start email:', e.message); }
+  try { await sendProcessStartEmail('routing', mode); } catch (e) { console.error('❌ Start email:', e.message); }
 
   let output = '';
   try {
     output = execSync(cmd, { cwd: ROOT, encoding: 'utf8', shell: '/bin/sh', env: { ...process.env, PATH: process.env.PATH || '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' } });
     console.log(output);
 
-    const fiveMinAgo = Date.now() - 5 * 60 * 1000;
-    summary.files = fs.readdirSync(path.join(ROOT, 'downloads'))
-      .filter(f => f.includes('_updated-with-order') &&
-                   fs.statSync(path.join(ROOT, 'downloads', f)).mtimeMs > fiveMinAgo);
+    // Detect all "nothing to do" states:
+    // 1. No file found for that date on SFTP
+    // 2. All files already have _updated-with-order on SFTP (skip duplicate processing)
+    const noFiles      = output.includes('No Livraison') || output.includes('nothing to do');
+    const alreadyDone  = output.includes('already been processed') || output.includes('already processed');
+    const skipped      = noFiles || alreadyDone;
 
-    const noFiles = output.includes('No Livraison') || output.includes('nothing to do');
+    // Extract real filenames and per-file email counts from output
+    // Output lines: "✅ Downloaded: Livraison XX-XX-XXXX.1.xlsx"
+    //               "📊 Summary: X emails sent, Y failed"
+    const fileMatches = output.match(/✅ Downloaded: (.+\.xlsx)/g) || [];
+    const summaryMatches = output.match(/📊 Summary: (\d+) emails sent, (\d+) failed/g) || [];
+
+    summary.files = skipped ? [] : fileMatches.map((l, i) => {
+      const name = l.replace('✅ Downloaded: ', '').trim();
+      const sm = summaryMatches[i] && summaryMatches[i].match(/(\d+) emails sent, (\d+) failed/);
+      return { name, emailsSent: sm ? parseInt(sm[1]) : 0, emailsFailed: sm ? parseInt(sm[2]) : 0 };
+    });
+    summary.mode = mode;
+
+    const totalSent   = summary.files.reduce((s, f) => s + f.emailsSent,   0);
+    const totalFailed = summary.files.reduce((s, f) => s + f.emailsFailed, 0);
+
     summary.steps.push({
       name: 'SFTP Download',
-      status: noFiles ? 'skipped' : 'ok',
-      detail: noFiles ? `No matching file found on server for ${targetLabel}` : `${summary.files.length} file(s) downloaded`
+      status: skipped ? 'skipped' : 'ok',
+      detail: noFiles     ? `No matching file found on server for ${targetLabel}` :
+              alreadyDone ? `All ${targetLabel}'s files already processed — skipping to avoid duplicate emails` :
+                            `${fileMatches.length} file(s) downloaded`
     });
 
-    if (!noFiles) {
+    if (!skipped) {
       summary.steps.push({ name: 'Wialon Coordinates', status: 'ok', detail: 'Zones matched successfully' });
       summary.steps.push({ name: 'Route Calculation',  status: 'ok', detail: 'Optimal routes computed' });
       summary.steps.push({ name: 'Excel Update',       status: 'ok', detail: 'Order written to file(s)' });
       summary.steps.push({ name: 'SFTP Upload',        status: 'ok', detail: 'Updated file(s) uploaded to /IN' });
-      summary.steps.push({ name: 'Route Emails',       status: 'ok', detail: 'Emails sent to transporters' });
+      summary.steps.push({
+        name: 'Route Emails',
+        status: totalFailed > 0 && totalSent === 0 ? 'error' : 'ok',
+        detail: `${totalSent} sent, ${totalFailed} failed (across ${fileMatches.length} file(s))`
+      });
     }
   } catch (err) {
     const msg = err.message || '';

@@ -14,18 +14,30 @@ async function send(subject, html) {
   await sendMail({ to: ADMIN_EMAIL, subject, html });
 }
 
-// ── 1. Warning email — 30 min before execution ────────────────────────────────
+// ── 1. Warning email — 15 min before execution ────────────────────────────────
+// scheduledTimeMadagascar: e.g. '06h00 🌅 matin' or '13h00 🌇 après-midi'
 async function sendWarningEmail(type, scheduledTimeMadagascar) {
-  const label = type === 'report' ? '📊 Report' : '🔄 Routing';
+  const label    = type === 'report' ? '📊 Report' : '🔄 Routing';
+  const isMorning = scheduledTimeMadagascar.includes('matin');
+  const isAfternoon = scheduledTimeMadagascar.includes('après-midi');
+  const sessionLine = type === 'routing'
+    ? `<p><strong>Session:</strong> ${
+        isMorning   ? "🌅 Morning — processing <strong>today's</strong> delivery files" :
+        isAfternoon ? "🌇 Afternoon — processing <strong>tomorrow's</strong> delivery files" :
+                      ''
+      }</p>`
+    : '';
+
   await send(
-    `⚠️ ${label} — Starts in 30 minutes`,
+    `⚠️ ${label} — Starts in 15 minutes (${scheduledTimeMadagascar.replace(/[🌅🌇]/g, '').trim()} Madagascar)`,
     `<p>Hello,</p>
-     <p>This is a <strong>30-minute warning</strong>.</p>
+     <p>This is a <strong>15-minute warning</strong>.</p>
      <p>The <strong>${label}</strong> process is scheduled to start at
         <strong>${scheduledTimeMadagascar} (Madagascar)</strong>.</p>
+     ${sessionLine}
      <table style="border-collapse:collapse;font-size:14px">
-       <tr><td style="padding:4px 12px 4px 0"><strong>Madagascar</strong></td><td>${nowMadagascar()}</td></tr>
-       <tr><td style="padding:4px 12px 4px 0"><strong>Cameroon</strong></td><td>${nowCameroon()}</td></tr>
+       <tr><td style="padding:4px 12px 4px 0"><strong>Current time — Madagascar</strong></td><td>${nowMadagascar()}</td></tr>
+       <tr><td style="padding:4px 12px 4px 0"><strong>Current time — Cameroon</strong></td><td>${nowCameroon()}</td></tr>
      </table>
      <p>The server is running normally. ✅</p>`
   );
@@ -33,15 +45,25 @@ async function sendWarningEmail(type, scheduledTimeMadagascar) {
 }
 
 // ── 2. Start email ────────────────────────────────────────────────────────────
-async function sendProcessStartEmail(type) {
+// mode: 'morning' | 'afternoon' | undefined (for report)
+async function sendProcessStartEmail(type, mode) {
   const label = type === 'report' ? '📊 Report' : '🔄 Routing';
+  const sessionLine = type === 'routing' && mode
+    ? `<p><strong>Session:</strong> ${
+        mode === 'morning'
+          ? "🌅 Morning — processing <strong>today's</strong> delivery files"
+          : "🌇 Afternoon — processing <strong>tomorrow's</strong> delivery files"
+      }</p>`
+    : '';
+
   await send(
     `🚀 ${label} — Process Started`,
     `<p>Hello,</p>
      <p>The <strong>${label}</strong> process has just <strong>started</strong>.</p>
+     ${sessionLine}
      <table style="border-collapse:collapse;font-size:14px">
-       <tr><td style="padding:4px 12px 4px 0"><strong>Cameroon</strong></td><td>${nowCameroon()}</td></tr>
-       <tr><td style="padding:4px 12px 4px 0"><strong>Madagascar</strong></td><td>${nowMadagascar()}</td></tr>
+       <tr><td style="padding:4px 12px 4px 0"><strong>Started at — Madagascar</strong></td><td>${nowMadagascar()}</td></tr>
+       <tr><td style="padding:4px 12px 4px 0"><strong>Started at — Cameroon</strong></td><td>${nowCameroon()}</td></tr>
      </table>
      <p>You will receive a summary email once it completes.</p>`
   );
@@ -49,15 +71,22 @@ async function sendProcessStartEmail(type) {
 }
 
 // ── 3. End email — full resume ────────────────────────────────────────────────
-// summary = { steps: [{ name, status: 'ok'|'skipped'|'error', detail }], files: [] }
+// summary = { steps: [{ name, status: 'ok'|'skipped'|'error', detail }], files: [], mode? }
 async function sendProcessEndEmail(type, summary) {
-  const label = type === 'report' ? '📊 Report' : '🔄 Routing';
+  const label  = type === 'report' ? '📊 Report' : '🔄 Routing';
   const allOk  = summary.steps.every(s => s.status !== 'error');
   const icon   = allOk ? '✅' : '⚠️';
+  const sessionLine = type === 'routing' && summary.mode
+    ? `<p><strong>Session:</strong> ${
+        summary.mode === 'morning'
+          ? "🌅 Morning — processed <strong>today's</strong> delivery files"
+          : "🌇 Afternoon — processed <strong>tomorrow's</strong> delivery files"
+      }</p>`
+    : '';
 
   const stepRows = summary.steps.map(s => {
-    const color  = s.status === 'ok' ? '#2e7d32' : s.status === 'skipped' ? '#e65100' : '#c62828';
-    const badge  = s.status === 'ok' ? '✅ OK' : s.status === 'skipped' ? '⏭ Skipped' : '❌ Error';
+    const color = s.status === 'ok' ? '#2e7d32' : s.status === 'skipped' ? '#757575' : '#c62828';
+    const badge = s.status === 'ok' ? '✅ OK'    : s.status === 'skipped' ? '⏭ Skipped' : '❌ Error';
     return `<tr>
       <td style="padding:6px 14px 6px 0;font-weight:bold">${s.name}</td>
       <td style="padding:6px 14px 6px 0;color:${color};font-weight:bold">${badge}</td>
@@ -66,16 +95,37 @@ async function sendProcessEndEmail(type, summary) {
   }).join('');
 
   const fileList = (summary.files || []).length
-    ? `<p><strong>Files processed:</strong></p><ul>${summary.files.map(f => `<li>${f}</li>`).join('')}</ul>`
+    ? `<p><strong>Files processed:</strong></p>
+       <table style="border-collapse:collapse;font-size:13px;">
+         <thead>
+           <tr style="background:#f5f5f5">
+             <th style="padding:5px 14px 5px 0;text-align:left">File</th>
+             <th style="padding:5px 14px 5px 0;text-align:center">✅ Emails sent</th>
+             <th style="padding:5px 0;text-align:center">❌ Failed</th>
+           </tr>
+         </thead>
+         <tbody>${summary.files.map(f => {
+           const name   = typeof f === 'object' ? f.name        : f;
+           const sent   = typeof f === 'object' ? f.emailsSent  : '—';
+           const failed = typeof f === 'object' ? f.emailsFailed : '—';
+           const failColor = failed > 0 ? 'color:#c62828;font-weight:bold' : '';
+           return `<tr>
+             <td style="padding:5px 14px 5px 0">${name}</td>
+             <td style="padding:5px 14px 5px 0;text-align:center;color:#2e7d32;font-weight:bold">${sent}</td>
+             <td style="padding:5px 0;text-align:center;${failColor}">${failed}</td>
+           </tr>`;
+         }).join('')}</tbody>
+       </table>`
     : '';
 
   await send(
     `${icon} ${label} — Process Completed`,
     `<p>Hello,</p>
      <p>The <strong>${label}</strong> process has <strong>completed</strong>.</p>
+     ${sessionLine}
      <table style="border-collapse:collapse;font-size:14px">
-       <tr><td style="padding:4px 12px 4px 0"><strong>Cameroon</strong></td><td>${nowCameroon()}</td></tr>
-       <tr><td style="padding:4px 12px 4px 0"><strong>Madagascar</strong></td><td>${nowMadagascar()}</td></tr>
+       <tr><td style="padding:4px 12px 4px 0"><strong>Completed at — Madagascar</strong></td><td>${nowMadagascar()}</td></tr>
+       <tr><td style="padding:4px 12px 4px 0"><strong>Completed at — Cameroon</strong></td><td>${nowCameroon()}</td></tr>
      </table>
      <br>
      <p><strong>Step-by-step resume:</strong></p>

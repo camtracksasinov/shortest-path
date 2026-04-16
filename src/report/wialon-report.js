@@ -1021,7 +1021,7 @@ async function generateReport(targetFile = null, sendEmails = true) {
             const t2 = sub.c?.[3]?.v ?? sub.t2;
             if (!inTrajectoryWindow(t1, t2)) continue;
             const grouping = sub.c?.[1]?.t ?? sub.c?.[1] ?? '';
-            const beginning = formatWialonTime(sub.c?.[2]?.t ?? '');
+            const beginning = tsToLocale(t1);
             const duration = sub.c?.[4]?.t ?? sub.c?.[4] ?? '';
             // en agglomération: c[5] is max speed; hors agglomération: c[5] is distance, c[6] is max speed
             const c5 = sub.c?.[5]?.t ?? sub.c?.[5] ?? '';
@@ -1044,8 +1044,8 @@ async function generateReport(targetFile = null, sendEmails = true) {
           if (!t1 || !t2) continue;
           if (!inTrajectoryWindow(t1, t2)) continue;
           const grouping   = sub.c?.[1]?.t ?? sub.c?.[1] ?? '';
-          const beginning  = formatWialonTime(sub.c?.[2]?.t ?? '');
-          const end        = formatWialonTime(sub.c?.[4]?.t ?? '');
+          const beginning  = tsToLocale(t1);
+          const end        = tsToLocale(t2);
           const engineHours = sub.c?.[6]?.t ?? sub.c?.[6] ?? '';
           const totalTime  = sub.c?.[7]?.t ?? sub.c?.[7] ?? '';
           const inMotion   = sub.c?.[8]?.t ?? sub.c?.[8] ?? '';
@@ -1063,10 +1063,10 @@ async function generateReport(targetFile = null, sendEmails = true) {
           const t2 = sub.c?.[3]?.v ?? sub.t2;
           if (!t1 || !t2) continue;
           if (!inTrajectoryWindow(t1, t2)) continue;
-          const beginning = formatWialonTime(sub.c?.[2]?.t ?? '');
+          const beginning = tsToLocale(t1);
           if (!beginning || beginning === '-----') continue;
           const vehicle   = sub.c?.[1]?.t ?? sub.c?.[1] ?? '';
-          const end       = formatWialonTime(sub.c?.[3]?.t ?? '');
+          const end       = tsToLocale(t2);
           const mileage   = sub.c?.[4]?.t ?? sub.c?.[4] ?? '';
           const maxSpeed  = sub.c?.[5]?.t ?? sub.c?.[5] ?? '';
           if (maxSpeed === '0 km/h') continue;

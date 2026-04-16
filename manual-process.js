@@ -8,6 +8,7 @@ const { configA: sftpConfig } = require('./src/sftp/sftp-config');
 const { matchCoordinates } = require('./src/routing/wialon-zones');
 const { calculateOptimalRoute } = require('./src/routing/calculate-routes');
 const { updateExcelWithRouteOrder } = require('./src/routing/update-excel-order');
+const { processExcelAndSendEmails } = require('./src/emails/send-route-emails');
 const { generateReport } = require('./src/report/wialon-report');
 
 const DOWNLOADS = path.join(__dirname, 'downloads');
@@ -62,6 +63,43 @@ function getMonthFolderName() {
   return `${MONTHS_FR[now.getMonth()]}${now.getFullYear()}`;
 }
 
+// ── List today's Livraison files from SFTP ──────────────────────────────────
+async function listTodayFiles() {
+  const sftp = new SftpClient();
+  await sftp.connect(sftpConfig);
+
+  const monthFolder = getMonthFolderName();
+  const monthPath = `/IN/${monthFolder}`;
+
+  // Move any stray files from /IN root into month folder
+  const rootList = await sftp.list('/IN');
+  for (const f of rootList) {
+    if (f.type === '-' && f.name.startsWith('Livraison') && f.name.endsWith('.xlsx')) {
+      try {
+        await sftp.rename(`/IN/${f.name}`, `${monthPath}/${f.name}`);
+        console.log(`  📁 Moved to ${monthFolder}: ${f.name}`);
+      } catch (e) {
+        console.warn(`  ⚠️  Could not move ${f.name}: ${e.message}`);
+      }
+    }
+  }
+
+  const list = await sftp.list(monthPath);
+  await sftp.end();
+
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Indian/Antananarivo' }); // YYYY-MM-DD
+  const parseDateFromName = name => {
+    const m = name.match(/(\d{2})-(\d{2})-(\d{4})/);
+    return m ? `${m[3]}-${m[2]}-${m[1]}` : null;
+  };
+
+  return list.filter(f =>
+    f.name.startsWith('Livraison') &&
+    f.name.match(/\.\d+\.xlsx$/) &&
+    parseDateFromName(f.name) === todayStr
+  ).map(f => f.name);
+}
+
 // ── Download a specific file from SFTP ───────────────────────────────────────
 async function downloadFile(fileName) {
   const sftp = new SftpClient();
@@ -111,6 +149,44 @@ async function uploadFile(localPath) {
   await sftp.put(localPath, remotePath);
   console.log(`  ✅ Uploaded: ${path.basename(localPath)} → /IN/${monthFolder}`);
   await sftp.end();
+}
+
+// ── Run routing + send emails to transporters (today's files) ────────────────
+async function runRoutingWithEmails(localPath) {
+  const fileName = path.basename(localPath);
+  console.log(`\n${'='.repeat(70)}`);
+  console.log(`📄 ROUTING (today): ${fileName}`);
+  console.log('='.repeat(70));
+
+  console.log('\n📍 Fetching coordinates from Wialon...');
+  const coordData = await parseExcelForCoordinates(localPath);
+  const zonesData = await matchCoordinates(coordData);
+
+  console.log('\n🗺️  Calculating optimal routes...');
+  const optimalRoutes = await calculateOptimalRoute(zonesData);
+
+  console.log('\n📝 Updating Excel with optimal order...');
+  const routesPath = path.join(DOWNLOADS, `optimal-routes-${path.basename(localPath, '.xlsx')}.json`);
+  fs.writeFileSync(routesPath, JSON.stringify(optimalRoutes, null, 2));
+  const updatedPath = await updateExcelWithRouteOrder(localPath, routesPath);
+
+  // Save active copy for Wialon notifications
+  const activePath = path.join(__dirname, 'active', path.basename(updatedPath));
+  fs.copyFileSync(updatedPath, activePath);
+  console.log(`  📋 Active copy saved: active/${path.basename(updatedPath)}`);
+
+  console.log('\n📤 Uploading updated file to SFTP...');
+  await uploadFile(updatedPath);
+
+  console.log('\n📧 Sending route emails to transporters...');
+  await processExcelAndSendEmails(updatedPath);
+
+  // Clean up
+  try { fs.unlinkSync(localPath); console.log(`  🗑️  Deleted: ${fileName}`); } catch (_) {}
+  try { fs.unlinkSync(routesPath); } catch (_) {}
+
+  console.log(`\n✅ Routing done. Updated file: ${path.basename(updatedPath)}\n`);
+  return updatedPath;
 }
 
 // ── Run routing only (no emails, no active copy) ──────────────────────────────
@@ -189,7 +265,7 @@ async function main() {
   console.log('  Manual Process — Routing & Report');
   console.log('========================================\n');
 
-  const action = (await ask('What do you want to do?\n  [1] Routing order for a past date\n  [2] Report only for a specific file\nChoice (1/2): ')).trim();
+  const action = (await ask('What do you want to do?\n  [1] Routing order for a past date\n  [2] Report only for a specific file\n  [3] Routing for today\'s files (current day)\nChoice (1/2/3): ')).trim();
 
   if (action === '1') {
     // ── Routing ──
@@ -215,8 +291,47 @@ async function main() {
     console.log('\n📊 Running report...\n');
     await generateReport(localPath);
 
+  } else if (action === '3') {
+    // ── Today's files routing ──
+    console.log('\n🔍 Fetching today\'s files from SFTP server...');
+    const todayFiles = await listTodayFiles();
+
+    if (todayFiles.length === 0) {
+      console.log('ℹ️  No Livraison files found for today on the server.');
+      rl.close();
+      return;
+    }
+
+    console.log(`\n📅 Today's files (${new Date().toLocaleDateString('fr-FR', { timeZone: 'Indian/Antananarivo' })}):\n`);
+    todayFiles.forEach((name, i) => console.log(`  [${i + 1}] ${name}`));
+    console.log(`  [0] All files`);
+
+    const pick = (await ask('\nWhich file(s) to process? (number or 0 for all): ')).trim();
+    const idx = parseInt(pick, 10);
+
+    let selected = [];
+    if (pick === '0') {
+      selected = todayFiles;
+    } else if (!isNaN(idx) && idx >= 1 && idx <= todayFiles.length) {
+      selected = [todayFiles[idx - 1]];
+    } else {
+      console.log('❌ Invalid choice.');
+      rl.close();
+      return;
+    }
+
+    for (const fileName of selected) {
+      console.log(`\n📥 Downloading: ${fileName}`);
+      const localPath = await downloadFile(fileName);
+      if (!localPath) {
+        console.log(`❌ Could not download "${fileName}" — skipping.`);
+        continue;
+      }
+      await runRoutingWithEmails(localPath);
+    }
+
   } else {
-    console.log('❌ Invalid choice.');
+    console.log('\u274c Invalid choice.');
   }
 
   rl.close();

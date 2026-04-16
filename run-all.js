@@ -56,10 +56,15 @@ async function downloadAllFiles() {
 
   const list = await sftp.list(monthPath);
 
-  const today = new Date(new Date().toLocaleDateString('en-CA', { timeZone: 'Indian/Antananarivo' }));
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
+  const todayStr  = new Date().toLocaleDateString('en-CA', { timeZone: 'Indian/Antananarivo' });
+  const todayDate  = new Date(todayStr);
+  const tomorrow   = new Date(todayDate);
+  tomorrow.setDate(todayDate.getDate() + 1);
   const fmt = d => d.toISOString().split('T')[0];
+
+  const useToday = process.argv.includes('--today');
+  const targetDate = useToday ? fmt(todayDate) : fmt(tomorrow);
+  const targetLabel = useToday ? 'today' : 'tomorrow';
 
   const parseDateFromName = name => {
     const match = name.match(/(\d{2})-(\d{2})-(\d{4})/);
@@ -67,16 +72,26 @@ async function downloadAllFiles() {
     return `${match[3]}-${match[2]}-${match[1]}`;
   };
 
+  // If a specific file was requested via --file, only return that one
+  const specificFile = (() => {
+    const idx = process.argv.indexOf('--file');
+    return idx !== -1 ? process.argv[idx + 1] : null;
+  })();
+
   const serverFileNames = new Set(list.map(f => f.name));
 
-  const targets = list.filter(f => {
+  let targets = list.filter(f => {
     if (!f.name.startsWith('Livraison') || !f.name.match(/\.\d+\.xlsx$/)) return false;
     const d = parseDateFromName(f.name);
-    return d === fmt(tomorrow);
+    return d === targetDate;
   });
 
+  if (specificFile) {
+    targets = targets.filter(f => f.name === specificFile);
+  }
+
   if (targets.length === 0) {
-    console.log(`\nℹ️  No Livraison*.N.xlsx file for tomorrow (${fmt(tomorrow)}) found in ${monthPath} — nothing to do.`);
+    console.log(`\nℹ️  No Livraison*.N.xlsx file for ${targetLabel} (${targetDate}) found in ${monthPath} — nothing to do.`);
     await sftp.end();
     return [];
   }
@@ -92,12 +107,12 @@ async function downloadAllFiles() {
   });
 
   if (pending.length === 0) {
-    console.log(`\nℹ️  All files for tomorrow (${fmt(tomorrow)}) have already been processed — nothing to do.`);
+    console.log(`\nℹ️  All files for ${targetLabel} (${targetDate}) have already been processed — nothing to do.`);
     await sftp.end();
     return [];
   }
 
-  console.log(`\n📊 Found ${pending.length} new file(s) to process for tomorrow (${fmt(tomorrow)}):`);
+  console.log(`\n📊 Found ${pending.length} new file(s) to process for ${targetLabel} (${targetDate}):`);
   const downloaded = [];
   for (const file of pending) {
     const localPath = path.join(__dirname, 'downloads', file.name);
@@ -194,7 +209,7 @@ async function processFile(filePath) {
   try { fs.unlinkSync(routesPath2); } catch (_) {}
 
   // Step 6: Run report only if the updated file's date matches today AND --no-report not passed
-  const noReport = process.argv.includes('--no-report');
+  const noReport = process.argv.includes('--no-report') || process.argv.includes('--today');
   const baseName = path.basename(updatedPath);
   const isUpdatedFile = baseName.includes('_updated-with-order');
   const dateMatch = baseName.match(/(\d{2})-(\d{2})-(\d{4})/);

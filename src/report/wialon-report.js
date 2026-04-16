@@ -12,14 +12,11 @@ const { configA, configB } = require('../sftp/sftp-config');
 const WIALON_TOKEN = process.env.WIALON_TOKEN;
 const BASE_URL = `${process.env.WIALON_BASE_URL}/wialon/ajax.html`;
 
-// Wialon is configured in Cameroon time (UTC+1).
-// All .t strings from Wialon are pre-formatted in UTC+1.
-// Madagascar is UTC+3 → we must add +2h to every Wialon time string.
-// The query window (from/to) must cover the full day in Madagascar time (UTC+3),
-// so we subtract 3h from midnight UTC to get the correct UTC epoch range.
-const WIALON_TZ_OFFSET  = 1;  // Cameroon UTC+1 — Wialon's display timezone
-const DISPLAY_TZ_OFFSET = 3;  // Madagascar UTC+3 — target display timezone
-const TZ_SHIFT = DISPLAY_TZ_OFFSET - WIALON_TZ_OFFSET; // +2h to add to every Wialon time string
+// Wialon API returns:
+//   .v fields  — pure UTC Unix timestamps
+//   .t fields  — pre-formatted strings in UTC (Wialon server time)
+// Madagascar is UTC+3, so we add +3h to everything.
+const DISPLAY_TZ_OFFSET = 3;  // Madagascar UTC+3
 
 const sftpConfig = configA;  // Galana — download updated files from /IN
 const sftpUploadConfig = configB; // Camtrack destination — upload rapport to /OUT
@@ -254,7 +251,7 @@ async function getSpeedingDetailRows(tableIndex) {
   return response.data;
 }
 
-// Parse a Wialon-formatted time string (in Cameroon UTC+1) and shift it to Madagascar UTC+3.
+// Parse a Wialon UTC time string and convert to Madagascar time (UTC+3).
 // Input examples: "25/03/2026 08:30", "25.03.2026 08:30:00", "25/03/2026 08:30 AM"
 function formatWialonTime(str) {
   if (!str || str === '-----') return str;
@@ -267,17 +264,17 @@ function formatWialonTime(str) {
     if (ampm.toUpperCase() === 'PM' && hh !== 12) hh += 12;
     if (ampm.toUpperCase() === 'AM' && hh === 12) hh = 0;
   }
-  // Shift from Wialon timezone (UTC+1) to Madagascar (UTC+3): add TZ_SHIFT hours
+  // Treat the Wialon string as UTC, shift to Madagascar UTC+3
   const date = new Date(Date.UTC(
     parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1]),
     hh, min, 0
   ));
-  date.setUTCHours(date.getUTCHours() + TZ_SHIFT);
-  const dd2  = String(date.getUTCDate()).padStart(2, '0');
-  const mm2  = String(date.getUTCMonth() + 1).padStart(2, '0');
+  date.setUTCHours(date.getUTCHours() + DISPLAY_TZ_OFFSET);
+  const dd2   = String(date.getUTCDate()).padStart(2, '0');
+  const mm2   = String(date.getUTCMonth() + 1).padStart(2, '0');
   const yyyy2 = date.getUTCFullYear();
-  const hh2  = String(date.getUTCHours()).padStart(2, '0');
-  const min2 = String(date.getUTCMinutes()).padStart(2, '0');
+  const hh2   = String(date.getUTCHours()).padStart(2, '0');
+  const min2  = String(date.getUTCMinutes()).padStart(2, '0');
   return `${dd2}/${mm2}/${yyyy2} ${hh2}h${min2}`;
 }
 
@@ -358,9 +355,19 @@ async function processReportData(rows, orderedZones, tripDetailRows) {
   };
 
   const getTripDepartureTs  = t => t.c[1]?.v ?? t.t1;
-  const getTripDepartureStr = t => formatWialonTime((typeof t.c[1] === 'object' ? t.c[1]?.t : t.c[1]) || tsToLocale(getTripDepartureTs(t)));
+  const getTripDepartureStr = t => {
+    const raw = (typeof t.c[1] === 'object' ? t.c[1]?.t : t.c[1]) || tsToLocale(getTripDepartureTs(t));
+    const converted = formatWialonTime(raw);
+    if (raw && converted && raw !== converted) console.log(`  🕐 TZ convert [departure] UTC: ${raw}  →  Madagascar: ${converted}`);
+    return converted;
+  };
   const getTripArrivalTs    = t => t.c[3]?.v ?? t.t2;
-  const getTripArrivalStr   = t => formatWialonTime(t.c[3]?.t || tsToLocale(getTripArrivalTs(t)));
+  const getTripArrivalStr   = t => {
+    const raw = t.c[3]?.t || tsToLocale(getTripArrivalTs(t));
+    const converted = formatWialonTime(raw);
+    if (raw && converted && raw !== converted) console.log(`  🕐 TZ convert [arrival]   UTC: ${raw}  →  Madagascar: ${converted}`);
+    return converted;
+  };
   const getTripStartZone    = t => (typeof t.c[2] === 'object' ? (t.c[2]?.t || '') : (t.c[2] || ''));
   const getTripEndZone      = t => t.c[4]?.t || '';
 
@@ -1275,10 +1282,12 @@ async function generateReport(targetFile = null, sendEmails = true) {
     await workbookOut.xlsx.writeFile(outputPath);
     
     console.log('\n✅ Report generation completed!');
-    console.log(`💾 Excel report saved locally: ${outputPath}\n`);
+    console.log(`💾 Excel report saved locally: ${outputPath}`);
+    console.log(`🕐 All times in the report are in Madagascar time (UTC+3)\n`);
     
     const originalFileName = path.basename(downloadedFile);
     await uploadToSFTP(outputPath, originalFileName);
+    console.log(`🕐 Uploaded report contains Madagascar time (UTC+3) — conversion confirmed\n`);
 
     // Clean up local files — keep nothing in downloads after upload
     try { fs.unlinkSync(outputPath); console.log(`  🗑️  Deleted local rapport: ${path.basename(outputPath)}`); } catch (_) {}

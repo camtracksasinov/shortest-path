@@ -11,7 +11,7 @@ const { configA } = require('../sftp/sftp-config');
 const DOWNLOADS = path.join(__dirname, '../../downloads');
 const ACTIVE_DIR = path.join(__dirname, '../../active');
 const OSRM_URL = process.env.OSRM_URL || 'http://router.project-osrm.org';
-const TIMEZONE_OFFSET = parseInt(process.env.TIMEZONE_OFFSET || '2');
+const DISPLAY_TZ_OFFSET = 3; // Madagascar UTC+3
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'ulrich.kamsu@camtrack.net';
 
 const mailer = nodemailer.createTransport({
@@ -119,10 +119,9 @@ async function loadTodayExcelFiles() {
 
 // ── Time helpers ──────────────────────────────────────────────────────────────
 
+// Returns current time shifted to Madagascar UTC+3 as a Date (UTC fields hold local values)
 function nowLocal() {
-  const d = new Date();
-  d.setMinutes(d.getMinutes() + TIMEZONE_OFFSET * 60);
-  return d;
+  return new Date(Date.now() + DISPLAY_TZ_OFFSET * 3600 * 1000);
 }
 
 function fmt24(date) {
@@ -131,9 +130,8 @@ function fmt24(date) {
 
 function estimatedArrival(distanceKm, speedKmh) {
   const speed = speedKmh > 0 ? speedKmh : 40;
-  const d = nowLocal();
-  d.setMinutes(d.getUTCMinutes() + Math.round((distanceKm / speed) * 60));
-  return fmt24(d);
+  const ms = Math.round((distanceKm / speed) * 3600 * 1000);
+  return fmt24(new Date(Date.now() + DISPLAY_TZ_OFFSET * 3600 * 1000 + ms));
 }
 
 // ── Build lookup from multiple file datasets ─────────────────────────────────

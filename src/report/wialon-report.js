@@ -337,22 +337,20 @@ function calculateDuration(firstIn, lastOut) {
   return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
+// Convert a raw Unix timestamp (UTC) to a Madagascar-time display string
+function tsToLocale(ts) {
+  const local = new Date(ts * 1000 + DISPLAY_TZ_OFFSET * 3600 * 1000);
+  const dd   = String(local.getUTCDate()).padStart(2, '0');
+  const mm   = String(local.getUTCMonth() + 1).padStart(2, '0');
+  const yyyy = local.getUTCFullYear();
+  const hh   = String(local.getUTCHours()).padStart(2, '0');
+  const min  = String(local.getUTCMinutes()).padStart(2, '0');
+  return `${dd}/${mm}/${yyyy} ${hh}h${min}`;
+}
+
 async function processReportData(rows, orderedZones, tripDetailRows) {
   const results = [];
   const detailTrips = (tripDetailRows && tripDetailRows.length > 0 && tripDetailRows[0].r) ? tripDetailRows[0].r : [];
-
-// Convert a raw Unix timestamp (UTC) to a Madagascar-time display string
-  const tsToLocale = ts => {
-    const d = new Date(ts * 1000);
-    const offsetMs = DISPLAY_TZ_OFFSET * 3600 * 1000;
-    const local = new Date(d.getTime() + offsetMs);
-    const dd  = String(local.getUTCDate()).padStart(2, '0');
-    const mm  = String(local.getUTCMonth() + 1).padStart(2, '0');
-    const yyyy = local.getUTCFullYear();
-    const hh  = String(local.getUTCHours()).padStart(2, '0');
-    const min = String(local.getUTCMinutes()).padStart(2, '0');
-    return `${dd}/${mm}/${yyyy} ${hh}h${min}`;
-  };
 
   const getTripDepartureTs  = t => t.c[1]?.v ?? t.t1;
   const getTripDepartureStr = t => {

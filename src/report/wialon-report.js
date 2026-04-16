@@ -356,17 +356,23 @@ async function processReportData(rows, orderedZones, tripDetailRows) {
 
   const getTripDepartureTs  = t => t.c[1]?.v ?? t.t1;
   const getTripDepartureStr = t => {
-    const raw = (typeof t.c[1] === 'object' ? t.c[1]?.t : t.c[1]) || tsToLocale(getTripDepartureTs(t));
-    const converted = formatWialonTime(raw);
-    if (raw && converted && raw !== converted) console.log(`  🕐 TZ convert [departure] UTC: ${raw}  →  Madagascar: ${converted}`);
-    return converted;
+    const tField = typeof t.c[1] === 'object' ? t.c[1]?.t : t.c[1];
+    if (tField) {
+      const converted = formatWialonTime(tField);
+      console.log(`  🕐 TZ convert [departure] UTC: ${tField}  →  Madagascar: ${converted}`);
+      return converted;
+    }
+    return tsToLocale(getTripDepartureTs(t));
   };
   const getTripArrivalTs    = t => t.c[3]?.v ?? t.t2;
   const getTripArrivalStr   = t => {
-    const raw = t.c[3]?.t || tsToLocale(getTripArrivalTs(t));
-    const converted = formatWialonTime(raw);
-    if (raw && converted && raw !== converted) console.log(`  🕐 TZ convert [arrival]   UTC: ${raw}  →  Madagascar: ${converted}`);
-    return converted;
+    const tField = t.c[3]?.t;
+    if (tField) {
+      const converted = formatWialonTime(tField);
+      console.log(`  🕐 TZ convert [arrival]   UTC: ${tField}  →  Madagascar: ${converted}`);
+      return converted;
+    }
+    return tsToLocale(getTripArrivalTs(t));
   };
   const getTripStartZone    = t => (typeof t.c[2] === 'object' ? (t.c[2]?.t || '') : (t.c[2] || ''));
   const getTripEndZone      = t => t.c[4]?.t || '';

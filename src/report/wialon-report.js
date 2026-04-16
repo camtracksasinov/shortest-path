@@ -11,7 +11,15 @@ const { configA, configB } = require('../sftp/sftp-config');
 
 const WIALON_TOKEN = process.env.WIALON_TOKEN;
 const BASE_URL = `${process.env.WIALON_BASE_URL}/wialon/ajax.html`;
-const TIMEZONE_OFFSET = parseInt(process.env.TIMEZONE_OFFSET || '2');
+
+// Wialon is configured in Cameroon time (UTC+1).
+// All .t strings from Wialon are pre-formatted in UTC+1.
+// Madagascar is UTC+3 → we must add +2h to every Wialon time string.
+// The query window (from/to) must cover the full day in Madagascar time (UTC+3),
+// so we subtract 3h from midnight UTC to get the correct UTC epoch range.
+const WIALON_TZ_OFFSET  = 1;  // Cameroon UTC+1 — Wialon's display timezone
+const DISPLAY_TZ_OFFSET = 3;  // Madagascar UTC+3 — target display timezone
+const TZ_SHIFT = DISPLAY_TZ_OFFSET - WIALON_TZ_OFFSET; // +2h to add to every Wialon time string
 
 const sftpConfig = configA;  // Galana — download updated files from /IN
 const sftpUploadConfig = configB; // Camtrack destination — upload rapport to /OUT
@@ -246,18 +254,31 @@ async function getSpeedingDetailRows(tableIndex) {
   return response.data;
 }
 
+// Parse a Wialon-formatted time string (in Cameroon UTC+1) and shift it to Madagascar UTC+3.
+// Input examples: "25/03/2026 08:30", "25.03.2026 08:30:00", "25/03/2026 08:30 AM"
 function formatWialonTime(str) {
   if (!str || str === '-----') return str;
   const m = str.match(/(\d{2})[./](\d{2})[./](\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?/i);
   if (!m) return str;
   let hh = parseInt(m[4], 10);
-  const min = m[5];
+  const min = parseInt(m[5], 10);
   const ampm = m[7];
   if (ampm) {
     if (ampm.toUpperCase() === 'PM' && hh !== 12) hh += 12;
     if (ampm.toUpperCase() === 'AM' && hh === 12) hh = 0;
   }
-  return `${m[1]}/${m[2]}/${m[3]} ${String(hh).padStart(2, '0')}h${min}`;
+  // Shift from Wialon timezone (UTC+1) to Madagascar (UTC+3): add TZ_SHIFT hours
+  const date = new Date(Date.UTC(
+    parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1]),
+    hh, min, 0
+  ));
+  date.setUTCHours(date.getUTCHours() + TZ_SHIFT);
+  const dd2  = String(date.getUTCDate()).padStart(2, '0');
+  const mm2  = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const yyyy2 = date.getUTCFullYear();
+  const hh2  = String(date.getUTCHours()).padStart(2, '0');
+  const min2 = String(date.getUTCMinutes()).padStart(2, '0');
+  return `${dd2}/${mm2}/${yyyy2} ${hh2}h${min2}`;
 }
 
 function isValidConducteContinueRow(sub) {
@@ -323,14 +344,16 @@ async function processReportData(rows, orderedZones, tripDetailRows) {
   const results = [];
   const detailTrips = (tripDetailRows && tripDetailRows.length > 0 && tripDetailRows[0].r) ? tripDetailRows[0].r : [];
 
+// Convert a raw Unix timestamp (UTC) to a Madagascar-time display string
   const tsToLocale = ts => {
     const d = new Date(ts * 1000);
-    d.setHours(d.getHours() + TIMEZONE_OFFSET);
-    const dd = String(d.getUTCDate()).padStart(2, '0');
-    const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
-    const yyyy = d.getUTCFullYear();
-    const hh = String(d.getUTCHours()).padStart(2, '0');
-    const min = String(d.getUTCMinutes()).padStart(2, '0');
+    const offsetMs = DISPLAY_TZ_OFFSET * 3600 * 1000;
+    const local = new Date(d.getTime() + offsetMs);
+    const dd  = String(local.getUTCDate()).padStart(2, '0');
+    const mm  = String(local.getUTCMonth() + 1).padStart(2, '0');
+    const yyyy = local.getUTCFullYear();
+    const hh  = String(local.getUTCHours()).padStart(2, '0');
+    const min = String(local.getUTCMinutes()).padStart(2, '0');
     return `${dd}/${mm}/${yyyy} ${hh}h${min}`;
   };
 
@@ -848,9 +871,9 @@ async function generateReport(targetFile = null, sendEmails = true) {
       headers.push("Heure d'arrivée", "Heure de départ", "Délai de livraison", "Kilométrage effectif, km", "Vitesse moyenne", "Vitesse max", "Survitesse en ville", "Survitesse Hors Aglomération", "Conduite de nuit", "Conduite Continue");
       
       const dateStr = reportDate.toISOString().split('T')[0];
-      const tzOffset = parseInt(process.env.TIMEZONE_OFFSET || '3');
-      const from = Math.floor(new Date(`${dateStr}T00:00:00Z`).getTime() / 1000) - tzOffset * 3600;
-      const to   = Math.floor(new Date(`${dateStr}T23:59:59Z`).getTime() / 1000) - tzOffset * 3600;
+      // Query window: full day in Madagascar time (UTC+3) expressed as UTC epochs
+      const from = Math.floor(new Date(`${dateStr}T00:00:00Z`).getTime() / 1000) - DISPLAY_TZ_OFFSET * 3600;
+      const to   = Math.floor(new Date(`${dateStr}T23:59:59Z`).getTime() / 1000) - DISPLAY_TZ_OFFSET * 3600;
 
       console.log(`🕒 Report date: ${dateStr} | timestamps: ${from} to ${to}\n`);
       console.log('📊 Step 5: Generating reports for each vehicle...\n');

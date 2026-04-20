@@ -8,6 +8,7 @@ const { calculateOptimalRoute } = require('./src/routing/calculate-routes');
 const { updateExcelWithRouteOrder } = require('./src/routing/update-excel-order');
 const { processExcelAndSendEmails } = require('./src/emails/send-route-emails');
 const { configA: sftpConfig } = require('./src/sftp/sftp-config');
+const { sendFileErrorEmail } = require('./src/report/notify');
 
 // ── Camtrack server config (COMMENTED OUT — now using Galana via sftp-config.js)
 // const sftpConfig = {
@@ -244,12 +245,25 @@ async function main() {
     const files = await downloadAllFiles();
     if (files.length === 0) return;
 
+    const failed = [];
     for (const file of files) {
-      await processFile(file);
+      try {
+        await processFile(file);
+      } catch (err) {
+        const fileName = path.basename(file);
+        const errorLog = err.stack || err.message || String(err);
+        console.error(`\n❌ Failed to process ${fileName}:`, errorLog);
+        failed.push({ fileName, errorLog });
+        try { await sendFileErrorEmail(fileName, errorLog); } catch (e) { console.error('❌ Error email failed:', e.message); }
+      }
     }
 
     console.log(`\n${'='.repeat(80)}`);
-    console.log('✅ All files processed successfully!');
+    if (failed.length === 0) {
+      console.log('✅ All files processed successfully!');
+    } else {
+      console.log(`⚠️  Completed with ${failed.length} failure(s): ${failed.map(f => f.fileName).join(', ')}`);
+    }
     console.log('='.repeat(80));
   } catch (error) {
     console.error('\n❌ Process failed:', error.message);

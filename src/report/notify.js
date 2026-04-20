@@ -145,4 +145,22 @@ async function sendProcessEndEmail(type, summary) {
   console.log(`📧 End email sent (${type}) to ${ADMIN_EMAIL}`);
 }
 
-module.exports = { sendWarningEmail, sendProcessStartEmail, sendProcessEndEmail };
+// ── 4. File error email — sent when a single file fails during processing ──────
+async function sendFileErrorEmail(fileName, errorLog) {
+  await send(
+    `❌ Processing Error — ${fileName}`,
+    `<p>Hello,</p>
+     <p>An error occurred while processing the file <strong>${fileName}</strong>.</p>
+     <table style="border-collapse:collapse;font-size:14px">
+       <tr><td style="padding:4px 12px 4px 0"><strong>Time — Madagascar</strong></td><td>${nowMadagascar()}</td></tr>
+       <tr><td style="padding:4px 12px 4px 0"><strong>Time — Cameroon</strong></td><td>${nowCameroon()}</td></tr>
+     </table>
+     <br>
+     <p><strong>Error log:</strong></p>
+     <pre style="background:#fbe9e7;border:1px solid #ef9a9a;padding:12px;border-radius:4px;font-size:13px;white-space:pre-wrap;word-break:break-all">${errorLog.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+     <p>The process has continued with the remaining files. Please check the server logs for more details.</p>`
+  );
+  console.log(`📧 Error email sent for ${fileName} to ${ADMIN_EMAIL}`);
+}
+
+module.exports = { sendWarningEmail, sendProcessStartEmail, sendProcessEndEmail, sendFileErrorEmail };

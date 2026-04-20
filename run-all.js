@@ -64,8 +64,10 @@ async function downloadAllFiles() {
   const fmt = d => d.toISOString().split('T')[0];
 
   const useToday = process.argv.includes('--today');
-  const targetDate = useToday ? fmt(todayDate) : fmt(tomorrow);
-  const targetLabel = useToday ? 'today' : 'tomorrow';
+  // Morning (--today): pick files with date >= today
+  // Afternoon (default): pick files with date >= tomorrow
+  const minDate    = useToday ? todayDate : tomorrow;
+  const targetLabel = useToday ? 'today or later' : 'tomorrow or later';
 
   const parseDateFromName = name => {
     const match = name.match(/(\d{2})-(\d{2})-(\d{4})/);
@@ -84,7 +86,8 @@ async function downloadAllFiles() {
   let targets = list.filter(f => {
     if (!f.name.startsWith('Livraison') || !f.name.match(/\.\d+\.xlsx$/)) return false;
     const d = parseDateFromName(f.name);
-    return d === targetDate;
+    if (!d) return false;
+    return new Date(d) >= minDate;
   });
 
   if (specificFile) {
@@ -92,7 +95,7 @@ async function downloadAllFiles() {
   }
 
   if (targets.length === 0) {
-    console.log(`\nℹ️  No Livraison*.N.xlsx file for ${targetLabel} (${targetDate}) found in ${monthPath} — nothing to do.`);
+    console.log(`\nℹ️  No Livraison*.N.xlsx file for ${targetLabel} (>= ${fmt(minDate)}) found in ${monthPath} — nothing to do.`);
     await sftp.end();
     return [];
   }
@@ -108,12 +111,12 @@ async function downloadAllFiles() {
   });
 
   if (pending.length === 0) {
-    console.log(`\nℹ️  All files for ${targetLabel} (${targetDate}) have already been processed — nothing to do.`);
+    console.log(`\nℹ️  All files for ${targetLabel} (>= ${fmt(minDate)}) have already been processed — nothing to do.`);
     await sftp.end();
     return [];
   }
 
-  console.log(`\n📊 Found ${pending.length} new file(s) to process for ${targetLabel} (${targetDate}):`);
+  console.log(`\n📊 Found ${pending.length} new file(s) to process for ${targetLabel} (>= ${fmt(minDate)}):`);
   const downloaded = [];
   for (const file of pending) {
     const localPath = path.join(__dirname, 'downloads', file.name);

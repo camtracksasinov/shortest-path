@@ -114,14 +114,22 @@ async function calculateOptimalRoute(vehicleData) {
     
     for (const [camion, zoneList] of Object.entries(vehicles)) {
       console.log(`   🚛 ${camion}`);
-      
-      const zones = zoneList.map(zone => ({
-        name: zone.name,
-        centroid: calculateCentroid(zone.coordinates),
-        coordinates: zone.coordinates,
-        priorite: zone.priorite || '',
-        hasProduct: zone.hasProduct || false
-      }));
+
+      const zones = zoneList
+        .filter(zone => zone && zone.name && Array.isArray(zone.coordinates) && zone.coordinates.length > 0)
+        .map(zone => ({
+          name: zone.name,
+          centroid: calculateCentroid(zone.coordinates),
+          coordinates: zone.coordinates,
+          priorite: zone.priorite || '',
+          hasProduct: zone.hasProduct || false
+        }));
+
+      if (zones.length === 0) {
+        console.log(`      ⚠️  No valid zones found for ${camion} — skipping.`);
+        results[transporteur][camion] = { totalDistance: 0, totalDistanceKm: '0.00', route: [] };
+        continue;
+      }
       
       // Identify depot zones (no product) and high priority zones
       const depotZones = zones.filter(z => !z.hasProduct);
@@ -143,11 +151,13 @@ async function calculateOptimalRoute(vehicleData) {
       const highPriorityIndices = highPriorityZones.map(hz => zones.findIndex(z => z.name === hz.name));
       const { path, totalDistance } = findShortestPath(distanceMatrix, depotIndices, highPriorityIndices);
       
-      const orderedRoute = path.map((idx, step) => ({
-        step: step + 1,
-        name: zones[idx].name,
-        coordinates: zones[idx].coordinates
-      }));
+      const orderedRoute = path
+        .filter(idx => idx >= 0 && idx < zones.length)
+        .map((idx, step) => ({
+          step: step + 1,
+          name: zones[idx].name,
+          coordinates: zones[idx].coordinates
+        }));
       
       results[transporteur][camion] = {
         totalDistance: Math.round(totalDistance),

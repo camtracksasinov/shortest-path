@@ -265,10 +265,25 @@ async function main() {
   console.log('  Manual Process — Routing & Report');
   console.log('========================================\n');
 
-  const action = (await ask('What do you want to do?\n  [1] Routing order for a past date\n  [2] Report only for a specific file\n  [3] Routing for today\'s files (current day)\nChoice (1/2/3): ')).trim();
+  const action = (await ask('What do you want to do?\n  [1] Routing + send emails for any file\n  [2] Routing order for a past date (no emails)\n  [3] Report only for a specific file\n  [4] Routing for today\'s files (current day)\nChoice (1/2/3/4): ')).trim();
 
   if (action === '1') {
-    // ── Routing ──
+    // ── Routing + emails for any file ──
+    const fileName = (await ask('\nEnter the exact file name on the server\n(e.g. Livraison 26-03-2026.1.xlsx): ')).trim();
+
+    console.log(`\n🔍 Checking file on SFTP server...`);
+    const localPath = await downloadFile(fileName);
+    if (!localPath) {
+      console.log(`❌ File "${fileName}" not found in /IN on the server.`);
+      rl.close();
+      return;
+    }
+    console.log(`✅ Downloaded: ${fileName}\n`);
+
+    await runRoutingWithEmails(localPath);
+
+  } else if (action === '2') {
+    // ── Routing only (past date, no emails) ──
     const fileName = (await ask('\nEnter the exact file name on the server\n(e.g. Livraison 26-03-2026.1.xlsx): ')).trim();
 
     console.log(`\n🔍 Checking file on SFTP server...`);
@@ -283,7 +298,7 @@ async function main() {
     const updatedPath = await runRoutingOnly(localPath);
     await askReport(updatedPath);
 
-  } else if (action === '2') {
+  } else if (action === '3') {
     // ── Report only ──
     const fileName = (await ask('\nEnter the exact file name\n(e.g. Livraison 26-03-2026.1_updated-with-order.xlsx): ')).trim();
     const localPath = await resolveFile(fileName);
@@ -291,7 +306,7 @@ async function main() {
     console.log('\n📊 Running report...\n');
     await generateReport(localPath);
 
-  } else if (action === '3') {
+  } else if (action === '4') {
     // ── Today's files routing ──
     console.log('\n🔍 Fetching today\'s files from SFTP server...');
     const todayFiles = await listTodayFiles();
@@ -331,7 +346,7 @@ async function main() {
     }
 
   } else {
-    console.log('\u274c Invalid choice.');
+    console.log('❌ Invalid choice.');
   }
 
   rl.close();

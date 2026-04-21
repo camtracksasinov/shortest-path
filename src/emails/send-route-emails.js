@@ -103,6 +103,7 @@ function generateGroupedEmailHTML(transporteurName, vehicles, deliveryDate) {
       <tr>
         <td style="border:1px solid #000;padding:6px;text-align:center;">${index + 1}</td>
         <td style="border:1px solid #000;padding:6px;">${route.pointLivraison}</td>
+        <td style="border:1px solid #000;padding:6px;text-align:center;">${route.numBu || ''}</td>
         <td style="border:1px solid #000;padding:6px;text-align:right;">${go}</td>
         <td style="border:1px solid #000;padding:6px;text-align:right;">${sc}</td>
         <td style="border:1px solid #000;padding:6px;text-align:right;">${pl}</td>
@@ -118,10 +119,10 @@ function generateGroupedEmailHTML(transporteurName, vehicles, deliveryDate) {
       <table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:13px;">
         <tr>
           <td style="padding:4px 8px;width:50%;"><b>Chauffeur :</b> ${v.chauffeur || 'N/A'}</td>
-          <td style="padding:4px 8px;"><b>Heure de départ :</b> ${formatDateTime(v.heureArrivee)}</td>
+          <td style="padding:4px 8px;"><b>Heure de RDV :</b> ${formatDateTime(v.heureArrivee)}</td>
         </tr>
         <tr>
-          <td style="padding:4px 8px;"><b>Dépôt de départ :</b> ${v.depotDepart || 'N/A'}</td>
+          <td style="padding:4px 8px;"><b>Dépôt de chargement :</b> ${v.depotDepart || 'N/A'}</td>
           <td style="padding:4px 8px;"><b>Trajet :</b> ${v.routes.length} point(s) de livraison</td>
         </tr>
       </table>
@@ -131,6 +132,7 @@ function generateGroupedEmailHTML(transporteurName, vehicles, deliveryDate) {
           <tr>
             <th style="background:#4472C4;color:white;border:1px solid #000;padding:6px;">Ordre</th>
             <th style="background:#4472C4;color:white;border:1px solid #000;padding:6px;">Point de livraison</th>
+            <th style="background:#4472C4;color:white;border:1px solid #000;padding:6px;">Numero Bon</th>
             <th style="background:#4472C4;color:white;border:1px solid #000;padding:6px;">GO</th>
             <th style="background:#4472C4;color:white;border:1px solid #000;padding:6px;">SC</th>
             <th style="background:#4472C4;color:white;border:1px solid #000;padding:6px;">PL</th>
@@ -219,6 +221,7 @@ async function processExcelAndSendEmails(excelPath) {
   const coordIdx        = headers.findIndex(h => h && h.toString().toLowerCase().includes('coordonnees zone'));
   const villeIdx        = headers.findIndex(h => h && h.toString().toLowerCase().includes('ville'));
   const trajectIdx      = headers.findIndex(h => h && h.toString().toLowerCase().includes('trajet'));
+  const numBuIdx        = headers.findIndex(h => h && h.toString().toLowerCase().includes('num bu'));
   const goIdx           = headers.findIndex(h => h === 'GO');
   const scIdx           = headers.findIndex(h => h === 'SC');
   const plIdx           = headers.findIndex(h => h === 'PL');
@@ -280,6 +283,7 @@ async function processExcelAndSendEmails(excelPath) {
       veh.routes.push({
         ordre:          row[trajectIdx],
         pointLivraison: row[coordIdx],
+        numBu:          numBuIdx !== -1 ? (row[numBuIdx] || '') : '',
         ville:          row[villeIdx] || '',
         GO:             row[goIdx] || 0,
         SC:             row[scIdx] || 0,

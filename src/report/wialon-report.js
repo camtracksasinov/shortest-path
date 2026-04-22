@@ -91,7 +91,11 @@ async function downloadFromSFTP() {
 
   const list = await sftp.list(monthPath);
 
-  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Indian/Antananarivo' }); // YYYY-MM-DD in Madagascar time // YYYY-MM-DD
+  // Report runs at 00h00 Madagascar = end of the previous delivery day.
+  // Target yesterday's date in Madagascar time.
+  const yesterday = new Date(new Date().toLocaleDateString('en-CA', { timeZone: 'Indian/Antananarivo' }));
+  yesterday.setDate(yesterday.getDate() - 1);
+  const todayStr = yesterday.toISOString().split('T')[0]; // YYYY-MM-DD of yesterday
   const parseDateFromName = name => {
     const match = name.match(/(\d{2})-(\d{2})-(\d{4})/);
     if (!match) return null;

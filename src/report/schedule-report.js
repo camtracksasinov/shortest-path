@@ -47,15 +47,15 @@ async function runRouting(mode) {
     const alreadyDone  = output.includes('already been processed') || output.includes('already processed');
     const skipped      = noFiles || alreadyDone;
 
-    // Extract real filenames and per-file email counts from output
-    // Output lines: "✅ Downloaded: Livraison XX-XX-XXXX.1.xlsx"
-    //               "📊 Summary: X emails sent, Y failed"
-    const fileMatches = output.match(/✅ Downloaded: (.+\.xlsx)/g) || [];
-    const summaryMatches = output.match(/📊 Summary: (\d+) emails sent, (\d+) failed/g) || [];
+    // Parse downloaded filenames: "  ✅ Downloaded: Livraison XX-XX-XXXX.1.xlsx"
+    const fileMatches = [...output.matchAll(/✅ Downloaded: (.+?\.xlsx)/g)].map(m => m[1].trim());
+    // Parse per-file email summary: "📊 Summary: X emails sent, Y failed"
+    const summaryMatches = [...output.matchAll(/📊 Summary: (\d+) emails sent, (\d+) failed/g)];
+    // Parse skipped filenames: "Skipping (already processed): Livraison XX.xlsx → ..."
+    const skippedMatches = [...output.matchAll(/Skipping \(already processed\): (.+?\.xlsx)/g)].map(m => m[1].trim());
 
-    summary.files = skipped ? [] : fileMatches.map((l, i) => {
-      const name = l.replace('✅ Downloaded: ', '').trim();
-      const sm = summaryMatches[i] && summaryMatches[i].match(/(\d+) emails sent, (\d+) failed/);
+    summary.files = skipped ? [] : fileMatches.map((name, i) => {
+      const sm = summaryMatches[i];
       return { name, emailsSent: sm ? parseInt(sm[1]) : 0, emailsFailed: sm ? parseInt(sm[2]) : 0 };
     });
     summary.mode = mode;
@@ -63,12 +63,16 @@ async function runRouting(mode) {
     const totalSent   = summary.files.reduce((s, f) => s + f.emailsSent,   0);
     const totalFailed = summary.files.reduce((s, f) => s + f.emailsFailed, 0);
 
+    const skippedDetail = alreadyDone && skippedMatches.length
+      ? `Already processed — skipping to avoid duplicate emails: ${skippedMatches.join(', ')}`
+      : alreadyDone
+        ? `All ${targetLabel}'s files already processed — skipping to avoid duplicate emails`
+        : `No matching file found on server for ${targetLabel}`;
+
     summary.steps.push({
       name: 'SFTP Download',
       status: skipped ? 'skipped' : 'ok',
-      detail: noFiles     ? `No matching file found on server for ${targetLabel}` :
-              alreadyDone ? `All ${targetLabel}'s files already processed — skipping to avoid duplicate emails` :
-                            `${fileMatches.length} file(s) downloaded`
+      detail: skipped ? skippedDetail : `${fileMatches.length} file(s) downloaded: ${fileMatches.join(', ')}`
     });
 
     if (!skipped) {
@@ -79,7 +83,7 @@ async function runRouting(mode) {
       summary.steps.push({
         name: 'Route Emails',
         status: totalFailed > 0 && totalSent === 0 ? 'error' : 'ok',
-        detail: `${totalSent} sent, ${totalFailed} failed (across ${fileMatches.length} file(s))`
+        detail: summary.files.map(f => `${f.name}: ${f.emailsSent} sent, ${f.emailsFailed} failed`).join(' | ')
       });
     }
   } catch (err) {

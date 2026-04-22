@@ -265,7 +265,7 @@ async function main() {
   console.log('  Manual Process — Routing & Report');
   console.log('========================================\n');
 
-  const action = (await ask('What do you want to do?\n  [1] Routing + send emails for any file\n  [2] Routing order for a past date (no emails)\n  [3] Report only for a specific file\n  [4] Routing for today\'s files (current day)\n  [5] Report for a specific date (batch)\nChoice (1/2/3/4/5): ')).trim();
+  const action = (await ask('What do you want to do?\n  [1] Routing + send emails for any file\n  [2] Routing order for a past date (no emails)\n  [3] Report only for a specific file\n  [4] Routing for today\'s files (current day)\n  [5] Report for a specific date (batch)\n  [6] Routing + emails for a specific date (batch)\nChoice (1/2/3/4/5/6): ')).trim();
 
   if (action === '1') {
     // ── Routing + emails for any file ──
@@ -420,6 +420,82 @@ async function main() {
 
     console.log(`\n${'='.repeat(70)}`);
     console.log(`📊 Batch Report Summary: ${successCount} succeeded, ${errorCount} failed`);
+    console.log('='.repeat(70));
+
+  } else if (action === '6') {
+    // ── Routing + emails for a specific date (batch) ──
+    const dateInput = (await ask('\nEnter the date (DD-MM-YYYY, e.g. 22-04-2026): ')).trim();
+    const dateMatch = dateInput.match(/(\d{2})-(\d{2})-(\d{4})/);
+    if (!dateMatch) {
+      console.log('❌ Invalid date format. Use DD-MM-YYYY.');
+      rl.close();
+      return;
+    }
+    const targetDateStr = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`; // YYYY-MM-DD
+
+    console.log(`\n🔍 Fetching files for ${dateInput} from SFTP server...`);
+    const sftp = new SftpClient();
+    await sftp.connect(sftpConfig);
+    const monthFolder = getMonthFolderName();
+    const monthPath = `/IN/${monthFolder}`;
+    const list = await sftp.list(monthPath);
+    await sftp.end();
+
+    const parseDateFromName = name => {
+      const m = name.match(/(\d{2})-(\d{2})-(\d{4})/);
+      return m ? `${m[3]}-${m[2]}-${m[1]}` : null;
+    };
+
+    const matchingFiles = list.filter(f =>
+      f.name.startsWith('Livraison') &&
+      f.name.match(/\.\d+\.xlsx$/) &&
+      parseDateFromName(f.name) === targetDateStr
+    ).map(f => f.name);
+
+    if (matchingFiles.length === 0) {
+      console.log(`ℹ️  No Livraison*.N.xlsx files found for ${dateInput}.`);
+      rl.close();
+      return;
+    }
+
+    console.log(`\n📅 Files for ${dateInput}:\n`);
+    matchingFiles.forEach((name, i) => console.log(`  [${i + 1}] ${name}`));
+    console.log(`  [0] All files`);
+
+    const pick = (await ask('\nWhich file(s) to process? (number or 0 for all): ')).trim();
+    const idx = parseInt(pick, 10);
+
+    let selected = [];
+    if (pick === '0') {
+      selected = matchingFiles;
+    } else if (!isNaN(idx) && idx >= 1 && idx <= matchingFiles.length) {
+      selected = [matchingFiles[idx - 1]];
+    } else {
+      console.log('❌ Invalid choice.');
+      rl.close();
+      return;
+    }
+
+    let successCount = 0, errorCount = 0;
+    for (const fileName of selected) {
+      try {
+        console.log(`\n📥 Downloading: ${fileName}`);
+        const localPath = await downloadFile(fileName);
+        if (!localPath) {
+          console.log(`❌ Could not download "${fileName}" — skipping.`);
+          errorCount++;
+          continue;
+        }
+        await runRoutingWithEmails(localPath);
+        successCount++;
+      } catch (err) {
+        console.error(`\n❌ Error processing ${fileName}: ${err.message}`);
+        errorCount++;
+      }
+    }
+
+    console.log(`\n${'='.repeat(70)}`);
+    console.log(`🔄 Batch Routing Summary: ${successCount} succeeded, ${errorCount} failed`);
     console.log('='.repeat(70));
 
   } else {

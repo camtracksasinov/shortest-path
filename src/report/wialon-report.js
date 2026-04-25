@@ -1313,7 +1313,9 @@ async function generateReport(targetFile = null, sendEmails = true) {
 if (require.main === module) {
   const fileArg = process.argv.find(a => a.startsWith('--file='))?.split('=').slice(1).join('=') ||
     (process.argv.indexOf('--file') !== -1 ? process.argv[process.argv.indexOf('--file') + 1] : null);
-  generateReport(fileArg);
+  generateReport(fileArg)
+    .then(() => process.exit(0))
+    .catch(err => { console.error('❌ Fatal:', err.message); process.exit(1); });
 }
 
 module.exports = { generateReport };

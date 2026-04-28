@@ -152,45 +152,8 @@ async function uploadFile(localPath) {
 }
 
 // ── Run routing + send emails to transporters (today's files) ────────────────
-async function runRoutingWithEmails(localPath) {
-  const fileName = path.basename(localPath);
-  console.log(`\n${'='.repeat(70)}`);
-  console.log(`📄 ROUTING (today): ${fileName}`);
-  console.log('='.repeat(70));
-
-  console.log('\n📍 Fetching coordinates from Wialon...');
-  const coordData = await parseExcelForCoordinates(localPath);
-  const zonesData = await matchCoordinates(coordData);
-
-  console.log('\n🗺️  Calculating optimal routes...');
-  const optimalRoutes = await calculateOptimalRoute(zonesData);
-
-  console.log('\n📝 Updating Excel with optimal order...');
-  const routesPath = path.join(DOWNLOADS, `optimal-routes-${path.basename(localPath, '.xlsx')}.json`);
-  fs.writeFileSync(routesPath, JSON.stringify(optimalRoutes, null, 2));
-  const updatedPath = await updateExcelWithRouteOrder(localPath, routesPath);
-
-  // Save active copy for Wialon notifications
-  const activePath = path.join(__dirname, 'active', path.basename(updatedPath));
-  fs.copyFileSync(updatedPath, activePath);
-  console.log(`  📋 Active copy saved: active/${path.basename(updatedPath)}`);
-
-  console.log('\n📤 Uploading updated file to SFTP...');
-  await uploadFile(updatedPath);
-
-  console.log('\n📧 Sending route emails to transporters...');
-  await processExcelAndSendEmails(updatedPath);
-
-  // Clean up
-  try { fs.unlinkSync(localPath); console.log(`  🗑️  Deleted: ${fileName}`); } catch (_) {}
-  try { fs.unlinkSync(routesPath); } catch (_) {}
-
-  console.log(`\n✅ Routing done. Updated file: ${path.basename(updatedPath)}\n`);
-  return updatedPath;
-}
-
-// ── Run routing only (no emails, no active copy) ──────────────────────────────
-async function runRoutingOnly(localPath) {
+// ── Run routing — sendEmails: whether to email transporters; isToday: save active copy ──
+async function runRouting(localPath, { sendEmails = true, isToday = false } = {}) {
   const fileName = path.basename(localPath);
   console.log(`\n${'='.repeat(70)}`);
   console.log(`📄 ROUTING: ${fileName}`);
@@ -208,16 +171,26 @@ async function runRoutingOnly(localPath) {
   fs.writeFileSync(routesPath, JSON.stringify(optimalRoutes, null, 2));
   const updatedPath = await updateExcelWithRouteOrder(localPath, routesPath);
 
+  if (isToday && sendEmails) {
+    const activePath = path.join(__dirname, 'active', path.basename(updatedPath));
+    fs.copyFileSync(updatedPath, activePath);
+    console.log(`  📋 Active copy saved: active/${path.basename(updatedPath)}`);
+  }
+
   console.log('\n📤 Uploading updated file to SFTP...');
   await uploadFile(updatedPath);
 
-  // Clean up: remove original downloaded file and its optimal-routes JSON
-  try { fs.unlinkSync(localPath); console.log(`  🗑️  Deleted: ${fileName}`); } catch (_) {}
-  const routesPath2 = path.join(DOWNLOADS, `optimal-routes-${path.basename(localPath, '.xlsx')}.json`);
-  try { fs.unlinkSync(routesPath2); } catch (_) {}
+  if (sendEmails) {
+    console.log('\n📧 Sending route emails to transporters...');
+    await processExcelAndSendEmails(updatedPath);
+  } else {
+    console.log('\nℹ️  Emails skipped.');
+  }
 
-  console.log(`\n✅ Routing done. Updated file: ${path.basename(updatedPath)}`);
-  console.log('ℹ️  No emails sent, no active copy saved (past date).\n');
+  try { fs.unlinkSync(localPath); console.log(`  🗑️  Deleted: ${fileName}`); } catch (_) {}
+  try { fs.unlinkSync(routesPath); } catch (_) {}
+
+  console.log(`\n✅ Routing done. Updated file: ${path.basename(updatedPath)}\n`);
   return updatedPath;
 }
 
@@ -265,7 +238,7 @@ async function main() {
   console.log('  Manual Process — Routing & Report');
   console.log('========================================\n');
 
-  const action = (await ask('What do you want to do?\n  [1] Routing + send emails for any file\n  [2] Routing order for a past date (no emails)\n  [3] Report only for a specific file\n  [4] Routing for today\'s files (current day)\n  [5] Report for a specific date (batch)\n  [6] Routing + emails for a specific date (batch)\nChoice (1/2/3/4/5/6): ')).trim();
+  const action = (await ask('What do you want to do?\n  [1] Routing for any file (choose send emails or not)\n  [2] Routing order for a past date (no emails)\n  [3] Report only for a specific file\n  [4] Routing for today\'s files (current day)\n  [5] Report for a specific date (batch)\n  [6] Routing for a specific date (batch)\nChoice (1/2/3/4/5/6): ')).trim();
 
   if (action === '1') {
     // ── Routing + emails for any file ──
@@ -280,7 +253,8 @@ async function main() {
     }
     console.log(`✅ Downloaded: ${fileName}\n`);
 
-    await runRoutingWithEmails(localPath);
+    const sendEmails1 = (await ask('📧 Send emails to transporters? (yes/no): ')).trim().toLowerCase();
+    await runRouting(localPath, { sendEmails: sendEmails1 === 'yes' || sendEmails1 === 'y' });
 
   } else if (action === '2') {
     // ── Routing only (past date, no emails) ──
@@ -295,7 +269,7 @@ async function main() {
     }
     console.log(`✅ Downloaded: ${fileName}\n`);
 
-    const updatedPath = await runRoutingOnly(localPath);
+    const updatedPath = await runRouting(localPath, { sendEmails: false });
     await askReport(updatedPath);
 
   } else if (action === '3') {
@@ -335,6 +309,9 @@ async function main() {
       return;
     }
 
+    const sendEmails4 = (await ask('\n📧 Send emails to transporters? (yes/no): ')).trim().toLowerCase();
+    const doSendEmails4 = sendEmails4 === 'yes' || sendEmails4 === 'y';
+
     for (const fileName of selected) {
       console.log(`\n📥 Downloading: ${fileName}`);
       const localPath = await downloadFile(fileName);
@@ -342,7 +319,7 @@ async function main() {
         console.log(`❌ Could not download "${fileName}" — skipping.`);
         continue;
       }
-      await runRoutingWithEmails(localPath);
+      await runRouting(localPath, { sendEmails: doSendEmails4, isToday: true });
     }
 
   } else if (action === '5') {
@@ -476,6 +453,9 @@ async function main() {
       return;
     }
 
+    const sendEmails6 = (await ask('\n📧 Send emails to transporters? (yes/no): ')).trim().toLowerCase();
+    const doSendEmails6 = sendEmails6 === 'yes' || sendEmails6 === 'y';
+
     let successCount = 0, errorCount = 0;
     for (const fileName of selected) {
       try {
@@ -486,7 +466,7 @@ async function main() {
           errorCount++;
           continue;
         }
-        await runRoutingWithEmails(localPath);
+        await runRouting(localPath, { sendEmails: doSendEmails6 });
         successCount++;
       } catch (err) {
         console.error(`\n❌ Error processing ${fileName}: ${err.message}`);

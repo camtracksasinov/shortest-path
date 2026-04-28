@@ -846,6 +846,9 @@ function applyRealOrderAdjustment(data, vehicleResultsMap) {
 }
 
 async function generateReport(targetFile = null, sendEmails = true) {
+  const succeeded = [];
+  const failed    = [];
+
   try {
     let downloadedFiles;
     if (targetFile) {
@@ -861,6 +864,8 @@ async function generateReport(targetFile = null, sendEmails = true) {
     const allVehicles = await getVehicles();
     
     for (const downloadedFile of downloadedFiles) {
+      const fileName = path.basename(downloadedFile);
+      try {
       console.log(`\n${'='.repeat(100)}`);
       console.log(`📄 Processing: ${path.basename(downloadedFile)}`);
       console.log('='.repeat(100));
@@ -1297,16 +1302,37 @@ async function generateReport(targetFile = null, sendEmails = true) {
     if (!targetFile) {
       try { fs.unlinkSync(downloadedFile); console.log(`  🗑️  Deleted local input: ${path.basename(downloadedFile)}`); } catch (_) {}
     }
+
+    succeeded.push(fileName);
+    console.log(`✅ File succeeded: ${fileName}`);
+
+      } catch (fileError) {
+        const errMsg = fileError.message || String(fileError);
+        console.error(`❌ Error processing ${fileName}:`, errMsg);
+        failed.push({ name: fileName, error: errMsg });
+        // Send per-file error notification and continue with remaining files
+        try {
+          const { sendFileErrorEmail } = require('./notify');
+          await sendFileErrorEmail(fileName, errMsg);
+        } catch (mailErr) {
+          console.error('❌ Could not send error email:', mailErr.message);
+        }
+      }
     }
     
   } catch (error) {
-    console.error('❌ Error:', error.message);
-    if (error.response) {
-      console.error('Response:', error.response.data);
-    }
+    console.error('❌ Fatal error:', error.message);
+    if (error.response) console.error('Response:', error.response.data);
   } finally {
     try { if (sftp.sftp) await sftp.end(); } catch (_) {}
   }
+
+  // Final summary
+  console.log('\n📋 Report run summary:');
+  console.log(`  ✅ Succeeded (${succeeded.length}): ${succeeded.join(', ') || 'none'}`);
+  console.log(`  ❌ Failed    (${failed.length}): ${failed.map(f => f.name).join(', ') || 'none'}`);
+
+  return { succeeded, failed };
 }
 
 // Run the report

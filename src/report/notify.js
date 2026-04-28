@@ -46,8 +46,9 @@ async function sendWarningEmail(type, scheduledTimeMadagascar) {
 
 // ── 2. Start email ────────────────────────────────────────────────────────────
 // mode: 'morning' | 'afternoon' | undefined (for report)
-async function sendProcessStartEmail(type, mode) {
+async function sendProcessStartEmail(type, mode, roundLabel) {
   const label = type === 'report' ? '📊 Report' : '🔄 Routing';
+  const roundLine = roundLabel ? `<p><strong>Round:</strong> ${roundLabel}</p>` : '';
   const sessionLine = type === 'routing' && mode
     ? `<p><strong>Session:</strong> ${
         mode === 'morning'
@@ -60,6 +61,7 @@ async function sendProcessStartEmail(type, mode) {
     `🚀 ${label} — Process Started`,
     `<p>Hello,</p>
      <p>The <strong>${label}</strong> process has just <strong>started</strong>.</p>
+     ${roundLine}
      ${sessionLine}
      <table style="border-collapse:collapse;font-size:14px">
        <tr><td style="padding:4px 12px 4px 0"><strong>Started at — Madagascar</strong></td><td>${nowMadagascar()}</td></tr>
@@ -72,10 +74,11 @@ async function sendProcessStartEmail(type, mode) {
 
 // ── 3. End email — full resume ────────────────────────────────────────────────
 // summary = { steps: [{ name, status: 'ok'|'skipped'|'error', detail }], files: [], mode? }
-async function sendProcessEndEmail(type, summary) {
+async function sendProcessEndEmail(type, summary, roundLabel) {
   const label  = type === 'report' ? '📊 Report' : '🔄 Routing';
   const allOk  = summary.steps.every(s => s.status !== 'error');
   const icon   = allOk ? '✅' : '⚠️';
+  const roundLine = roundLabel ? `<p><strong>Round:</strong> ${roundLabel}</p>` : '';
   const sessionLine = type === 'routing' && summary.mode
     ? `<p><strong>Session:</strong> ${
         summary.mode === 'morning'
@@ -100,19 +103,17 @@ async function sendProcessEndEmail(type, summary) {
          <thead>
            <tr style="background:#f5f5f5">
              <th style="padding:5px 14px 5px 0;text-align:left">File</th>
-             <th style="padding:5px 14px 5px 0;text-align:center">✅ Emails sent</th>
-             <th style="padding:5px 0;text-align:center">❌ Failed</th>
+             <th style="padding:5px 0;text-align:left">Status</th>
            </tr>
          </thead>
          <tbody>${summary.files.map(f => {
-           const name   = typeof f === 'object' ? f.name        : f;
-           const sent   = typeof f === 'object' ? f.emailsSent  : '—';
-           const failed = typeof f === 'object' ? f.emailsFailed : '—';
-           const failColor = failed > 0 ? 'color:#c62828;font-weight:bold' : '';
+           const name   = typeof f === 'object' ? f.name   : f;
+           const status = typeof f === 'object' && f.status ? f.status
+             : typeof f === 'object' ? `✅ ${f.emailsSent ?? ''} sent / ❌ ${f.emailsFailed ?? ''} failed` : '✅';
+           const isErr  = status.startsWith('❌');
            return `<tr>
              <td style="padding:5px 14px 5px 0">${name}</td>
-             <td style="padding:5px 14px 5px 0;text-align:center;color:#2e7d32;font-weight:bold">${sent}</td>
-             <td style="padding:5px 0;text-align:center;${failColor}">${failed}</td>
+             <td style="padding:5px 0;${isErr ? 'color:#c62828;font-weight:bold' : 'color:#2e7d32;font-weight:bold'}">${status}</td>
            </tr>`;
          }).join('')}</tbody>
        </table>`
@@ -122,6 +123,7 @@ async function sendProcessEndEmail(type, summary) {
     `${icon} ${label} — Process Completed`,
     `<p>Hello,</p>
      <p>The <strong>${label}</strong> process has <strong>completed</strong>.</p>
+     ${roundLine}
      ${sessionLine}
      <table style="border-collapse:collapse;font-size:14px">
        <tr><td style="padding:4px 12px 4px 0"><strong>Completed at — Madagascar</strong></td><td>${nowMadagascar()}</td></tr>
